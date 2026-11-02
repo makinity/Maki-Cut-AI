@@ -167,6 +167,7 @@ def produce_video(
     add_sfx_layers: bool = typer.Option(True, "--sfx/--no-sfx", help="Layer sound effects"),
     add_bgm_track: bool = typer.Option(True, "--bgm/--no-bgm", help="Mix background music with voice ducking"),
     apply_grade: bool = typer.Option(True, "--grade/--no-grade", help="Apply aesthetic color grading"),
+    normalize_loudness: bool = typer.Option(True, "--normalize-loudness/--no-normalize-loudness", help="Normalize audio to broadcast -14 LUFS"),
     custom_pinpoints: Optional[str] = typer.Option(None, "--pinpoints", help="Context emphasis keywords (e.g. 'growth,sales,secret')"),
     custom_caption_style: Optional[str] = typer.Option(None, "--caption-style", help="Override subtitle style (hormozi, neon_green, clean_white)"),
     custom_grade: Optional[str] = typer.Option(None, "--grade-preset", help="Override color grade (vibrant_pop, warm_golden, moody_dark)"),
@@ -389,6 +390,17 @@ def produce_video(
     else:
         import shutil
         shutil.copy2(current_video, output_file)
+
+    if normalize_loudness:
+        norm_output = temp_dir / "step8_normalized.mp4"
+        run_step([
+            str(SCRIPT_DIR / "normalize_loudness.py"), "normalize",
+            "-i", str(output_file),
+            "-o", str(norm_output),
+            "-t", "-14.0"
+        ], "Applying EBU R128 (-14 LUFS) broadcast loudness normalization")
+        import shutil
+        shutil.copy2(norm_output, output_file)
 
     try:
         import shutil

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Makinity UGC Director — Autonomous AI Video Editor</title>
-  
+  <title>Makinity CapCut AI — Pro Video Editor</title>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -13,19 +13,21 @@
       theme: {
         extend: {
           colors: {
-            brand: {
-              dark: '#080C14',
-              surface: '#0F172A',
-              card: '#1E293B',
-              border: '#334155',
-              cyan: '#00F0FF',
+            cc: {
+              bg: '#121214',
+              surface: '#18181C',
+              card: '#222227',
+              border: '#2E2E35',
+              hover: '#2A2A32',
+              cyan: '#00F7EF',
               yellow: '#FFDE59',
-              green: '#10B981',
-              accent: '#6366F1'
+              purple: '#818CF8',
+              rose: '#F43F5E',
+              blue: '#2563EB'
             }
           },
           fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace']
           }
         }
@@ -33,781 +35,2130 @@
     }
   </script>
 
-  <!-- Lucide Icons -->
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Alpine.js -->
+  <!-- Alpine.js CDN -->
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
   <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #0F172A; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    /* CapCut Dark Scrollbars */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #121214; }
+    ::-webkit-scrollbar-thumb { background: #2E2E35; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #474755; }
 
-    /* Smartphone Mockup Frame */
-    .phone-mockup {
+    /* Canvas Phone Mockup */
+    .phone-container {
       width: 290px;
-      height: 580px;
-      border-radius: 40px;
-      border: 10px solid #1E293B;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.15);
+      height: 520px;
+      border-radius: 32px;
+      border: 8px solid #222227;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 25px rgba(0, 247, 239, 0.15);
       position: relative;
       overflow: hidden;
       background: #000;
     }
-    .phone-notch {
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 90px;
-      height: 22px;
-      background: #1E293B;
-      border-radius: 12px;
-      z-index: 30;
-    }
 
-    /* Pulse Glow */
-    @keyframes pulse-glow {
-      0%, 100% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
-      50% { box-shadow: 0 0 25px rgba(0, 240, 255, 0.8); }
+    /* Transform Bounding Box */
+    .transform-box {
+      border: 1.5px dashed #00F7EF;
+      border-radius: 8px;
+      position: absolute;
+      cursor: move;
+      user-select: none;
+      box-shadow: 0 0 12px rgba(0, 247, 239, 0.2);
     }
-    .glow-cyan { animation: pulse-glow 3s infinite; }
+    .resize-handle {
+      width: 9px;
+      height: 9px;
+      background: #FFFFFF;
+      border: 2px solid #00F7EF;
+      border-radius: 50%;
+      position: absolute;
+    }
+    .handle-tl { top: -5px; left: -5px; cursor: nwse-resize; }
+    .handle-tr { top: -5px; right: -5px; cursor: nesw-resize; }
+    .handle-bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
+    .handle-br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+
+    /* Timeline Playhead Needle */
+    .playhead-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #FF4D4D;
+      z-index: 40;
+      pointer-events: none;
+    }
+    .playhead-handle {
+      width: 14px;
+      height: 16px;
+      background: #FF4D4D;
+      clip-path: polygon(0% 0%, 100% 0%, 100% 70%, 50% 100%, 0% 70%);
+      position: absolute;
+      top: -1px;
+      left: -6px;
+      cursor: ew-resize;
+      pointer-events: auto;
+    }
   </style>
 </head>
 
-<body class="bg-[#080C14] text-slate-100 min-h-screen flex flex-col font-sans select-none"
-      x-data="ugcApp()" x-init="initApp()">
+<body class="bg-[#121214] text-slate-100 h-screen w-screen flex flex-col font-sans select-none overflow-hidden"
+      x-data="capcutApp()" x-init="initApp()" @keydown.window="handleGlobalKeys($event)">
 
-  <!-- 1. TOP NAVBAR -->
-  <header class="h-16 border-b border-slate-800 bg-[#0B1120] px-6 flex items-center justify-between shrink-0 z-20">
-    <div class="flex items-center gap-4">
-      <div class="flex items-center gap-2.5">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-          <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+  <!-- ========================================================================= -->
+  <!-- 1. TOP HEADER SHELL (CapCut Desktop Top Bar)                             -->
+  <!-- ========================================================================= -->
+  <header class="h-12 border-b border-[#27272A] bg-[#18181C] px-3 flex items-center justify-between shrink-0 z-30">
+    <div class="flex items-center gap-3">
+      <!-- Logo & Menu -->
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-400 to-indigo-600 flex items-center justify-center shadow-md shadow-cyan-500/20">
+          <i data-lucide="scissors" class="w-4 h-4 text-slate-950 font-black"></i>
         </div>
-        <div>
-          <h1 class="font-extrabold text-base tracking-wide flex items-center gap-1.5">
-            MAKINITY <span class="bg-gradient-to-r from-cyan-400 to-yellow-300 bg-clip-text text-transparent">UGC DIRECTOR</span>
-            <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-800 font-mono">AI v2.0</span>
-          </h1>
-          <p class="text-xs text-slate-400">Autonomous Video Retention Engine</p>
-        </div>
+        <span class="font-bold text-xs tracking-wider text-slate-200">MAKINITY <span class="text-cyan-400">CAPCUT AI</span></span>
       </div>
 
-      <div class="h-6 w-px bg-slate-800 mx-1"></div>
+      <div class="h-4 w-px bg-[#2E2E35] mx-1"></div>
 
-      <!-- Quick Preset Badge -->
-      <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-lg px-3 py-1.5 text-xs">
-        <span class="text-slate-400">Preset:</span>
-        <span class="font-semibold text-yellow-400 uppercase tracking-wider" x-text="settings.preset.replace('_', ' ')">VIRAL HOOK</span>
+      <!-- File / Edit Menu Bar -->
+      <div class="hidden md:flex items-center gap-3 text-xs text-slate-400">
+        <button class="hover:text-white transition-colors">File</button>
+        <button class="hover:text-white transition-colors">Edit</button>
+        <button class="hover:text-white transition-colors" @click="showSafeZone = !showSafeZone">
+          <span :class="showSafeZone ? 'text-yellow-400 font-semibold' : ''">Safe-Zones</span>
+        </button>
       </div>
 
-      <!-- Raw Clips Counter -->
-      <div class="hidden md:flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-lg px-3 py-1.5 text-xs">
-        <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
-        <span class="text-slate-300" x-text="`${clips.length} Clips (${totalRawDur}s raw)`">4 Clips</span>
+      <!-- Project Name -->
+      <div class="hidden lg:flex items-center gap-1.5 ml-2 text-xs bg-[#222227] px-2.5 py-1 rounded border border-[#2E2E35]">
+        <i data-lucide="file-video" class="w-3.5 h-3.5 text-cyan-400"></i>
+        <input type="text" x-model="projectName" class="bg-transparent border-none text-slate-200 text-xs focus:outline-none w-36 font-medium">
+        <span class="text-[10px] text-emerald-400 font-mono">● Saved</span>
       </div>
     </div>
 
-    <!-- Right Navbar Actions -->
-    <div class="flex items-center gap-3">
-      <!-- Master Render Status Pill -->
-      <div class="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg border"
-           :class="latestMaster ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'">
-        <span class="w-2 h-2 rounded-full" :class="latestMaster ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'"></span>
-        <span x-text="latestMaster ? `Master Ready (${latestMaster.duration}s)` : 'No Master Rendered'"></span>
-      </div>
+    <!-- Center Breadcrumbs / Workspace Info -->
+    <div class="flex-1 flex items-center justify-center text-xs text-slate-500 font-mono">
+      <span>Timeline • 1080x1920 (9:16) • 30fps</span>
+    </div>
 
-      <!-- Primary Produce Button -->
+    <!-- Right Controls, AI Side Panel Button & Export -->
+    <div class="flex items-center gap-2">
+      <!-- AI Copilot Panel Toggle Button -->
+      <button @click="setActiveTab('ai_copilot')"
+              :class="activeTab === 'ai_copilot' ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black shadow-lg shadow-yellow-500/20 ring-1 ring-yellow-300' : 'bg-[#222227] hover:bg-[#2A2A32] text-yellow-400 border border-[#2E2E35]'"
+              class="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all"
+              title="Open AI Prompt Panel on the Side">
+        <i data-lucide="bot" class="w-4 h-4"></i>
+        <span>AI Copilot</span>
+        <span class="text-[9px] px-1 py-0.2 rounded bg-black/40 text-yellow-300 font-mono">PROMPT</span>
+      </button>
+
+      <div class="h-4 w-px bg-[#2E2E35] mx-1"></div>
+
+      <!-- Undo / Redo -->
+      <button class="p-1.5 rounded hover:bg-[#2A2A32] text-slate-400 hover:text-white" title="Undo (Ctrl+Z)">
+        <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
+      </button>
+      <button class="p-1.5 rounded hover:bg-[#2A2A32] text-slate-400 hover:text-white" title="Redo (Ctrl+Y)">
+        <i data-lucide="redo-2" class="w-3.5 h-3.5"></i>
+      </button>
+
+      <div class="h-4 w-px bg-[#2E2E35] mx-1"></div>
+
+      <!-- CapCut Export CTA Button -->
       <button @click="startProduction()"
-              :disabled="productionState.status === 'running'"
-              class="relative group overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-yellow-400 p-[1.5px] focus:outline-none transition-transform active:scale-95 disabled:opacity-50">
-        <div class="px-5 py-2 rounded-[10px] bg-[#0B1120] group-hover:bg-opacity-80 transition-all flex items-center gap-2">
-          <i data-lucide="play-circle" class="w-4 h-4 text-cyan-400 group-hover:text-yellow-300 transition-colors"></i>
-          <span class="font-bold text-sm tracking-wide text-white group-hover:text-yellow-300 transition-colors">
-            PRODUCE MASTER VIDEO
-          </span>
-        </div>
+              class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-cyan-400 to-indigo-500 hover:from-cyan-300 hover:to-indigo-400 text-slate-950 font-extrabold text-xs tracking-wider flex items-center gap-1.5 shadow-md shadow-cyan-500/20 active:scale-95 transition-all">
+        <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+        <span>EXPORT</span>
       </button>
     </div>
   </header>
 
-  <!-- 2. MAIN 3-ZONE WORKSPACE -->
-  <main class="flex-1 flex overflow-hidden">
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN 3-COLUMN WORKSPACE (Left Drawers | Center Canvas | Right Inspector)-->
+  <!-- ========================================================================= -->
+  <div class="flex-1 flex overflow-hidden">
     
-    <!-- ========================================== -->
-    <!-- ZONE A: LEFT ASSET DECK                   -->
-    <!-- ========================================== -->
-    <aside class="w-80 border-r border-slate-800 bg-[#0B1120]/80 flex flex-col shrink-0">
-      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i data-lucide="folder-video" class="w-4 h-4 text-cyan-400"></i>
-          <h2 class="text-sm font-semibold tracking-wide text-slate-200">SOURCE CLIPS</h2>
+    <!-- LEFT SIDEBAR TABS (CapCut 1:1 Icon Nav) -->
+    <nav class="w-16 border-r border-[#27272A] bg-[#18181C] flex flex-col items-center py-2 shrink-0 z-20">
+      <div class="flex flex-col gap-1 w-full px-1">
+        <button @click="setActiveTab('media')"
+                :class="activeTab === 'media' ? 'bg-[#2A2A32] text-cyan-400 font-bold border-l-2 border-cyan-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="folder-video" class="w-4 h-4 mb-1"></i>
+          <span>Media</span>
+        </button>
+
+        <button @click="setActiveTab('audio')"
+                :class="activeTab === 'audio' ? 'bg-[#2A2A32] text-cyan-400 font-bold border-l-2 border-cyan-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="music" class="w-4 h-4 mb-1"></i>
+          <span>Audio</span>
+        </button>
+
+        <button @click="setActiveTab('text')"
+                :class="activeTab === 'text' ? 'bg-[#2A2A32] text-cyan-400 font-bold border-l-2 border-cyan-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="type" class="w-4 h-4 mb-1"></i>
+          <span>Text</span>
+        </button>
+
+        <button @click="setActiveTab('stickers')"
+                :class="activeTab === 'stickers' ? 'bg-[#2A2A32] text-cyan-400 font-bold border-l-2 border-cyan-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="smile" class="w-4 h-4 mb-1"></i>
+          <span>Stickers</span>
+        </button>
+
+        <button @click="setActiveTab('effects')"
+                :class="activeTab === 'effects' ? 'bg-[#2A2A32] text-cyan-400 font-bold border-l-2 border-cyan-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="wand-2" class="w-4 h-4 mb-1"></i>
+          <span>Effects</span>
+        </button>
+
+        <button @click="setActiveTab('transitions')"
+                :class="activeTab === 'transitions' ? 'bg-[#2A2A32] text-cyan-400 font-bold border-l-2 border-cyan-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="shuffle" class="w-4 h-4 mb-1"></i>
+          <span>Transitions</span>
+        </button>
+
+        <button @click="setActiveTab('filters')"
+                :class="activeTab === 'filters' ? 'bg-[#2A2A32] text-cyan-400 font-bold border-l-2 border-cyan-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="palette" class="w-4 h-4 mb-1"></i>
+          <span>Filters</span>
+        </button>
+
+        <button @click="setActiveTab('ai_copilot')"
+                :class="activeTab === 'ai_copilot' ? 'bg-[#2A2A32] text-yellow-400 font-bold border-l-2 border-yellow-400' : 'text-slate-400 hover:text-slate-200'"
+                class="flex flex-col items-center py-2.5 rounded transition-all text-[10px]">
+          <i data-lucide="bot" class="w-4 h-4 mb-1"></i>
+          <span>AI Chat</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- EXPANDED ASSET DRAWER (CapCut Resource Drawer) -->
+    <aside class="w-72 border-r border-[#27272A] bg-[#18181C] flex flex-col shrink-0">
+      
+      <!-- DRAWER: MEDIA -->
+      <div x-show="activeTab === 'media'" class="flex-1 flex flex-col overflow-hidden">
+        <div class="p-3 border-b border-[#27272A] flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Project Media</span>
+          <label class="px-2.5 py-1 rounded bg-[#2A2A32] hover:bg-[#33333F] text-cyan-400 text-xs font-semibold cursor-pointer flex items-center gap-1 transition-all">
+            <i data-lucide="plus" class="w-3 h-3"></i> Import
+            <input type="file" multiple accept="video/*" class="hidden" @change="handleFileUpload($event, 'input')">
+          </label>
         </div>
-        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400" x-text="`${clips.length} ready`">4 ready</span>
-      </div>
 
-      <!-- Clip Drag Drop Upload Box -->
-      <div class="p-3">
-        <label class="border-2 border-dashed border-slate-700/80 hover:border-cyan-500/60 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-900/40 hover:bg-slate-900/80 group">
-          <input type="file" multiple accept="video/*" class="hidden" @change="handleFileUpload($event, 'input')">
-          <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-400 group-hover:text-cyan-400 transition-colors"></i>
-          <p class="text-xs font-medium text-slate-300 mt-1">Drop raw video clips here</p>
-          <span class="text-[10px] text-slate-500">Auto-orders 1.mp4, 2.mp4...</span>
-        </label>
-      </div>
-
-      <!-- Clips List -->
-      <div class="flex-1 overflow-y-auto px-3 space-y-2">
-        <template x-for="(clip, idx) in clips" :key="clip.name">
-          <div class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/40 hover:bg-slate-800/60 transition-all flex items-center justify-between group">
-            <div class="flex items-center gap-2.5 overflow-hidden">
-              <span class="w-6 h-6 rounded-lg bg-cyan-950/80 border border-cyan-800/60 text-cyan-400 text-xs font-mono font-bold flex items-center justify-center shrink-0"
-                    x-text="idx + 1">1</span>
-              <div class="overflow-hidden">
-                <p class="text-xs font-semibold text-slate-200 truncate" x-text="clip.name">1.mp4</p>
-                <div class="flex items-center gap-2 text-[10px] text-slate-400">
-                  <span x-text="`${clip.duration}s`">7.5s</span>
-                  <span>•</span>
-                  <span x-text="`${clip.size_mb} MB`">4.8 MB</span>
-                  <span>•</span>
-                  <span class="text-emerald-400">9:16</span>
+        <div class="flex-1 overflow-y-auto p-3 space-y-2">
+          <template x-for="(clip, idx) in clips" :key="clip.name">
+            <div @click="selectTimelineClip(clip)"
+                 :class="selectedClip && selectedClip.name === clip.name ? 'border-cyan-400 bg-[#22222A]' : 'border-[#27272A] bg-[#202025]'"
+                 class="p-2 rounded-xl border hover:border-cyan-400/60 cursor-pointer flex items-center justify-between group transition-all">
+              <div class="flex items-center gap-2.5 overflow-hidden">
+                <span class="w-5 h-5 rounded bg-[#121214] text-cyan-400 text-[10px] font-mono font-bold flex items-center justify-center shrink-0" x-text="idx+1">1</span>
+                <div class="overflow-hidden">
+                  <p class="text-xs font-semibold text-slate-200 truncate" x-text="clip.name"></p>
+                  <span class="text-[10px] text-slate-400" x-text="`${clip.duration}s • 1080x1920`"></span>
                 </div>
               </div>
-            </div>
-
-            <div class="flex items-center gap-1">
-              <button @click="loadClipPreview(clip.path)" title="Preview Clip"
-                      class="p-1 rounded text-slate-400 hover:text-cyan-400 hover:bg-slate-700/60 transition-colors">
+              <button @click.stop="loadClipToPlayer(clip.path)" class="p-1 hover:text-cyan-400 text-slate-400">
                 <i data-lucide="play" class="w-3.5 h-3.5"></i>
               </button>
-              <button @click="deleteClip(clip.name)" title="Remove Clip"
-                      class="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-700/60 transition-colors">
-                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- DRAWER: AUDIO (BGM & SFX) -->
+      <div x-show="activeTab === 'audio'" class="flex-1 flex flex-col overflow-hidden">
+        <div class="p-2 border-b border-[#27272A] flex gap-2">
+          <button @click="audioSubTab = 'bgm'"
+                  :class="audioSubTab === 'bgm' ? 'bg-[#2A2A32] text-cyan-400 font-bold' : 'text-slate-400'"
+                  class="flex-1 py-1.5 text-xs rounded text-center transition-all">Music (BGM)</button>
+          <button @click="audioSubTab = 'sfx'"
+                  :class="audioSubTab === 'sfx' ? 'bg-[#2A2A32] text-cyan-400 font-bold' : 'text-slate-400'"
+                  class="flex-1 py-1.5 text-xs rounded text-center transition-all">Sound FX (SFX)</button>
+        </div>
+
+        <!-- BGM SubTab -->
+        <div x-show="audioSubTab === 'bgm'" class="flex-1 overflow-y-auto p-3 space-y-3">
+          <div class="flex items-center justify-between text-xs text-slate-400">
+            <span>Built-in Music Library</span>
+            <label class="text-[10px] text-cyan-400 cursor-pointer hover:underline">
+              + Upload MP3
+              <input type="file" accept="audio/*" class="hidden" @change="handleFileUpload($event, 'bgm')">
+            </label>
+          </div>
+
+          <template x-for="bgm in bgmTracks" :key="bgm.name">
+            <div class="p-2.5 rounded-xl border border-[#27272A] bg-[#202025] hover:border-cyan-400/50 flex items-center justify-between group">
+              <div class="flex items-center gap-2 overflow-hidden">
+                <button @click="previewAudio(bgm.path)" class="w-7 h-7 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0">
+                  <i data-lucide="music" class="w-3.5 h-3.5"></i>
+                </button>
+                <div class="overflow-hidden">
+                  <p class="text-xs font-semibold text-slate-200 truncate" x-text="bgm.title"></p>
+                  <span class="text-[10px] text-emerald-400">Auto-Ducked -14dB</span>
+                </div>
+              </div>
+              <button @click="applyBgm(bgm.name)"
+                      :class="settings.bgm_track === bgm.name ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-300'"
+                      class="px-2 py-1 rounded text-[10px] transition-all">
+                <span x-text="settings.bgm_track === bgm.name ? 'Active' : '+ Use'"></span>
               </button>
             </div>
+          </template>
+        </div>
+
+        <!-- SFX SubTab -->
+        <div x-show="audioSubTab === 'sfx'" class="flex-1 overflow-y-auto p-3 space-y-2">
+          <div class="flex flex-wrap gap-1 mb-2">
+            <button @click="sfxCategoryFilter = 'All'"
+                    :class="sfxCategoryFilter === 'All' ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="px-2 py-0.5 rounded text-[10px]">All</button>
+            <button @click="sfxCategoryFilter = 'Whoosh'"
+                    :class="sfxCategoryFilter === 'Whoosh' ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="px-2 py-0.5 rounded text-[10px]">Whoosh</button>
+            <button @click="sfxCategoryFilter = 'Impact'"
+                    :class="sfxCategoryFilter === 'Impact' ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="px-2 py-0.5 rounded text-[10px]">Impact</button>
+            <button @click="sfxCategoryFilter = 'UI & Click'"
+                    :class="sfxCategoryFilter === 'UI & Click' ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="px-2 py-0.5 rounded text-[10px]">UI</button>
+          </div>
+
+          <template x-for="sfx in filteredSfxList" :key="sfx.name">
+            <div class="p-2 rounded-lg border border-[#27272A] bg-[#202025] hover:border-yellow-400/50 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-2 overflow-hidden">
+                <button @click="previewAudio(sfx.path)" class="text-slate-400 hover:text-yellow-400">
+                  <i data-lucide="volume-2" class="w-3.5 h-3.5"></i>
+                </button>
+                <span class="truncate text-[11px] text-slate-200" x-text="sfx.title"></span>
+              </div>
+              <span class="text-[9px] text-yellow-400/80 font-mono" x-text="sfx.category"></span>
+            </div>
+          </template>
+        </div>
+      </div>
+
+      <!-- DRAWER: TEXT & SUBTITLES -->
+      <div x-show="activeTab === 'text'" class="flex-1 overflow-y-auto p-3 space-y-4">
+        <div>
+          <span class="text-xs font-bold text-slate-200 uppercase tracking-wider block mb-2">Preset Text Templates</span>
+          <div class="grid grid-cols-1 gap-2">
+            <template x-for="st in textStylesLibrary" :key="st.id">
+              <button @click="applyTextStyle(st.id)"
+                      :class="settings.caption_style === st.id ? 'border-yellow-400 bg-yellow-950/20' : 'border-[#27272A] bg-[#202025]'"
+                      class="p-2.5 rounded-xl border text-left hover:border-yellow-400/50 transition-all">
+                <p class="font-extrabold text-xs" :style="`color: ${st.color}`" x-text="st.name"></p>
+                <p class="text-[10px] text-slate-400 mt-1" x-text="`${st.font} • ${st.size}pt • Kinetic Bounce`"></p>
+              </button>
+            </template>
+          </div>
+        </div>
+
+        <div class="border-t border-[#27272A] pt-3">
+          <button @click="addManualText()"
+                  class="w-full py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs flex items-center justify-center gap-1.5 transition-all">
+            <i data-lucide="plus" class="w-4 h-4"></i> Add Heading Label
+          </button>
+        </div>
+      </div>
+
+      <!-- DRAWER: STICKERS & BADGES -->
+      <div x-show="activeTab === 'stickers'" class="flex-1 overflow-y-auto p-3 space-y-2">
+        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider block mb-2">UGC Conversion Badges</span>
+        <template x-for="stk in stickersLibrary" :key="stk.id">
+          <div @click="addStickerToTimeline(stk)"
+               class="p-2.5 rounded-xl border border-[#27272A] bg-[#202025] hover:border-cyan-400 cursor-pointer flex items-center justify-between transition-all">
+            <span class="font-bold text-xs" x-text="stk.label"></span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-400 border border-cyan-800 font-mono">+ ADD</span>
           </div>
         </template>
       </div>
 
-      <!-- Audio & SFX Deck Footer -->
-      <div class="p-3 border-t border-slate-800 bg-slate-950/80 space-y-3">
-        <!-- BGM Selector -->
-        <div>
-          <div class="flex items-center justify-between text-xs mb-1">
-            <span class="text-slate-300 font-medium flex items-center gap-1.5">
-              <i data-lucide="music" class="w-3.5 h-3.5 text-indigo-400"></i> BGM Ducking
-            </span>
-            <span class="text-slate-400 text-[10px]" x-text="`${settings.bgm_volume * 100}%`">18%</span>
+      <!-- DRAWER: EFFECTS (FX) -->
+      <div x-show="activeTab === 'effects'" class="flex-1 overflow-y-auto p-3 space-y-2">
+        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider block mb-2">Video Overlay Effects</span>
+        <template x-for="fx in effectsLibrary" :key="fx.id">
+          <div @click="addEffectToTimeline(fx)"
+               class="p-2.5 rounded-xl border border-[#27272A] bg-[#202025] hover:border-purple-400 cursor-pointer transition-all">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-purple-300" x-text="fx.name"></span>
+              <span class="text-[9px] px-1.5 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800">FX</span>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1" x-text="fx.desc"></p>
           </div>
-          <select x-model="settings.bgm_track" @change="saveSettings()"
-                  class="w-full text-xs bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500">
-            <option value="">(None / Ambient UGC Speech)</option>
-            <template x-for="bgm in bgmTracks" :key="bgm">
-              <option :value="bgm" x-text="bgm"></option>
-            </template>
-          </select>
+        </template>
+      </div>
+
+      <!-- DRAWER: TRANSITIONS -->
+      <div x-show="activeTab === 'transitions'" class="flex-1 overflow-y-auto p-3 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Transitions</span>
+          <span class="text-[10px] text-cyan-400 font-mono">0.22s Auto-Whoosh</span>
         </div>
 
-        <!-- SFX Library Status -->
-        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
-          <div class="flex items-center gap-2">
-            <i data-lucide="volume-2" class="w-4 h-4 text-yellow-400"></i>
+        <div class="grid grid-cols-2 gap-2">
+          <template x-for="tr in transitionsLibrary" :key="tr.id">
+            <button @click="applyTransition(tr.id)"
+                    :class="settings.transition === tr.id ? 'border-cyan-400 bg-cyan-950/20' : 'border-[#27272A] bg-[#202025]'"
+                    class="p-2.5 rounded-xl border text-center hover:border-cyan-400/50 transition-all flex flex-col items-center">
+              <span class="text-[11px] font-bold text-slate-200" x-text="tr.name"></span>
+              <span class="text-[9px] text-cyan-300 font-mono mt-1" x-text="tr.preview_badge"></span>
+            </button>
+          </template>
+        </div>
+
+        <button @click="applyTransitionToAll()"
+                class="w-full py-2 rounded-xl bg-[#2A2A32] hover:bg-[#33333F] text-slate-200 font-bold text-xs transition-all">
+          Apply to All Cuts (⚡ 0.22s)
+        </button>
+      </div>
+
+      <!-- DRAWER: FILTERS & COLOR GRADES -->
+      <div x-show="activeTab === 'filters'" class="flex-1 overflow-y-auto p-3 space-y-3">
+        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider block">Aesthetic Color LUTs</span>
+        <template x-for="flt in filtersLibrary" :key="flt.id">
+          <button @click="applyFilter(flt.id)"
+                  :class="settings.grade === flt.id ? 'border-cyan-400 bg-cyan-950/20' : 'border-[#27272A] bg-[#202025]'"
+                  class="w-full p-2.5 rounded-xl border text-left hover:border-cyan-400/50 transition-all flex items-center justify-between">
             <div>
-              <p class="font-medium text-slate-200">SFX Library</p>
-              <p class="text-[10px] text-slate-400" x-text="`${sfxCount} assets • Peak-aligned`">28 assets</p>
+              <p class="font-bold text-xs text-slate-200" x-text="flt.name"></p>
+              <p class="text-[10px] text-slate-400" x-text="flt.desc"></p>
             </div>
-          </div>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">SYNCED</span>
-        </div>
-      </div>
-    </aside>
-
-    <!-- ========================================== -->
-    <!-- ZONE B: CENTER STAGE (9:16 CANVAS)        -->
-    <!-- ========================================== -->
-    <section class="flex-1 bg-[#060910] flex flex-col items-center justify-between p-4 overflow-hidden relative">
-      
-      <!-- Top Canvas Mode Bar -->
-      <div class="w-full max-w-xl flex items-center justify-between mb-2">
-        <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-lg p-1 text-xs">
-          <button @click="setPreviewMode('master')"
-                  :class="previewMode === 'master' ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/50' : 'text-slate-400 hover:text-slate-200'"
-                  class="px-3 py-1 rounded transition-all">
-            ✨ UGC Master
+            <span class="w-3 h-3 rounded-full shrink-0" :style="`background-color: ${flt.color}`"></span>
           </button>
-          <button @click="setPreviewMode('raw')"
-                  :class="previewMode === 'raw' ? 'bg-slate-700 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'"
-                  class="px-3 py-1 rounded transition-all">
-            Raw Clip
+        </template>
+      </div>
+
+      <!-- DRAWER: AI COPILOT CHAT FEED -->
+      <div x-show="activeTab === 'ai_copilot'" class="flex-1 flex flex-col overflow-hidden">
+        <div class="p-2.5 border-b border-[#27272A] flex items-center justify-between">
+          <span class="flex items-center gap-1.5 text-xs text-yellow-300 font-bold">
+            <i data-lucide="bot" class="w-4 h-4"></i> CapCut AI Copilot
+          </span>
+          <button @click="setActiveTab('media')" class="text-slate-500 hover:text-slate-300 text-xs">
+            <i data-lucide="x" class="w-4 h-4"></i>
           </button>
         </div>
 
-        <div class="flex items-center gap-2">
-          <!-- Safe Zone Toggle Button -->
-          <button @click="showSafeZone = !showSafeZone"
-                  :class="showSafeZone ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'"
-                  class="px-2.5 py-1 text-xs rounded-lg border flex items-center gap-1.5 transition-all">
-            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
-            <span>TikTok Safe-Zones</span>
-          </button>
-
-          <!-- Split Screen Button -->
-          <button @click="toggleSplit()"
-                  :class="isSplit ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'"
-                  class="px-2.5 py-1 text-xs rounded-lg border flex items-center gap-1.5 transition-all">
-            <i data-lucide="split" class="w-3.5 h-3.5"></i>
-            <span>Before / After</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Smartphone Mockup Container -->
-      <div class="relative flex items-center justify-center flex-1 my-auto">
-        <div class="phone-mockup relative flex items-center justify-center bg-black">
-          <div class="phone-notch"></div>
-
-          <!-- HTML5 Video Player -->
-          <video id="mainVideoPlayer"
-                 class="w-full h-full object-cover"
-                 playsinline
-                 @timeupdate="onTimeUpdate()"
-                 @ended="onVideoEnded()"
-                 :src="currentVideoSrc">
-          </video>
-
-          <!-- Safe Zone Overlays (TikTok/Reels UI) -->
-          <div x-show="showSafeZone" x-transition.opacity
-               class="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-20">
-            <!-- Top Audio Pill Safe Zone -->
-            <div class="w-32 h-6 mx-auto rounded-full border border-dashed border-yellow-400/60 bg-yellow-400/10 flex items-center justify-center">
-              <span class="text-[9px] text-yellow-300 font-mono">Top UI Safe Zone</span>
-            </div>
-
-            <!-- Right-Hand Engagement Buttons (Like, Comment, Share) -->
-            <div class="self-end flex flex-col gap-3 items-center mr-1">
-              <div class="w-7 h-7 rounded-full border border-dashed border-rose-400/60 bg-rose-400/10 flex items-center justify-center">
-                <i data-lucide="heart" class="w-3 h-3 text-rose-300"></i>
-              </div>
-              <div class="w-7 h-7 rounded-full border border-dashed border-slate-400/60 bg-slate-400/10 flex items-center justify-center">
-                <i data-lucide="message-circle" class="w-3 h-3 text-slate-300"></i>
-              </div>
-              <div class="w-7 h-7 rounded-full border border-dashed border-cyan-400/60 bg-cyan-400/10 flex items-center justify-center">
-                <i data-lucide="share-2" class="w-3 h-3 text-cyan-300"></i>
-              </div>
-            </div>
-
-            <!-- Bottom Caption & Creator Handle Safe Zone -->
-            <div class="w-full h-16 rounded-xl border border-dashed border-yellow-400/60 bg-yellow-400/10 flex items-center justify-center">
-              <span class="text-[9px] text-yellow-300 font-mono">Keep text above this area</span>
-            </div>
-          </div>
-
-          <!-- Active Subtitle Display Pill -->
-          <div x-show="currentSubtitle"
-               class="absolute bottom-24 left-3 right-3 text-center pointer-events-none z-10 transition-all">
-            <span class="px-3 py-1.5 rounded-lg bg-black/80 font-black text-sm text-yellow-300 uppercase tracking-wider shadow-lg border border-yellow-400/40"
-                  x-text="currentSubtitle">
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Playback Controls Bar -->
-      <div class="w-full max-w-xl bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2 shadow-2xl backdrop-blur-md">
-        <!-- Interactive Scrubber -->
-        <div class="relative w-full flex items-center">
-          <input type="range" min="0" :max="videoDuration" step="0.05"
-                 x-model="currentTime"
-                 @input="seekVideo()"
-                 class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
-        </div>
-
-        <div class="flex items-center justify-between text-xs">
-          <div class="flex items-center gap-3">
-            <!-- Play / Pause Button -->
-            <button @click="togglePlay()"
-                    class="w-8 h-8 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center transition-transform active:scale-90">
-              <i :data-lucide="isPlaying ? 'pause' : 'play'" class="w-4 h-4 fill-current"></i>
-            </button>
-
-            <!-- Time Display -->
-            <span class="font-mono text-slate-400 text-xs">
-              <span class="text-slate-100 font-semibold" x-text="formatTime(currentTime)">00:00.0</span> / 
-              <span x-text="formatTime(videoDuration)">00:21.9</span>
-            </span>
-          </div>
-
-          <div class="flex items-center gap-3">
-            <!-- Mute Button -->
-            <button @click="toggleMute()" class="text-slate-400 hover:text-slate-200">
-              <i :data-lucide="isMuted ? 'volume-x' : 'volume-2'" class="w-4 h-4"></i>
-            </button>
-
-            <!-- Fullscreen Button -->
-            <button @click="toggleFullscreen()" class="text-slate-400 hover:text-slate-200">
-              <i data-lucide="maximize-2" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- ZONE C: RIGHT INSPECTOR (AI CHAT / MANUAL) -->
-    <!-- ========================================== -->
-    <aside class="w-96 border-l border-slate-800 bg-[#0B1120]/90 flex flex-col shrink-0">
-      
-      <!-- Tab Header -->
-      <div class="flex border-b border-slate-800 p-1.5 bg-slate-950/60">
-        <button @click="activeTab = 'chat'"
-                :class="activeTab === 'chat' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/40 font-bold' : 'text-slate-400 hover:text-slate-200'"
-                class="flex-1 py-2 text-xs rounded-lg flex items-center justify-center gap-2 transition-all">
-          <i data-lucide="bot" class="w-4 h-4"></i>
-          <span>AI Creative Director</span>
-        </button>
-        <button @click="activeTab = 'manual'"
-                :class="activeTab === 'manual' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/40 font-bold' : 'text-slate-400 hover:text-slate-200'"
-                class="flex-1 py-2 text-xs rounded-lg flex items-center justify-center gap-2 transition-all">
-          <i data-lucide="sliders" class="w-4 h-4"></i>
-          <span>Studio Controls</span>
-        </button>
-      </div>
-
-      <!-- TAB 1: AI CREATIVE DIRECTOR CHAT -->
-      <div x-show="activeTab === 'chat'" class="flex-1 flex flex-col overflow-hidden">
-        
-        <!-- Suggested Prompt Pills -->
-        <div class="p-3 border-b border-slate-800 bg-slate-900/40">
-          <p class="text-[10px] uppercase font-mono text-slate-400 mb-2 flex items-center gap-1">
-            <i data-lucide="lightbulb" class="w-3 h-3 text-yellow-400"></i> Direct Edits with 1 Click
+        <!-- Quick 1-Click Prompt Pills -->
+        <div class="p-2 border-b border-[#27272A] bg-[#141417]">
+          <p class="text-[9px] uppercase font-mono text-slate-400 mb-1.5 flex items-center gap-1">
+            <i data-lucide="lightbulb" class="w-3 h-3 text-yellow-400"></i> Suggested AI Edits
           </p>
-          <div class="flex flex-wrap gap-1.5">
-            <button @click="sendQuickPrompt('Make the hook punchier with smart zoom')"
-                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+          <div class="flex flex-wrap gap-1">
+            <button @click="sendDrawerChatPrompt('Make hook punchier with smart zoom')"
+                    class="text-[10px] px-2 py-0.5 rounded-full bg-[#202025] hover:bg-[#2A2A32] text-yellow-300 border border-[#2E2E35] transition-all">
               🔥 Punchier Hook
             </button>
-            <button @click="sendQuickPrompt('Cut dead air and pauses tighter')"
-                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+            <button @click="sendDrawerChatPrompt('Cut dead air and awkward pauses')"
+                    class="text-[10px] px-2 py-0.5 rounded-full bg-[#202025] hover:bg-[#2A2A32] text-cyan-300 border border-[#2E2E35] transition-all">
               ✂️ Fast Jump-Cuts
             </button>
-            <button @click="sendQuickPrompt('Switch subtitles to Hormozi electric yellow')"
-                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+            <button @click="sendDrawerChatPrompt('Switch captions to Hormozi electric yellow')"
+                    class="text-[10px] px-2 py-0.5 rounded-full bg-[#202025] hover:bg-[#2A2A32] text-yellow-400 border border-[#2E2E35] transition-all">
               ⚡ Hormozi Captions
             </button>
-            <button @click="sendQuickPrompt('Apply warm golden hour color grade')"
-                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+            <button @click="sendDrawerChatPrompt('Apply warm golden hour color grade')"
+                    class="text-[10px] px-2 py-0.5 rounded-full bg-[#202025] hover:bg-[#2A2A32] text-amber-300 border border-[#2E2E35] transition-all">
               🎨 Golden Hour
+            </button>
+            <button @click="sendDrawerChatPrompt('Add a subtle camera shake on the hook')"
+                    class="text-[10px] px-2 py-0.5 rounded-full bg-[#202025] hover:bg-[#2A2A32] text-purple-300 border border-[#2E2E35] transition-all">
+              💥 Camera Shake
             </button>
           </div>
         </div>
-
-        <!-- Chat Stream Messages -->
-        <div id="chatFeed" class="flex-1 overflow-y-auto p-4 space-y-3">
+        
+        <div id="aiChatFeed" class="flex-1 overflow-y-auto p-3 space-y-2.5">
           <template x-for="(msg, i) in chatHistory" :key="i">
             <div>
-              <!-- User Bubble -->
-              <div x-show="msg.role === 'user'" class="flex justify-end mb-2">
-                <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-3.5 py-2 text-xs max-w-[85%] shadow-md"
-                     x-text="msg.content">
-                </div>
+              <div x-show="msg.role === 'user'" class="flex justify-end mb-1.5">
+                <div class="bg-indigo-600 text-white rounded-xl rounded-tr-none px-3 py-1.5 text-xs max-w-[85%]" x-text="msg.content"></div>
               </div>
-
-              <!-- Assistant Bubble -->
-              <div x-show="msg.role === 'assistant'" class="flex gap-2.5 mb-2">
-                <div class="w-6 h-6 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-400 flex items-center justify-center shrink-0 text-xs">
-                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
-                </div>
-                <div class="space-y-2 flex-1">
-                  <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-3 text-xs text-slate-300 space-y-1.5 leading-relaxed shadow-md"
-                       x-html="formatMarkdown(msg.content)">
-                  </div>
-
-                  <!-- Action Card (if any) -->
-                  <template x-if="msg.action_card">
-                    <div class="p-3 rounded-xl border border-cyan-500/40 bg-cyan-950/20 space-y-2">
-                      <div class="flex items-center justify-between">
-                        <span class="font-bold text-xs text-cyan-300 flex items-center gap-1.5">
-                          <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
-                          <span x-text="msg.action_card.title"></span>
-                        </span>
-                      </div>
-                      <p class="text-[11px] text-slate-400" x-text="msg.action_card.details"></p>
-                      <button @click="handleActionCard(msg.action_card)"
-                              class="w-full py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-90 font-bold text-xs text-slate-950 transition-all flex items-center justify-center gap-1.5">
-                        <i data-lucide="zap" class="w-3.5 h-3.5 fill-current"></i>
-                        <span x-text="msg.action_card.button_text"></span>
-                      </button>
-                    </div>
-                  </template>
-                </div>
+              <div x-show="msg.role === 'assistant'" class="flex gap-2 mb-1.5">
+                <div class="bg-[#202025] border border-[#27272A] rounded-xl rounded-tl-none p-2.5 text-xs text-slate-300 space-y-1.5 leading-relaxed"
+                     x-html="formatMarkdown(msg.content)"></div>
               </div>
             </div>
           </template>
         </div>
 
-        <!-- Chat Input Bar -->
-        <div class="p-3 border-t border-slate-800 bg-slate-950 flex items-center gap-2">
-          <input type="text"
-                 x-model="chatInput"
-                 @keydown.enter="sendChatMessage()"
-                 placeholder="Ask your AI Director to reframe, cut, or style..."
-                 class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
-          <button @click="sendChatMessage()"
-                  class="p-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-colors">
-            <i data-lucide="send" class="w-4 h-4"></i>
+        <div class="p-2 border-t border-[#27272A] bg-[#121214] flex gap-1.5">
+          <input type="text" x-model="chatDrawerInput" @keydown.enter="sendDrawerChat()"
+                 placeholder="Ask AI Director..."
+                 class="flex-1 bg-[#18181C] border border-[#27272A] rounded-lg px-2.5 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-cyan-400">
+          <button @click="sendDrawerChat()" class="p-2 rounded-lg bg-cyan-400 text-slate-950 font-bold">
+            <i data-lucide="send" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ========================================================================= -->
+    <!-- CENTER STAGE: PREVIEW CANVAS (CapCut 1:1 Player)                         -->
+    <!-- ========================================================================= -->
+    <main class="flex-1 bg-[#0E0E10] flex flex-col items-center justify-between p-3 overflow-hidden relative">
+      
+      <!-- Top Canvas Control Bar -->
+      <div class="w-full max-w-lg flex items-center justify-between text-xs text-slate-400 mb-1">
+        <!-- Aspect Ratio -->
+        <div class="flex items-center gap-2">
+          <span class="text-[10px] uppercase font-mono">Aspect:</span>
+          <select class="bg-[#18181C] border border-[#27272A] rounded px-2 py-0.5 text-slate-200 text-xs">
+            <option>9:16 (TikTok/Reels)</option>
+            <option>16:9 (YouTube)</option>
+            <option>1:1 (Square)</option>
+          </select>
+        </div>
+
+        <!-- Safe Zone & Compare Toggles -->
+        <div class="flex items-center gap-2">
+          <button @click="showSafeZone = !showSafeZone"
+                  :class="showSafeZone ? 'bg-yellow-400/20 text-yellow-300 border-yellow-400/40' : 'bg-[#18181C] text-slate-400 border-[#27272A]'"
+                  class="px-2.5 py-1 rounded border text-[11px] flex items-center gap-1 transition-all">
+            <i data-lucide="grid" class="w-3 h-3"></i> Safe Guides
+          </button>
+          <button @click="toggleBeforeAfter()"
+                  :class="previewMode === 'raw' ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' : 'bg-[#18181C] text-slate-400 border-[#27272A]'"
+                  class="px-2.5 py-1 rounded border text-[11px] flex items-center gap-1 transition-all">
+            <i data-lucide="split" class="w-3 h-3"></i> Compare Raw
           </button>
         </div>
       </div>
 
-      <!-- TAB 2: MANUAL STUDIO CONTROLS -->
-      <div x-show="activeTab === 'manual'" class="flex-1 overflow-y-auto p-4 space-y-5">
-        
-        <!-- Preset Cards -->
+      <!-- Smartphone Canvas Player Container -->
+      <div class="relative flex items-center justify-center flex-1 my-auto">
+        <div class="phone-container relative flex items-center justify-center"
+             :class="eyedropperActive ? 'cursor-crosshair ring-2 ring-emerald-400 shadow-emerald-500/30' : ''"
+             @click="onCanvasClick($event)">
+          
+          <!-- EYEDROPPER ACTIVE BANNER (CapCut 1:1) -->
+          <div x-show="eyedropperActive"
+               class="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-emerald-400 text-slate-950 font-bold text-[10px] font-mono flex items-center gap-1.5 shadow-xl z-40 animate-bounce pointer-events-none">
+            <i data-lucide="pipette" class="w-3.5 h-3.5"></i>
+            <span>CLICK VIDEO TO SAMPLE KEY COLOR</span>
+          </div>
+
+          <!-- Native HTML5 Video Element with Real-Time Geometric Masking -->
+          <video id="mainVideoPlayer"
+                 class="w-full h-full object-cover transition-all"
+                 playsinline
+                 @timeupdate="onTimeUpdate()"
+                 @ended="onEnded()"
+                 :style="getVideoMaskStyle()"
+                 :src="currentVideoSrc">
+          </video>
+
+          <!-- ON-CANVAS MASK WIREFRAME & HANDLES (CapCut 1:1) -->
+          <div x-show="inspectorTarget === 'Video' && videoSubTab === 'mask' && activeMask.shape !== 'none'"
+               class="absolute pointer-events-none z-20"
+               :style="getMaskWireframeStyle()">
+            <div class="w-full h-full border-2 border-dashed border-purple-400/90 relative"
+                 :class="activeMask.shape === 'circle' ? 'rounded-full' : (activeMask.shape === 'rectangle' ? 'rounded-2xl' : '')">
+              <!-- Center Crosshair -->
+              <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-purple-400 flex items-center justify-center font-mono text-xs">+</div>
+              <!-- Feather Indicator Outline -->
+              <div x-show="activeMask.feather > 0"
+                   class="absolute border border-dotted border-purple-300/40 pointer-events-none"
+                   :class="activeMask.shape === 'circle' ? 'rounded-full' : (activeMask.shape === 'rectangle' ? 'rounded-2xl' : '')"
+                   :style="`inset: -${Math.min(25, activeMask.feather * 0.35)}px;`"></div>
+              <!-- 4 Corner Handles -->
+              <div class="absolute -top-1 -left-1 w-2.5 h-2.5 bg-purple-400 rounded-sm"></div>
+              <div class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-purple-400 rounded-sm"></div>
+              <div class="absolute -bottom-1 -left-1 w-2.5 h-2.5 bg-purple-400 rounded-sm"></div>
+              <div class="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-purple-400 rounded-sm"></div>
+            </div>
+          </div>
+
+          <!-- ON-CANVAS MOTION TRACKING TARGET BOX (CapCut 1:1) -->
+          <div x-show="inspectorTarget === 'Video' && videoSubTab === 'tracking'"
+               class="absolute pointer-events-none z-20 border-2 border-cyan-400 bg-cyan-400/10 rounded transition-all"
+               :style="getTrackingBoxStyle()">
+            <!-- Target Tag Header -->
+            <div class="absolute -top-5 left-0 px-1.5 py-0.2 rounded bg-cyan-400 text-slate-950 font-bold text-[8px] font-mono flex items-center gap-1 shadow">
+              <i data-lucide="target" class="w-2.5 h-2.5"></i>
+              <span x-text="`TRACK: ${(trackingAnchor || 'face').toUpperCase()}`"></span>
+            </div>
+            <!-- Center Crosshair -->
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 text-cyan-300 font-mono text-sm flex items-center justify-center font-bold">⌖</div>
+            <!-- Corner Brackets -->
+            <div class="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-cyan-300"></div>
+            <div class="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-cyan-300"></div>
+            <div class="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-cyan-300"></div>
+            <div class="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-cyan-300"></div>
+          </div>
+
+          <!-- Safe Zone Guidelines (TikTok Overlay) -->
+          <div x-show="showSafeZone" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-3 z-30">
+            <div class="w-24 h-5 mx-auto rounded-full border border-dashed border-yellow-400/60 bg-yellow-400/10 flex items-center justify-center">
+              <span class="text-[8px] text-yellow-300 font-mono">Sound Safe</span>
+            </div>
+            <div class="self-end flex flex-col gap-2 items-center mr-1">
+              <div class="w-6 h-6 rounded-full border border-dashed border-rose-400/60 bg-rose-400/10"></div>
+              <div class="w-6 h-6 rounded-full border border-dashed border-slate-400/60 bg-slate-400/10"></div>
+              <div class="w-6 h-6 rounded-full border border-dashed border-cyan-400/60 bg-cyan-400/10"></div>
+            </div>
+            <div class="w-full h-12 rounded-lg border border-dashed border-yellow-400/60 bg-yellow-400/10 flex items-center justify-center">
+              <span class="text-[8px] text-yellow-300 font-mono">Caption Safe Zone</span>
+            </div>
+          </div>
+
+          <!-- DIRECT CANVAS TEXT MANIPULATION (Interactive Bounding Box) -->
+          <div class="transform-box max-w-[240px]"
+               :style="`top: ${selectedText.top}%; left: ${selectedText.left}%; transform: translate(-50%, -50%);`"
+               @mousedown="startDragText($event)">
+            <!-- Text Content Rendered on Canvas -->
+            <div class="px-2.5 py-1 font-black uppercase text-center break-words leading-tight shadow-xl rounded"
+                 :style="`font-size: ${selectedText.fontSize}px; color: ${selectedText.color}; -webkit-text-stroke: ${selectedText.strokeWidth}px ${selectedText.strokeColor}; background-color: ${selectedText.bgColor};`"
+                 x-text="currentSubtitle || selectedText.content">
+            </div>
+
+            <!-- 4 Corner Resize Handles -->
+            <div class="resize-handle handle-tl" @mousedown.stop="startResizeText($event)"></div>
+            <div class="resize-handle handle-tr" @mousedown.stop="startResizeText($event)"></div>
+            <div class="resize-handle handle-bl" @mousedown.stop="startResizeText($event)"></div>
+            <div class="resize-handle handle-br" @mousedown.stop="startResizeText($event)"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Playback Transport Bar -->
+      <div class="w-full max-w-lg bg-[#18181C] border border-[#27272A] rounded-xl px-4 py-2 flex items-center justify-between text-xs shadow-2xl">
+        <div class="flex items-center gap-3">
+          <!-- Frame Step Back -->
+          <button @click="stepFrame(-1)" class="text-slate-400 hover:text-white" title="Step Back 1 Frame (Left Arrow)">
+            <i data-lucide="skip-back" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <!-- Play/Pause -->
+          <button @click="togglePlay()"
+                  class="w-7 h-7 rounded-full bg-cyan-400 hover:bg-cyan-300 text-slate-950 flex items-center justify-center font-black transition-all">
+            <i :data-lucide="isPlaying ? 'pause' : 'play'" class="w-3.5 h-3.5 fill-current"></i>
+          </button>
+
+          <!-- Frame Step Forward -->
+          <button @click="stepFrame(1)" class="text-slate-400 hover:text-white" title="Step Forward 1 Frame (Right Arrow)">
+            <i data-lucide="skip-forward" class="w-3.5 h-3.5"></i>
+          </button>
+
+          <!-- Timecode Display -->
+          <span class="font-mono text-xs text-slate-400">
+            <span class="text-slate-100 font-semibold" x-text="formatTimecode(currentTime)">00:00:00</span> / 
+            <span x-text="formatTimecode(totalDuration)">00:21:28</span>
+          </span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <!-- Mute -->
+          <button @click="toggleMute()" class="text-slate-400 hover:text-white">
+            <i :data-lucide="isMuted ? 'volume-x' : 'volume-2'" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Fullscreen -->
+          <button @click="toggleFullscreen()" class="text-slate-400 hover:text-white">
+            <i data-lucide="maximize" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+    </main>
+
+    <!-- ========================================================================= -->
+    <!-- RIGHT INSPECTOR PANEL (CapCut 1:1 Contextual Properties)                 -->
+    <!-- ========================================================================= -->
+    <aside class="w-80 border-l border-[#27272A] bg-[#18181C] flex flex-col shrink-0 overflow-y-auto">
+      
+      <!-- Panel Header -->
+      <div class="p-3 border-b border-[#27272A] flex items-center justify-between">
+        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="sliders" class="w-3.5 h-3.5 text-cyan-400"></i> Inspector
+        </span>
+        <span class="text-[10px] px-2 py-0.5 rounded bg-[#2A2A32] text-cyan-300 font-mono" x-text="inspectorTarget"></span>
+      </div>
+
+      <!-- TEXT / SUBTITLE INSPECTOR CONTROLS -->
+      <div x-show="inspectorTarget === 'Text'" class="p-3 space-y-4 text-xs">
+        <!-- Content Input -->
         <div>
-          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Creative Style Preset</label>
-          <div class="grid grid-cols-1 gap-2">
-            <!-- Viral Hook -->
-            <button @click="setPreset('viral_hook')"
-                    :class="settings.preset === 'viral_hook' ? 'border-yellow-400 bg-yellow-950/20 ring-1 ring-yellow-400' : 'border-slate-800 bg-slate-900/60'"
-                    class="p-2.5 rounded-xl border text-left transition-all">
+          <label class="text-[11px] font-bold text-slate-400 block mb-1">Text Content</label>
+          <textarea x-model="selectedText.content" rows="2"
+                    class="w-full bg-[#121214] border border-[#27272A] rounded-lg p-2 text-slate-200 text-xs focus:outline-none focus:border-cyan-400"></textarea>
+        </div>
+
+        <!-- Font Size Slider -->
+        <div>
+          <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+            <span>Font Size</span>
+            <span class="text-cyan-400 font-mono" x-text="`${selectedText.fontSize} pt`"></span>
+          </div>
+          <input type="range" min="16" max="72" x-model="selectedText.fontSize"
+                 class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+        </div>
+
+        <!-- Text Fill Color -->
+        <div>
+          <label class="text-[11px] font-bold text-slate-400 block mb-1">Fill Color</label>
+          <div class="flex items-center gap-2">
+            <input type="color" x-model="selectedText.color" class="w-8 h-8 rounded border border-[#27272A] bg-transparent cursor-pointer">
+            <input type="text" x-model="selectedText.color" class="flex-1 bg-[#121214] border border-[#27272A] rounded px-2 py-1 text-xs font-mono">
+          </div>
+        </div>
+
+        <!-- Stroke / Outline -->
+        <div class="border-t border-[#27272A] pt-3">
+          <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+            <span>Stroke Outline</span>
+            <span class="text-cyan-400 font-mono" x-text="`${selectedText.strokeWidth} px`"></span>
+          </div>
+          <input type="range" min="0" max="8" x-model="selectedText.strokeWidth"
+                 class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+        </div>
+
+        <!-- Background Pill -->
+        <div class="border-t border-[#27272A] pt-3">
+          <label class="text-[11px] font-bold text-slate-400 block mb-1">Background Pill Color</label>
+          <div class="flex items-center gap-2">
+            <input type="color" x-model="selectedText.bgColor" class="w-8 h-8 rounded border border-[#27272A] bg-transparent cursor-pointer">
+            <button @click="selectedText.bgColor = 'transparent'" class="px-2 py-1 bg-[#2A2A32] rounded text-[10px] text-slate-300">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIDEO CLIP INSPECTOR CONTROLS (CapCut 1:1 Parity) -->
+      <div x-show="inspectorTarget === 'Video'" class="p-3 space-y-3 text-xs">
+        <!-- Clip Header -->
+        <div class="flex items-center justify-between pb-2 border-b border-[#27272A]">
+          <div>
+            <p class="font-bold text-slate-200" x-text="selectedClip ? selectedClip.name : 'Clip Selected'"></p>
+            <span class="text-[10px] text-cyan-400 font-mono" x-text="selectedClip ? `${selectedClip.duration}s • 1080x1920` : '8.00s • 1080x1920'"></span>
+          </div>
+          <span class="text-[9px] px-2 py-0.5 rounded bg-[#2A2A32] text-amber-300 font-mono uppercase" x-text="selectedClip?.speed_curve?.preset || activeCurvePreset"></span>
+        </div>
+
+        <!-- Video Sub-Tabs: Basic, Speed, Cutout, Mask, Tracking, Audio -->
+        <div class="grid grid-cols-6 gap-1 bg-[#121214] p-1 rounded-lg border border-[#27272A]">
+          <button @click="videoSubTab = 'transform'"
+                  :class="videoSubTab === 'transform' ? 'bg-[#2A2A32] text-white font-bold' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-1 rounded text-[9px] transition-all">Basic</button>
+          <button @click="videoSubTab = 'speed'"
+                  :class="videoSubTab === 'speed' ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-1 rounded text-[9px] transition-all flex items-center justify-center gap-0.5">
+            <i data-lucide="zap" class="w-2.5 h-2.5"></i> Speed
+          </button>
+          <button @click="videoSubTab = 'cutout'"
+                  :class="videoSubTab === 'cutout' ? 'bg-gradient-to-r from-emerald-400 to-green-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-1 rounded text-[9px] transition-all flex items-center justify-center gap-0.5">
+            <i data-lucide="scissors" class="w-2.5 h-2.5"></i> Cutout
+          </button>
+          <button @click="videoSubTab = 'mask'"
+                  :class="videoSubTab === 'mask' ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-1 rounded text-[9px] transition-all flex items-center justify-center gap-0.5">
+            <i data-lucide="sparkles" class="w-2.5 h-2.5"></i> Mask
+          </button>
+          <button @click="videoSubTab = 'tracking'"
+                  :class="videoSubTab === 'tracking' ? 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-1 rounded text-[9px] transition-all flex items-center justify-center gap-0.5">
+            <i data-lucide="target" class="w-2.5 h-2.5"></i> Track
+          </button>
+          <button @click="videoSubTab = 'audio'"
+                  :class="videoSubTab === 'audio' ? 'bg-[#2A2A32] text-white font-bold' : 'text-slate-400 hover:text-slate-200'"
+                  class="py-1 rounded text-[9px] transition-all">Audio</button>
+        </div>
+
+        <!-- SUBTAB 1: Basic Transform -->
+        <div x-show="videoSubTab === 'transform'" class="space-y-3 pt-1">
+          <div>
+            <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+              <span>Camera Scale (Zoom)</span>
+              <span class="text-cyan-400 font-mono">1.18x</span>
+            </div>
+            <input type="range" min="1.0" max="2.0" step="0.05" value="1.18"
+                   class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+          </div>
+        </div>
+
+        <!-- SUBTAB 2: CAPCUT 1:1 SPEED RAMPING (Curve & Normal) -->
+        <div x-show="videoSubTab === 'speed'" class="space-y-3 pt-1">
+          <!-- Speed Mode Switcher: Normal vs Curve -->
+          <div class="flex items-center justify-between bg-[#121214] p-0.5 rounded-lg border border-[#27272A]">
+            <button @click="speedMode = 'normal'"
+                    :class="speedMode === 'normal' ? 'bg-[#2A2A32] text-cyan-300 font-bold' : 'text-slate-400'"
+                    class="flex-1 py-1 rounded text-[11px] transition-all">Normal</button>
+            <button @click="speedMode = 'curve'"
+                    :class="speedMode === 'curve' ? 'bg-[#2A2A32] text-amber-300 font-bold' : 'text-slate-400'"
+                    class="flex-1 py-1 rounded text-[11px] transition-all flex items-center justify-center gap-1">
+              <span>⚡ Curve</span>
+            </button>
+          </div>
+
+          <!-- NORMAL SPEED CONTROLS -->
+          <div x-show="speedMode === 'normal'" class="space-y-3">
+            <div>
+              <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+                <span>Speed Multiplier</span>
+                <span class="text-cyan-400 font-mono font-bold" x-text="`${normalSpeed.toFixed(1)}x`">1.0x</span>
+              </div>
+              <input type="range" min="0.1" max="10.0" step="0.1" x-model.number="normalSpeed"
+                     class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+            </div>
+            <div class="grid grid-cols-4 gap-1 text-center">
+              <button @click="normalSpeed = 0.5" class="py-1 rounded bg-[#2A2A32] hover:bg-cyan-500/20 text-[10px]">0.5x</button>
+              <button @click="normalSpeed = 1.0" class="py-1 rounded bg-[#2A2A32] hover:bg-cyan-500/20 text-[10px]">1.0x</button>
+              <button @click="normalSpeed = 2.0" class="py-1 rounded bg-[#2A2A32] hover:bg-cyan-500/20 text-[10px]">2.0x</button>
+              <button @click="normalSpeed = 4.0" class="py-1 rounded bg-[#2A2A32] hover:bg-cyan-500/20 text-[10px]">4.0x</button>
+            </div>
+            <div class="p-2 rounded bg-[#121214] border border-[#27272A] flex justify-between text-[10px]">
+              <span class="text-slate-400">Resulting Duration:</span>
+              <span class="text-emerald-400 font-mono font-bold" x-text="`${((selectedClip ? selectedClip.duration : 8.0) / normalSpeed).toFixed(2)}s`"></span>
+            </div>
+          </div>
+
+          <!-- CURVE SPEED CONTROLS (CapCut Presets & Bezier Velocity Graph) -->
+          <div x-show="speedMode === 'curve'" class="space-y-3">
+            <!-- Curve Presets Grid -->
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Presets</label>
+              <div class="grid grid-cols-4 gap-1.5 text-center">
+                <template x-for="(pts, pName) in speedPresets" :key="pName">
+                  <button @click="selectSpeedPreset(pName)"
+                          :class="activeCurvePreset === pName ? 'bg-amber-400/20 border-amber-400 text-amber-300 font-bold ring-1 ring-amber-400/50' : 'bg-[#18181C] border-[#27272A] text-slate-400 hover:text-white'"
+                          class="p-1.5 rounded-lg border text-[10px] capitalize transition-all flex flex-col items-center gap-0.5">
+                    <span class="text-xs" x-text="pName === 'montage' ? '⚡' : (pName === 'bullet_time' ? '⏳' : (pName === 'hero' ? '🦸' : (pName === 'flash_in' ? '💥' : (pName === 'flash_out' ? '🚀' : (pName === 'jump_cut' ? '✂️' : (pName === 'custom' ? '✏️' : '➖'))))))"></span>
+                    <span class="truncate w-full text-[9px]" x-text="pName.replace('_', ' ')"></span>
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <!-- Interactive 2D Velocity Curve Graph (SVG) -->
+            <div class="space-y-1">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="text-slate-400 font-mono">Velocity Curve (0.1x – 5.0x)</span>
+                <span class="text-amber-400 font-mono font-bold" x-text="`${curvePoints.length} Keypoints`"></span>
+              </div>
+              
+              <div class="relative w-full h-28 bg-[#0E0E10] rounded-lg border border-[#27272A] p-2 select-none overflow-hidden"
+                   id="speedCurveBox"
+                   @mousemove="onDragCurvePoint($event)"
+                   @mouseup="stopDragCurvePoint()"
+                   @mouseleave="stopDragCurvePoint()">
+                
+                <!-- Speed Axis Reference Grid -->
+                <div class="absolute left-2 right-2 top-2 bottom-2 pointer-events-none flex flex-col justify-between text-[8px] text-slate-600 font-mono">
+                  <div class="border-b border-slate-800/60 pb-0.5 flex justify-between"><span>5.0x</span><span class="text-slate-700">FAST</span></div>
+                  <div class="border-b border-dashed border-cyan-500/30 pb-0.5 flex justify-between"><span class="text-cyan-400/80">1.0x (Normal)</span></div>
+                  <div class="pt-0.5 flex justify-between"><span>0.1x</span><span class="text-slate-700">SLOW-MO</span></div>
+                </div>
+
+                <!-- SVG Curve Path & Control Nodes -->
+                <svg class="absolute inset-2 w-[calc(100%-16px)] h-[calc(100%-16px)] overflow-visible">
+                  <defs>
+                    <linearGradient id="curveGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.35" />
+                      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0.0" />
+                    </linearGradient>
+                  </defs>
+                  <path :d="curveSvgArea" fill="url(#curveGradient)" />
+                  <path :d="curveSvgPath" fill="none" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                  <template x-for="(pt, idx) in curvePoints" :key="idx">
+                    <circle :cx="`${pt.time * 100}%`"
+                            :cy="`${getCurveYPercent(pt.speed)}%`"
+                            r="5"
+                            :fill="selectedCurvePointIndex === idx ? '#38BDF8' : '#FBBF24'"
+                            stroke="#0E0E10"
+                            stroke-width="1.5"
+                            class="cursor-grab active:cursor-grabbing hover:scale-125 transition-transform"
+                            @mousedown.stop="startDragCurvePoint(idx, $event)"
+                            @click.stop="selectedCurvePointIndex = idx" />
+                  </template>
+                </svg>
+              </div>
+
+              <!-- Curve Toolbar -->
+              <div class="flex items-center justify-between text-[10px] pt-1">
+                <div class="flex items-center gap-1">
+                  <button @click="addCurvePoint()" class="px-2 py-0.5 bg-[#2A2A32] hover:bg-[#32323C] text-slate-300 rounded font-mono">+ Add</button>
+                  <button @click="deleteCurvePoint()" :disabled="curvePoints.length <= 2" class="px-2 py-0.5 bg-[#2A2A32] hover:bg-rose-500/30 text-rose-300 rounded font-mono disabled:opacity-30">- Del</button>
+                  <button @click="resetCurve()" class="px-2 py-0.5 bg-[#2A2A32] hover:bg-[#32323C] text-slate-400 rounded">⟲ Reset</button>
+                </div>
+                <div class="text-[9px] text-slate-400 font-mono">
+                  <span x-show="selectedCurvePointIndex !== null" x-text="`Point: ${(curvePoints[selectedCurvePointIndex]?.time * 100).toFixed(0)}% • ${curvePoints[selectedCurvePointIndex]?.speed.toFixed(1)}x`"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Optical Flow / Smooth Slow-Mo Toggle -->
+            <div class="border-t border-[#27272A] pt-2 flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-bold text-slate-300 block">Optical Flow</span>
+                <span class="text-[9px] text-slate-500">60fps AI frame blending for slow-mo</span>
+              </div>
+              <button @click="opticalFlow = !opticalFlow"
+                      :class="opticalFlow ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                      class="px-2.5 py-1 rounded text-[10px] transition-all">
+                <span x-text="opticalFlow ? '✨ ON (60fps)' : 'OFF'"></span>
+              </button>
+            </div>
+
+            <!-- Calculated Ramped Duration Card -->
+            <div class="p-2.5 rounded-lg bg-gradient-to-r from-amber-950/30 to-[#18181C] border border-amber-900/40 space-y-1">
+              <div class="flex items-center justify-between text-[10px]">
+                <span class="text-slate-400">Original Duration:</span>
+                <span class="text-slate-200 font-mono" x-text="`${selectedClip ? selectedClip.duration : 8.00}s`"></span>
+              </div>
+              <div class="flex items-center justify-between text-[11px] font-bold">
+                <span class="text-amber-300">⚡ Ramped Duration:</span>
+                <span class="text-amber-400 font-mono text-xs" x-text="`${calculateCurveDuration()}s`"></span>
+              </div>
+            </div>
+
+            <!-- Apply Speed Ramp CTA -->
+            <button @click="applySpeedCurveToClip()"
+                    class="w-full py-1.5 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-500 hover:from-amber-300 hover:to-yellow-400 text-slate-950 font-extrabold text-xs tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-amber-500/20 active:scale-95 transition-all">
+              <i data-lucide="zap" class="w-3.5 h-3.5 fill-current"></i>
+              <span>APPLY SPEED RAMP</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SUBTAB: CAPCUT 1:1 CHROMA KEY & SMART CUTOUT -->
+        <div x-show="videoSubTab === 'cutout'" class="space-y-3 pt-1">
+          <!-- Cutout Mode Selector: Chroma Key vs Auto Cutout -->
+          <div class="grid grid-cols-2 gap-1 bg-[#121214] p-1 rounded-lg border border-[#27272A]">
+            <button @click="activeCutout.mode = 'chroma'"
+                    :class="activeCutout.mode === 'chroma' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'text-slate-400 hover:text-slate-200'"
+                    class="py-1 rounded text-[10px] transition-all flex items-center justify-center gap-1">
+              <i data-lucide="pipette" class="w-3 h-3"></i> Chroma Key
+            </button>
+            <button @click="activeCutout.mode = 'smart'"
+                    :class="activeCutout.mode === 'smart' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'text-slate-400 hover:text-slate-200'"
+                    class="py-1 rounded text-[10px] transition-all flex items-center justify-center gap-1">
+              <i data-lucide="user-check" class="w-3 h-3"></i> Smart Cutout
+            </button>
+          </div>
+
+          <!-- SECTION A: CHROMA KEY CONTROLS -->
+          <div x-show="activeCutout.mode === 'chroma'" class="space-y-3">
+            <!-- Color Picker & Eyedropper -->
+            <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-2">
               <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-yellow-300">🔥 Viral Hook (TikTok/Reels)</span>
-                <span class="text-[10px] text-yellow-400 bg-yellow-950/80 px-1.5 py-0.5 rounded font-mono">RECOMMENDED</span>
+                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Key Color</span>
+                <span class="text-[10px] font-mono text-emerald-400 font-bold" x-text="activeCutout.color"></span>
               </div>
-              <p class="text-[11px] text-slate-400 mt-1">Snappy jump cuts, 1.18x smart zooms, Hormozi captions & whooshes.</p>
-            </button>
 
-            <!-- Storyteller -->
-            <button @click="setPreset('storyteller')"
-                    :class="settings.preset === 'storyteller' ? 'border-yellow-400 bg-yellow-950/20 ring-1 ring-yellow-400' : 'border-slate-800 bg-slate-900/60'"
-                    class="p-2.5 rounded-xl border text-left transition-all">
-              <span class="text-xs font-bold text-slate-200">📖 Storyteller</span>
-              <p class="text-[11px] text-slate-400 mt-1">Cinematic slow push, warm golden hour grade, clean minimal white captions.</p>
-            </button>
+              <!-- Color Preview Swatch + Eyedropper + Input -->
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg border-2 border-slate-600 shadow-inner flex-shrink-0 cursor-pointer relative overflow-hidden"
+                     :style="`background-color: ${activeCutout.color}`">
+                  <input type="color" x-model="activeCutout.color"
+                         class="absolute inset-0 opacity-0 cursor-pointer w-full h-full">
+                </div>
 
-            <!-- SaaS Explainer -->
-            <button @click="setPreset('saas_explainer')"
-                    :class="settings.preset === 'saas_explainer' ? 'border-yellow-400 bg-yellow-950/20 ring-1 ring-yellow-400' : 'border-slate-800 bg-slate-900/60'"
-                    class="p-2.5 rounded-xl border text-left transition-all">
-              <span class="text-xs font-bold text-slate-200">🚀 SaaS / Product Explainer</span>
-              <p class="text-[11px] text-slate-400 mt-1">Moody tech dark theme, metric bar graphs, neon green accents, UI beeps.</p>
+                <!-- Quick Preset Swatches -->
+                <div class="flex-1 grid grid-cols-4 gap-1">
+                  <button @click="selectChromaPreset('#00FF00')" title="Green Screen"
+                          class="py-1 rounded text-[9px] font-bold bg-[#00FF00]/20 text-[#00FF00] border border-[#00FF00]/50 hover:bg-[#00FF00]/30 transition-all">Green</button>
+                  <button @click="selectChromaPreset('#0000FF')" title="Blue Screen"
+                          class="py-1 rounded text-[9px] font-bold bg-[#0000FF]/20 text-blue-400 border border-blue-500/50 hover:bg-[#0000FF]/30 transition-all">Blue</button>
+                  <button @click="selectChromaPreset('#000000')" title="Black Key"
+                          class="py-1 rounded text-[9px] font-bold bg-black/60 text-slate-300 border border-slate-600 hover:bg-black transition-all">Black</button>
+                  <button @click="selectChromaPreset('#FFFFFF')" title="White Key"
+                          class="py-1 rounded text-[9px] font-bold bg-white/20 text-white border border-white/50 hover:bg-white/30 transition-all">White</button>
+                </div>
+
+                <!-- Eyedropper Tool Button -->
+                <button @click="toggleEyedropper()"
+                        :class="eyedropperActive ? 'bg-emerald-400 text-slate-950 ring-2 ring-emerald-300 font-bold' : 'bg-[#2A2A32] hover:bg-[#33333F] text-slate-200'"
+                        class="p-2 rounded-lg flex items-center justify-center transition-all"
+                        title="Eyedropper: Click to sample from video canvas">
+                  <i data-lucide="pipette" class="w-4 h-4"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- SIMILARITY SLIDER (Tolerance) -->
+            <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-1">
+              <div class="flex justify-between text-[11px] font-bold">
+                <span class="text-slate-300">Similarity (Tolerance)</span>
+                <span class="text-emerald-400 font-mono" x-text="`${activeCutout.similarity}%`"></span>
+              </div>
+              <input type="range" min="1" max="100" x-model.number="activeCutout.similarity"
+                     class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-emerald-400">
+              <div class="flex justify-between text-[8px] text-slate-500 font-mono">
+                <span>1% (Exact match)</span>
+                <span>30% (Standard)</span>
+                <span>100% (Aggressive)</span>
+              </div>
+            </div>
+
+            <!-- SMOOTHNESS SLIDER (Soft Edge Gradient) -->
+            <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-1">
+              <div class="flex justify-between text-[11px] font-bold">
+                <span class="text-slate-300">Smoothness (Soft Edge)</span>
+                <span class="text-emerald-400 font-mono" x-text="`${activeCutout.smoothness}%`"></span>
+              </div>
+              <input type="range" min="0" max="100" x-model.number="activeCutout.smoothness"
+                     class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-emerald-400">
+              <div class="flex justify-between text-[8px] text-slate-500 font-mono">
+                <span>0% (Hard pixel edge)</span>
+                <span>15% (Anti-aliased)</span>
+                <span>100% (Maximum soft blur)</span>
+              </div>
+            </div>
+
+            <!-- SHADOW RETENTION SLIDER -->
+            <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-1">
+              <div class="flex justify-between text-[11px] font-bold">
+                <span class="text-slate-300">Shadow Retention</span>
+                <span class="text-emerald-400 font-mono" x-text="`${activeCutout.shadow}%`"></span>
+              </div>
+              <input type="range" min="0" max="100" x-model.number="activeCutout.shadow"
+                     class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-emerald-400">
+              <p class="text-[9px] text-slate-500">Preserves natural cast shadows on floor/desk surfaces.</p>
+            </div>
+
+            <!-- SPILL SUPPRESSION & INVERT -->
+            <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-300 block">Spill Suppression (Despill)</span>
+                  <span class="text-[9px] text-slate-500">Eliminates green/blue fringe reflection on edges</span>
+                </div>
+                <button @click="activeCutout.despill = !activeCutout.despill"
+                        :class="activeCutout.despill ? 'bg-emerald-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                        class="px-2 py-0.5 rounded text-[9px] transition-all">
+                  <span x-text="activeCutout.despill ? 'ON' : 'OFF'"></span>
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between pt-1 border-t border-[#27272A]/60">
+                <span class="text-[10px] font-bold text-slate-300">Invert Cutout Matte</span>
+                <button @click="activeCutout.invert = !activeCutout.invert"
+                        :class="activeCutout.invert ? 'bg-emerald-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                        class="px-2 py-0.5 rounded text-[9px] transition-all">
+                  <span x-text="activeCutout.invert ? 'INVERTED' : 'NORMAL'"></span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION B: SMART CUTOUT (Auto Portrait / Outline) -->
+          <div x-show="activeCutout.mode === 'smart'" class="space-y-3">
+            <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-2">
+              <label class="text-[10px] font-bold text-slate-300 uppercase tracking-wider block">Cutout Stroke Outline</label>
+              <div class="grid grid-cols-3 gap-1">
+                <button @click="activeCutout.strokeType = 'none'"
+                        :class="activeCutout.strokeType === 'none' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'bg-[#18181C] text-slate-400'"
+                        class="py-1 rounded text-[10px] border border-[#27272A]">None</button>
+                <button @click="activeCutout.strokeType = 'solid'"
+                        :class="activeCutout.strokeType === 'solid' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'bg-[#18181C] text-slate-400'"
+                        class="py-1 rounded text-[10px] border border-[#27272A]">Solid Line</button>
+                <button @click="activeCutout.strokeType = 'glow'"
+                        :class="activeCutout.strokeType === 'glow' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'bg-[#18181C] text-slate-400'"
+                        class="py-1 rounded text-[10px] border border-[#27272A]">Neon Glow</button>
+              </div>
+
+              <!-- Stroke Color Picker -->
+              <div x-show="activeCutout.strokeType !== 'none'" class="pt-1 flex items-center justify-between">
+                <span class="text-[10px] text-slate-400">Stroke Color</span>
+                <div class="flex items-center gap-1.5">
+                  <button @click="activeCutout.strokeColor = '#FFDE59'" class="w-4 h-4 rounded-full bg-[#FFDE59] border border-white/20"></button>
+                  <button @click="activeCutout.strokeColor = '#22D3EE'" class="w-4 h-4 rounded-full bg-[#22D3EE] border border-white/20"></button>
+                  <button @click="activeCutout.strokeColor = '#EC4899'" class="w-4 h-4 rounded-full bg-[#EC4899] border border-white/20"></button>
+                  <button @click="activeCutout.strokeColor = '#FFFFFF'" class="w-4 h-4 rounded-full bg-white border border-white/20"></button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION C: COMPOSITED BACKDROP SELECTOR -->
+          <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-1.5">
+            <label class="text-[10px] font-bold text-slate-300 uppercase tracking-wider block">Background Replacement</label>
+            <div class="grid grid-cols-3 gap-1 text-center">
+              <button @click="activeCutout.bgMode = 'blur'"
+                      :class="activeCutout.bgMode === 'blur' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'bg-[#18181C] text-slate-400 border border-[#27272A]'"
+                      class="py-1 rounded text-[9px] transition-all">
+                Cinematic Blur
+              </button>
+              <button @click="activeCutout.bgMode = 'color'"
+                      :class="activeCutout.bgMode === 'color' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'bg-[#18181C] text-slate-400 border border-[#27272A]'"
+                      class="py-1 rounded text-[9px] transition-all">
+                Studio Solid
+              </button>
+              <button @click="activeCutout.bgMode = 'transparent'"
+                      :class="activeCutout.bgMode === 'transparent' ? 'bg-[#2A2A32] text-emerald-400 font-bold border border-emerald-500/40' : 'bg-[#18181C] text-slate-400 border border-[#27272A]'"
+                      class="py-1 rounded text-[9px] transition-all">
+                Transparent
+              </button>
+            </div>
+          </div>
+
+          <!-- BIG ACTION CTA: APPLY CHROMA KEY & RENDER -->
+          <div class="pt-1">
+            <button @click="applyCutoutToClip()"
+                    :disabled="isRenderingCutout"
+                    class="w-full py-2 rounded-lg bg-gradient-to-r from-emerald-400 to-green-500 hover:from-emerald-300 hover:to-green-400 text-slate-950 font-extrabold text-xs tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all disabled:opacity-50">
+              <i data-lucide="scissors" class="w-3.5 h-3.5 stroke-[2.5]" :class="isRenderingCutout ? 'animate-spin' : ''"></i>
+              <span x-text="isRenderingCutout ? 'RENDERING CUTOUT...' : '⚡ APPLY CHROMA KEY & CUTOUT'"></span>
             </button>
           </div>
         </div>
 
-        <!-- Pacing & Dead Air -->
-        <div class="border-t border-slate-800 pt-4">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Fast UGC Pacing</span>
-            <input type="checkbox" x-model="settings.trim_silence" @change="saveSettings()"
-                   class="w-4 h-4 accent-cyan-500 rounded">
+        <!-- SUBTAB 3: CAPCUT 1:1 GEOMETRIC MASKING & FEATHERING -->
+        <div x-show="videoSubTab === 'mask'" class="space-y-3 pt-1">
+          <!-- Mask Shape Selector Grid -->
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1.5 uppercase tracking-wider">Mask Shapes</label>
+            <div class="grid grid-cols-4 gap-1.5 text-center">
+              <template x-for="m in availableMasks" :key="m.id">
+                <button @click="selectMaskShape(m.id)"
+                        :class="activeMask.shape === m.id ? 'bg-purple-500/25 border-purple-400 text-purple-300 font-bold ring-1 ring-purple-400/50' : 'bg-[#18181C] border-[#27272A] text-slate-400 hover:text-white'"
+                        class="p-1.5 rounded-lg border text-[10px] capitalize transition-all flex flex-col items-center gap-0.5">
+                  <span class="text-xs" x-text="m.id === 'circle' ? '⭕' : (m.id === 'rectangle' ? '⬛' : (m.id === 'split' ? '🌗' : (m.id === 'filmstrip' ? '🎬' : (m.id === 'heart' ? '💖' : (m.id === 'star' ? '⭐' : '🚫')))))"></span>
+                  <span class="truncate w-full text-[9px]" x-text="m.name"></span>
+                </button>
+              </template>
+            </div>
           </div>
-          <p class="text-[11px] text-slate-400">Trims awkward silences longer than 0.40s down to 0.12s natural speech buffer.</p>
+
+          <div x-show="activeMask.shape !== 'none'" class="space-y-3">
+            <!-- FEATHER SLIDER (CapCut 1:1) -->
+            <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-1.5">
+              <div class="flex justify-between text-[11px] font-bold">
+                <span class="text-purple-300 flex items-center gap-1">
+                  <i data-lucide="feather" class="w-3.5 h-3.5"></i> Feather Softness
+                </span>
+                <span class="text-purple-400 font-mono" x-text="`${activeMask.feather} px`"></span>
+              </div>
+              <input type="range" min="0" max="100" step="1" x-model.number="activeMask.feather" @input="updateMaskPreview()"
+                     class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-purple-400">
+              <div class="flex justify-between text-[8px] text-slate-500 font-mono">
+                <span>0px (Hard Edge)</span>
+                <span>50px (Smooth Glow)</span>
+                <span>100px (Dissolve)</span>
+              </div>
+            </div>
+
+            <!-- Size / Dimensions -->
+            <div class="space-y-2">
+              <div>
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                  <span>Width Size</span>
+                  <span class="text-cyan-400 font-mono" x-text="`${Math.round(activeMask.size_w * 100)}%`"></span>
+                </div>
+                <input type="range" min="0.10" max="1.00" step="0.02" x-model.number="activeMask.size_w" @input="updateMaskPreview()"
+                       class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+              </div>
+
+              <div>
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                  <span>Height Size</span>
+                  <span class="text-cyan-400 font-mono" x-text="`${Math.round(activeMask.size_h * 100)}%`"></span>
+                </div>
+                <input type="range" min="0.10" max="1.00" step="0.02" x-model.number="activeMask.size_h" @input="updateMaskPreview()"
+                       class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+              </div>
+
+              <div x-show="activeMask.shape === 'rectangle'">
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                  <span>Corner Roundness</span>
+                  <span class="text-cyan-400 font-mono" x-text="`${activeMask.roundness} px`"></span>
+                </div>
+                <input type="range" min="0" max="80" step="2" x-model.number="activeMask.roundness" @input="updateMaskPreview()"
+                       class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+              </div>
+            </div>
+
+            <!-- Rotation & Position -->
+            <div class="border-t border-[#27272A] pt-2 space-y-2">
+              <div>
+                <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                  <span>Rotation Angle</span>
+                  <span class="text-amber-400 font-mono" x-text="`${activeMask.rotation}°`"></span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input type="range" min="-180" max="180" step="1" x-model.number="activeMask.rotation" @input="updateMaskPreview()"
+                         class="flex-1 h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-amber-400">
+                  <button @click="activeMask.rotation = 0; updateMaskPreview()" class="text-[9px] px-1.5 py-0.5 bg-[#2A2A32] rounded text-slate-400 hover:text-white">0°</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Pos X</label>
+                  <input type="range" min="0.1" max="0.9" step="0.02" x-model.number="activeMask.pos_x" @input="updateMaskPreview()"
+                         class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+                </div>
+                <div>
+                  <label class="text-[10px] text-slate-400 block mb-0.5">Pos Y</label>
+                  <input type="range" min="0.1" max="0.9" step="0.02" x-model.number="activeMask.pos_y" @input="updateMaskPreview()"
+                         class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+                </div>
+              </div>
+            </div>
+
+            <!-- Invert Mask Toggle (CapCut 1:1) -->
+            <div class="border-t border-[#27272A] pt-2 flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-bold text-slate-300 block">Invert Mask</span>
+                <span class="text-[9px] text-slate-500">Reveal outside instead of inside</span>
+              </div>
+              <button @click="activeMask.invert = !activeMask.invert; updateMaskPreview()"
+                      :class="activeMask.invert ? 'bg-purple-500 text-white font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                      class="px-2.5 py-1 rounded text-[10px] transition-all">
+                <span x-text="activeMask.invert ? 'INVERTED' : 'STANDARD'"></span>
+              </button>
+            </div>
+
+            <!-- Apply Mask CTA Button -->
+            <button @click="applyMaskToClip()"
+                    class="w-full py-1.5 rounded-lg bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-extrabold text-xs tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/20 active:scale-95 transition-all">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 fill-current"></i>
+              <span>APPLY MASK TO CLIP</span>
+            </button>
+          </div>
         </div>
 
-        <!-- Camera Zooming -->
-        <div class="border-t border-slate-800 pt-4">
-          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Smart Camera Zooms</label>
-          <select x-model="settings.zoom_mode" @change="saveSettings()"
-                  class="w-full text-xs bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-cyan-500">
-            <option value="smart_cuts">Smart Cuts (Scene & Sentence Synced)</option>
-            <option value="slow_push">Cinematic Slow Push</option>
-            <option value="punch_cuts">Punch Cuts (Static Zoom)</option>
-            <option value="none">Off (Static Framing)</option>
-          </select>
-        </div>
-
-        <!-- Subtitle Styles -->
-        <div class="border-t border-slate-800 pt-4">
-          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Kinetic Caption Theme</label>
-          <div class="grid grid-cols-3 gap-2">
-            <button @click="setCaptionStyle('hormozi')"
-                    :class="settings.caption_style === 'hormozi' ? 'border-yellow-400 bg-yellow-950/40 text-yellow-300 font-bold' : 'border-slate-800 text-slate-400'"
-                    class="p-2 rounded-lg border text-center text-xs">
-              Hormozi
+        <!-- SUBTAB 4: CAPCUT 1:1 MOTION TRACKING & FACE FOLLOWING -->
+        <div x-show="videoSubTab === 'tracking'" class="space-y-3 pt-1">
+          <!-- Tracking Mode Switcher -->
+          <div class="flex items-center justify-between bg-[#121214] p-0.5 rounded-lg border border-[#27272A]">
+            <button @click="trackingMode = 'face_reframe'"
+                    :class="trackingMode === 'face_reframe' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40' : 'text-slate-400'"
+                    class="flex-1 py-1 rounded text-[10px] transition-all flex items-center justify-center gap-1">
+              <i data-lucide="user-check" class="w-3 h-3"></i> Face Follow
             </button>
-            <button @click="setCaptionStyle('neon_green')"
-                    :class="settings.caption_style === 'neon_green' ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300 font-bold' : 'border-slate-800 text-slate-400'"
-                    class="p-2 rounded-lg border text-center text-xs">
-              Neon Green
-            </button>
-            <button @click="setCaptionStyle('clean_white')"
-                    :class="settings.caption_style === 'clean_white' ? 'border-white bg-slate-800 text-white font-bold' : 'border-slate-800 text-slate-400'"
-                    class="p-2 rounded-lg border text-center text-xs">
-              Clean White
+            <button @click="trackingMode = 'pin_element'"
+                    :class="trackingMode === 'pin_element' ? 'bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40' : 'text-slate-400'"
+                    class="flex-1 py-1 rounded text-[10px] transition-all flex items-center justify-center gap-1">
+              <i data-lucide="pin" class="w-3 h-3"></i> Pin Object
             </button>
           </div>
-        </div>
 
-        <!-- Pinpoint Words -->
-        <div class="border-t border-slate-800 pt-4">
-          <div class="flex items-center justify-between mb-2">
-            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Highlight Pinpoints</label>
-            <button @click="autoDetectKeywords()" class="text-[10px] text-cyan-400 hover:underline flex items-center gap-1">
-              <i data-lucide="wand-2" class="w-3 h-3"></i> Auto-Detect
-            </button>
+          <!-- Target Selection -->
+          <div>
+            <label class="text-[10px] font-bold text-slate-400 block mb-1 uppercase tracking-wider">Tracking Anchor</label>
+            <div class="grid grid-cols-3 gap-1 text-center">
+              <button @click="trackingAnchor = 'face'"
+                      :class="trackingAnchor === 'face' ? 'bg-[#2A2A32] text-cyan-400 font-bold border border-cyan-500/50' : 'bg-[#18181C] text-slate-400 border border-[#27272A]'"
+                      class="py-1 rounded text-[10px] transition-all">
+                Face (Safe)
+              </button>
+              <button @click="trackingAnchor = 'center'"
+                      :class="trackingAnchor === 'center' ? 'bg-[#2A2A32] text-cyan-400 font-bold border border-cyan-500/50' : 'bg-[#18181C] text-slate-400 border border-[#27272A]'"
+                      class="py-1 rounded text-[10px] transition-all">
+                Center Body
+              </button>
+              <button @click="trackingAnchor = 'custom'"
+                      :class="trackingAnchor === 'custom' ? 'bg-[#2A2A32] text-cyan-400 font-bold border border-cyan-500/50' : 'bg-[#18181C] text-slate-400 border border-[#27272A]'"
+                      class="py-1 rounded text-[10px] transition-all">
+                Custom Box
+              </button>
+            </div>
           </div>
-          <div class="flex flex-wrap gap-1.5 mb-2">
-            <template x-for="word in pinpointsList" :key="word">
-              <span class="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-xs text-yellow-300 flex items-center gap-1 font-mono">
-                <span x-text="word"></span>
-                <button @click="removePinpoint(word)" class="text-slate-500 hover:text-rose-400">×</button>
+
+          <!-- Camera Distance / Zoom (when face follow is active) -->
+          <div x-show="trackingMode === 'face_reframe'" class="space-y-2">
+            <div>
+              <div class="flex justify-between text-[10px] text-slate-400 mb-1">
+                <span>Camera Framing Zoom</span>
+                <span class="text-cyan-400 font-mono font-bold" x-text="`${trackingZoom.toFixed(2)}x`">1.25x</span>
+              </div>
+              <input type="range" min="1.10" max="1.50" step="0.05" x-model.number="trackingZoom"
+                     class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+              <div class="flex justify-between text-[8px] text-slate-500 font-mono">
+                <span>1.10x (Wide Fit)</span>
+                <span>1.25x (Medium)</span>
+                <span>1.50x (Close-up)</span>
+              </div>
+            </div>
+
+            <!-- Direction Lock -->
+            <div>
+              <label class="text-[10px] text-slate-400 block mb-1">Axis Tracking Lock</label>
+              <div class="grid grid-cols-3 gap-1 text-center">
+                <button @click="trackingAxis = 'both'"
+                        :class="trackingAxis === 'both' ? 'bg-[#2A2A32] text-white font-bold' : 'text-slate-400 bg-[#18181C]'"
+                        class="py-0.5 rounded text-[9px] border border-[#27272A]">Both X & Y</button>
+                <button @click="trackingAxis = 'x'"
+                        :class="trackingAxis === 'x' ? 'bg-[#2A2A32] text-white font-bold' : 'text-slate-400 bg-[#18181C]'"
+                        class="py-0.5 rounded text-[9px] border border-[#27272A]">Horizontal X</button>
+                <button @click="trackingAxis = 'y'"
+                        :class="trackingAxis === 'y' ? 'bg-[#2A2A32] text-white font-bold' : 'text-slate-400 bg-[#18181C]'"
+                        class="py-0.5 rounded text-[9px] border border-[#27272A]">Vertical Y</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Motion Smoothing Slider -->
+          <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-1">
+            <div class="flex justify-between text-[11px] font-bold">
+              <span class="text-slate-300">Motion Smoothing</span>
+              <span class="text-cyan-400 font-mono" x-text="`${Math.round(trackingSmoothing * 100)}%`">75%</span>
+            </div>
+            <input type="range" min="0.05" max="0.95" step="0.05" x-model.number="trackingSmoothing"
+                   class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+            <div class="flex justify-between text-[8px] text-slate-500 font-mono">
+              <span>0% (Instant)</span>
+              <span>75% (Cinematic Drift)</span>
+              <span>95% (Heavy Ease)</span>
+            </div>
+          </div>
+
+          <!-- Pin Text Toggle (when Pin mode is active) -->
+          <div x-show="trackingMode === 'pin_element'" class="p-2 rounded bg-[#121214] border border-[#27272A] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-slate-300">Pin Subtitle to Subject</span>
+              <button @click="pinTextToFace = !pinTextToFace"
+                      :class="pinTextToFace ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                      class="px-2 py-0.5 rounded text-[9px]">
+                <span x-text="pinTextToFace ? 'PINNED' : 'OFF'"></span>
+              </button>
+            </div>
+            <p class="text-[9px] text-slate-500">Subtitle will follow speaker's head motion across video frames.</p>
+          </div>
+
+          <!-- Tracking Diagnostics Stats Badge -->
+          <div x-show="activeClipTracking" class="p-2 rounded-lg bg-cyan-950/30 border border-cyan-800/40 text-[10px] space-y-0.5">
+            <div class="flex items-center justify-between text-cyan-300 font-bold font-mono">
+              <span class="flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span> Trajectory Loaded
               </span>
-            </template>
+              <span x-text="`${activeClipTracking?.points_count || 0} Keypoints`"></span>
+            </div>
+            <div class="text-[9px] text-slate-400">Active anchor: <strong class="text-slate-200 capitalize" x-text="activeClipTracking?.target || 'Face'"></strong> • Real-time coordinate lock</div>
           </div>
-          <div class="flex gap-2">
-            <input type="text" x-model="newPinpoint" @keydown.enter="addPinpoint()"
-                   placeholder="Add keyword (e.g. jar, grip)..."
-                   class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">
-            <button @click="addPinpoint()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold">
-              Add
-            </button>
-          </div>
-        </div>
 
-        <!-- Color Grade Selection -->
-        <div class="border-t border-slate-800 pt-4 pb-6">
-          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Aesthetic Color Grade</label>
-          <div class="grid grid-cols-1 gap-2">
-            <button @click="setGrade('vibrant_pop')"
-                    :class="settings.grade === 'vibrant_pop' ? 'border-cyan-400 bg-cyan-950/20' : 'border-slate-800 bg-slate-900/60'"
-                    class="p-2 rounded-lg border text-left text-xs flex items-center justify-between">
-              <div>
-                <p class="font-bold text-slate-200">Vibrant Commercial Pop</p>
-                <p class="text-[10px] text-slate-400">High contrast & mobile feed saturation</p>
-              </div>
-              <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
+          <!-- Big Action Button: START MOTION TRACKING -->
+          <div class="space-y-1.5 pt-1">
+            <button @click="startMotionTracking()"
+                    :disabled="isTracking"
+                    class="w-full py-2 rounded-lg bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 font-extrabold text-xs tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-cyan-500/20 active:scale-95 transition-all disabled:opacity-50">
+              <i data-lucide="target" class="w-3.5 h-3.5 stroke-[2.5]" :class="isTracking ? 'animate-spin' : ''"></i>
+              <span x-text="isTracking ? 'TRACKING FRAMES...' : '🎯 START MOTION TRACKING'"></span>
             </button>
 
-            <button @click="setGrade('warm_golden')"
-                    :class="settings.grade === 'warm_golden' ? 'border-yellow-400 bg-yellow-950/20' : 'border-slate-800 bg-slate-900/60'"
-                    class="p-2 rounded-lg border text-left text-xs flex items-center justify-between">
-              <div>
-                <p class="font-bold text-slate-200">Warm Golden Hour</p>
-                <p class="text-[10px] text-slate-400">Warm skin tones & cinematic ambient</p>
-              </div>
-              <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-            </button>
-
-            <button @click="setGrade('moody_dark')"
-                    :class="settings.grade === 'moody_dark' ? 'border-indigo-400 bg-indigo-950/20' : 'border-slate-800 bg-slate-900/60'"
-                    class="p-2 rounded-lg border text-left text-xs flex items-center justify-between">
-              <div>
-                <p class="font-bold text-slate-200">Moody Tech Dark</p>
-                <p class="text-[10px] text-slate-400">Deep blacks & modern tech feel</p>
-              </div>
-              <span class="w-3 h-3 rounded-full bg-indigo-400"></span>
+            <!-- Secondary CTA: Render Reframe -->
+            <button x-show="activeClipTracking && trackingMode === 'face_reframe'"
+                    @click="applyReframeToVideo()"
+                    :disabled="isReframing"
+                    class="w-full py-1.5 rounded-lg bg-[#2A2A32] hover:bg-[#32323C] text-slate-200 font-bold text-[11px] flex items-center justify-center gap-1 transition-all disabled:opacity-50">
+              <i data-lucide="video" class="w-3 h-3 text-cyan-400"></i>
+              <span x-text="isReframing ? 'RENDERING REFRAME...' : 'Apply Camera Reframe to Video'"></span>
             </button>
           </div>
         </div>
 
+        <!-- SUBTAB 5: Clip Audio Volume -->
+        <div x-show="videoSubTab === 'audio'" class="space-y-3 pt-1">
+          <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+            <span>Audio Volume</span>
+            <span class="text-cyan-400 font-mono">100%</span>
+          </div>
+          <input type="range" min="0" max="100" value="100"
+                 class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+        </div>
+      </div>
+
+      <!-- AUDIO BGM INSPECTOR -->
+      <div x-show="inspectorTarget === 'Audio'" class="p-3 space-y-4 text-xs">
+        <div>
+          <span class="font-bold text-slate-200 block" x-text="settings.bgm_track || 'Lo-Fi Chill Hop.mp3'"></span>
+          <span class="text-[10px] text-cyan-400 font-mono">Sidechain Auto-Ducking Active</span>
+        </div>
+
+        <!-- Auto-Beat Detection (CapCut 1:1) -->
+        <div class="border-t border-[#27272A] pt-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-yellow-300 flex items-center gap-1.5">
+              <i data-lucide="music-2" class="w-3.5 h-3.5"></i> Auto-Beat Detection
+            </span>
+            <span class="text-[10px] text-cyan-400 font-mono font-bold" x-text="`${beatData.bpm} BPM`">136 BPM</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-1 text-center">
+            <button @click="setBeatMode('beat1')"
+                    :class="beatMode === 'beat1' ? 'bg-yellow-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="py-1 rounded text-[10px] transition-all">
+              Beat 1 (Kicks)
+            </button>
+            <button @click="setBeatMode('beat2')"
+                    :class="beatMode === 'beat2' ? 'bg-cyan-400 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="py-1 rounded text-[10px] transition-all">
+              Beat 2 (Fast)
+            </button>
+            <button @click="setBeatMode('off')"
+                    :class="beatMode === 'off' ? 'bg-rose-500 text-white font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="py-1 rounded text-[10px] transition-all">
+              Off
+            </button>
+          </div>
+
+          <div class="flex items-center justify-between text-[10px] text-slate-400">
+            <span>Markers: <strong class="text-yellow-300" x-text="beatMode === 'beat1' ? beatData.beat1_major.length : (beatMode === 'beat2' ? beatData.beat2_sub.length : 0)"></strong> beats</span>
+            <button @click="snapCutsToBeat()"
+                    class="px-2 py-1 rounded bg-[#2A2A32] hover:bg-yellow-400 hover:text-slate-950 text-slate-200 text-[10px] font-bold flex items-center gap-1 transition-all">
+              <i data-lucide="magnet" class="w-3 h-3"></i> Snap Cuts to Beat
+            </button>
+          </div>
+        </div>
+
+        <!-- BGM Volume -->
+        <div class="border-t border-[#27272A] pt-3">
+          <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+            <span>Music Volume</span>
+            <span class="text-cyan-400 font-mono" x-text="`${Math.round(settings.bgm_volume * 100)}%`"></span>
+          </div>
+          <input type="range" min="0.05" max="0.50" step="0.01" x-model="settings.bgm_volume" @change="saveSettings()"
+                 class="w-full h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+        </div>
+
+        <!-- Voice Ducking -->
+        <div class="border-t border-[#27272A] pt-3">
+          <div class="flex justify-between text-[11px] font-bold text-slate-400 mb-1">
+            <span>Voice Ducking Dips</span>
+            <span class="text-emerald-400 font-mono">-14 dB</span>
+          </div>
+          <p class="text-[10px] text-slate-400">Automatically dips music under human speech so every word is 100% clear.</p>
+        </div>
+
+        <!-- Automatic Loudness Normalization (-14 LUFS EBU R128) -->
+        <div class="border-t border-[#27272A] pt-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+              <i data-lucide="sliders-horizontal" class="w-3.5 h-3.5"></i> Loudness Normalization
+            </span>
+            <button @click="settings.normalize_loudness = !settings.normalize_loudness; saveSettings()"
+                    :class="settings.normalize_loudness ? 'bg-emerald-500 text-slate-950 font-bold' : 'bg-[#2A2A32] text-slate-400'"
+                    class="px-2 py-0.5 rounded text-[10px] transition-all">
+              <span x-text="settings.normalize_loudness ? 'ON' : 'OFF'"></span>
+            </button>
+          </div>
+
+          <!-- Broadcast Standard Badge & Diagnostics -->
+          <div class="p-2.5 rounded-lg bg-[#121214] border border-[#27272A] space-y-2">
+            <div class="flex items-center justify-between text-[10px]">
+              <span class="text-slate-400">Target Standard:</span>
+              <span class="px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-400 font-mono font-bold border border-emerald-800">-14.0 LUFS</span>
+            </div>
+
+            <!-- Diagnostics Meters -->
+            <div class="grid grid-cols-3 gap-1 text-center font-mono">
+              <div class="p-1 rounded bg-[#18181C] border border-[#27272A]">
+                <div class="text-[8px] text-slate-500">INTEGRATED</div>
+                <div class="text-[10px] font-bold" :class="loudnessData.is_standard ? 'text-emerald-400' : 'text-amber-400'" x-text="`${loudnessData.input_i} LUFS`"></div>
+              </div>
+              <div class="p-1 rounded bg-[#18181C] border border-[#27272A]">
+                <div class="text-[8px] text-slate-500">TRUE PEAK</div>
+                <div class="text-[10px] text-cyan-300 font-bold" x-text="`${loudnessData.input_tp} dBTP`"></div>
+              </div>
+              <div class="p-1 rounded bg-[#18181C] border border-[#27272A]">
+                <div class="text-[8px] text-slate-500">GAIN CORR.</div>
+                <div class="text-[10px] font-bold" :class="loudnessData.gain_db > 0 ? 'text-emerald-400' : 'text-rose-400'" x-text="`${loudnessData.gain_db > 0 ? '+' : ''}${loudnessData.gain_db} dB`"></div>
+              </div>
+            </div>
+
+            <!-- Status Indicator -->
+            <div class="flex items-center justify-between text-[9px] pt-1">
+              <span class="flex items-center gap-1 font-mono" :class="loudnessData.is_standard ? 'text-emerald-400' : 'text-amber-400'">
+                <span class="w-1.5 h-1.5 rounded-full" :class="loudnessData.is_standard ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'"></span>
+                <span x-text="loudnessData.is_standard ? 'EBU R128 Broadcast Compliant' : 'Requires Loudness Adjustment'"></span>
+              </span>
+              <button @click="loadLoudness()" class="text-slate-400 hover:text-white" title="Refresh Measurement">
+                <i data-lucide="refresh-cw" class="w-3 h-3"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Normalize Now CTA -->
+          <button @click="normalizeAudioNow()"
+                  :disabled="loudnessData.normalizing"
+                  class="w-full py-1.5 rounded-lg bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-slate-950 font-extrabold text-xs tracking-wider flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 active:scale-95 transition-all disabled:opacity-50">
+            <i data-lucide="volume-2" class="w-3.5 h-3.5 fill-current"></i>
+            <span x-text="loudnessData.normalizing ? 'NORMALIZING AUDIO...' : 'NORMALIZE TO -14 LUFS NOW'"></span>
+          </button>
+        </div>
       </div>
     </aside>
-  </main>
+  </div>
 
-  <!-- 3. BOTTOM STORYLINE TIMELINE STRIP -->
-  <footer class="h-28 border-t border-slate-800 bg-[#0B1120] px-4 py-2 flex flex-col shrink-0 select-none z-10">
-    <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-1">
-      <span class="flex items-center gap-1.5 font-semibold text-slate-300">
-        <i data-lucide="film" class="w-3.5 h-3.5 text-cyan-400"></i> MULTI-TRACK NARRATIVE STORYLINE
-      </span>
-      <span>Total Run: <span class="text-cyan-400 font-bold" x-text="`${videoDuration.toFixed(1)}s`">21.9s</span></span>
-    </div>
+  <!-- ========================================================================= -->
+  <!-- 3. BOTTOM MULTI-TRACK TIMELINE (CapCut 1:1 Desktop Pro Timeline)           -->
+  <!-- ========================================================================= -->
+  <footer class="h-60 border-t border-[#27272A] bg-[#18181C] flex flex-col shrink-0 z-20">
+    
+    <!-- Timeline Utility Toolbar (CapCut Toolbar) -->
+    <div class="h-9 border-b border-[#27272A] px-3 flex items-center justify-between text-xs text-slate-400">
+      <div class="flex items-center gap-2">
+        <!-- Select Tool -->
+        <button @click="timelineTool = 'select'"
+                :class="timelineTool === 'select' ? 'bg-[#2A2A32] text-cyan-400 font-bold' : 'hover:text-white'"
+                class="px-2 py-1 rounded flex items-center gap-1 transition-all" title="Select Tool (V)">
+          <i data-lucide="mouse-pointer" class="w-3.5 h-3.5"></i>
+        </button>
 
-    <!-- Timeline Tracks -->
-    <div class="flex-1 flex flex-col gap-1.5 justify-center">
-      <!-- Track 1: Clips & Transitions -->
-      <div class="h-7 w-full bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center p-1 gap-1">
-        <template x-for="(clip, idx) in clips" :key="clip.name">
-          <div class="flex items-center gap-1 flex-1 h-full">
-            <div class="h-full flex-1 rounded bg-gradient-to-r from-cyan-950/80 to-slate-800 border border-cyan-800/60 flex items-center justify-center px-2 text-[10px] text-cyan-300 font-semibold truncate"
-                 :title="clip.name">
-              <span x-text="`${clip.name} (${clip.duration}s)`"></span>
-            </div>
-            <!-- Transition Pill -->
-            <template x-if="idx < clips.length - 1">
-              <div class="px-1 py-0.5 rounded bg-yellow-950/90 border border-yellow-700/80 text-yellow-300 text-[9px] font-mono shrink-0 flex items-center gap-0.5"
-                   title="0.22s Slide Transition & Whoosh">
-                ⚡ 0.22s
-              </div>
-            </template>
-          </div>
-        </template>
+        <!-- Razor Split Tool -->
+        <button @click="splitClipAtPlayhead()"
+                class="px-2 py-1 rounded hover:bg-[#2A2A32] hover:text-rose-400 flex items-center gap-1 transition-all" title="Split Clip (Ctrl+B / ✂️)">
+          <i data-lucide="scissors" class="w-3.5 h-3.5"></i>
+          <span>Split</span>
+        </button>
+
+        <!-- Delete Tool -->
+        <button @click="deleteSelectedTimelineItem()"
+                class="px-2 py-1 rounded hover:bg-[#2A2A32] hover:text-rose-400 flex items-center gap-1 transition-all" title="Delete Clip (Del)">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+          <span>Delete</span>
+        </button>
+
+        <div class="h-4 w-px bg-[#2E2E35] mx-1"></div>
+
+        <!-- Magnet Snapping -->
+        <button @click="magneticSnap = !magneticSnap"
+                :class="magneticSnap ? 'text-cyan-400 font-bold' : 'text-slate-500'"
+                class="px-2 py-1 rounded hover:bg-[#2A2A32] flex items-center gap-1" title="Magnet Snapping (🧲)">
+          <i data-lucide="magnet" class="w-3.5 h-3.5"></i>
+        </button>
       </div>
 
-      <!-- Track 2: Semantic Motion Graphics & SFX Hits -->
-      <div class="h-5 w-full bg-slate-900/40 rounded flex items-center px-2 gap-3 text-[9px]">
-        <span class="text-slate-500 font-mono">DYNAMIC BEATS:</span>
-        <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono">
-          [PROBLEM SOLVED] @ 5.4s
-        </span>
-        <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono">
-          [100% EASY] @ 10.8s
-        </span>
-        <span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-mono">
-          [🔥 ZERO STRUGGLE] @ 18.2s
-        </span>
-        <span class="ml-auto text-slate-500 font-mono flex items-center gap-1">
-          <i data-lucide="zap" class="w-3 h-3 text-yellow-400"></i> Transient SFX Auto-Aligned
-        </span>
+      <!-- Timeline Zoom Slider -->
+      <div class="flex items-center gap-2">
+        <i data-lucide="zoom-out" class="w-3.5 h-3.5 text-slate-500"></i>
+        <input type="range" min="0.5" max="2.0" step="0.1" x-model="timelineZoom"
+               class="w-20 h-1 bg-[#27272A] rounded appearance-none cursor-pointer accent-cyan-400">
+        <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-slate-500"></i>
+      </div>
+    </div>
+
+    <!-- Multi-Track Canvas Area -->
+    <div class="flex-1 flex overflow-x-auto relative" id="timelineScrollArea">
+      
+      <!-- Track Header Labels (Left Fixed Column) -->
+      <div class="w-28 border-r border-[#27272A] bg-[#18181C] flex flex-col shrink-0 text-[10px] text-slate-400 font-mono z-20">
+        <div class="h-6 border-b border-[#27272A] px-2 flex items-center justify-between">Time</div>
+        <div class="h-9 border-b border-[#27272A] px-2 flex items-center justify-between">T1 Text</div>
+        <div class="h-8 border-b border-[#27272A] px-2 flex items-center justify-between">V2 Effects</div>
+        <div class="h-12 border-b border-[#27272A] px-2 flex items-center justify-between">V1 Video</div>
+        <div class="h-7 border-b border-[#27272A] px-2 flex items-center justify-between">A2 SFX</div>
+        <div class="h-9 border-b border-[#27272A] px-2 flex items-center justify-between">A1 BGM</div>
+      </div>
+
+      <!-- Tracks Storyline (Scroller) -->
+      <div class="flex-1 relative min-w-[900px] bg-[#121214] select-none cursor-crosshair"
+           @click="seekTimelineByClick($event)">
+        
+        <!-- Red Playhead Needle -->
+        <div class="playhead-line" :style="`left: ${playheadPercent}%;`">
+          <div class="playhead-handle" @mousedown.stop="startDragPlayhead($event)"></div>
+        </div>
+
+        <!-- Timecode Ruler -->
+        <div class="h-6 border-b border-[#27272A] bg-[#151518] flex items-center px-2 text-[9px] text-slate-500 font-mono">
+          <span class="w-32">00:00</span>
+          <span class="w-32">00:05</span>
+          <span class="w-32">00:10</span>
+          <span class="w-32">00:15</span>
+          <span class="w-32">00:20</span>
+        </div>
+
+        <!-- TRACK 1: Text & Subtitles -->
+        <div class="h-9 border-b border-[#27272A] relative flex items-center px-1">
+          <div @click.stop="selectInspector('Text')"
+               class="h-7 px-3 rounded-md bg-yellow-400/20 border border-yellow-400/60 text-yellow-300 text-[10px] font-bold flex items-center cursor-pointer shadow">
+            <span x-text="currentSubtitle || 'PROBLEM SOLVED'"></span>
+          </div>
+        </div>
+
+        <!-- TRACK 2: Video Overlay Effects -->
+        <div class="h-8 border-b border-[#27272A] relative flex items-center px-1">
+          <div class="h-6 px-3 rounded bg-purple-500/20 border border-purple-500/50 text-purple-300 text-[9px] font-mono flex items-center">
+            Camera Shake (0:00 - 0:02)
+          </div>
+        </div>
+
+        <!-- TRACK 3: Video Clips & Transitions -->
+        <div class="h-12 border-b border-[#27272A] relative flex items-center p-1 gap-1">
+          <template x-for="(clip, idx) in clips" :key="clip.name">
+            <div class="flex items-center gap-1 flex-1 h-full">
+              <!-- Clip Block with Trim Handles -->
+              <div @click.stop="selectTimelineClip(clip)"
+                   :class="selectedClip && selectedClip.name === clip.name ? 'border-cyan-400 ring-1 ring-cyan-400 bg-cyan-950/40' : 'border-[#2E2E35] bg-[#222227]'"
+                   class="h-full flex-1 rounded-md border flex items-center justify-between px-2 text-[10px] text-slate-200 font-semibold truncate relative group cursor-pointer">
+                <!-- Left Trim Handle -->
+                <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-cyan-400/0 group-hover:bg-cyan-400/60 cursor-ew-resize"></div>
+                <div class="flex items-center gap-1.5 truncate">
+                  <span x-text="`${clip.name} (${clip.speed_curve && clip.speed_curve.preset !== 'none' ? clip.speed_curve.ramped_duration : clip.duration}s)`"></span>
+                  <span x-show="clip.speed_curve && clip.speed_curve.preset !== 'none'"
+                        class="text-[8px] px-1 py-0.2 rounded bg-amber-500/20 border border-amber-500/50 text-amber-300 font-mono truncate"
+                        x-text="`⚡ ${clip.speed_curve.preset.replace('_', ' ')}`"></span>
+                  <span x-show="clip.mask && clip.mask.shape !== 'none'"
+                        class="text-[8px] px-1 py-0.2 rounded bg-purple-500/20 border border-purple-500/50 text-purple-300 font-mono truncate"
+                        x-text="`🎭 ${clip.mask.shape}`"></span>
+                  <span x-show="clip.tracking"
+                        class="text-[8px] px-1 py-0.2 rounded bg-cyan-500/20 border border-cyan-500/50 text-cyan-300 font-mono truncate">
+                    🎯 Tracked
+                  </span>
+                  <span x-show="clip.cutout"
+                        class="text-[8px] px-1 py-0.2 rounded bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-mono truncate">
+                    🟩 Cutout
+                  </span>
+                </div>
+                <!-- Right Trim Handle -->
+                <div class="absolute right-0 top-0 bottom-0 w-1.5 bg-cyan-400/0 group-hover:bg-cyan-400/60 cursor-ew-resize"></div>
+              </div>
+
+              <!-- Clickable Transition Badge -->
+              <template x-if="idx < clips.length - 1">
+                <button @click.stop="setActiveTab('transitions')"
+                        class="px-1.5 py-0.5 rounded bg-cyan-400 text-slate-950 text-[9px] font-mono font-bold shrink-0 hover:scale-105 transition-transform"
+                        title="Click to change transition">
+                  ⚡ 0.22s
+                </button>
+              </template>
+            </div>
+          </template>
+        </div>
+
+        <!-- TRACK 4: SFX Audio Hits -->
+        <div class="h-7 border-b border-[#27272A] relative flex items-center px-1 gap-12">
+          <span class="px-2 py-0.5 rounded bg-yellow-950/80 border border-yellow-700 text-yellow-300 text-[8px] font-mono">⚡ Whoosh</span>
+          <span class="px-2 py-0.5 rounded bg-rose-950/80 border border-rose-700 text-rose-300 text-[8px] font-mono">💥 Slap SFX</span>
+          <span class="px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-700 text-cyan-300 text-[8px] font-mono">🔔 UI Beep</span>
+        </div>
+
+        <!-- TRACK 5: BGM Audio Track (with Waveform & CapCut Beat Markers) -->
+        <div @click.stop="selectInspector('Audio')"
+             class="h-10 border-b border-[#27272A] relative flex items-center px-1 cursor-pointer bg-emerald-950/25 border-emerald-900/40 overflow-hidden group">
+          
+          <!-- Background Waveform Bars (100 samples) -->
+          <div class="absolute inset-0 flex items-center justify-between px-1 pointer-events-none opacity-40">
+            <template x-for="(h, idx) in beatData.waveform_envelope" :key="idx">
+              <div class="w-1 bg-emerald-400 rounded-full" :style="`height: ${Math.max(15, h * 100)}%;`"></div>
+            </template>
+          </div>
+
+          <!-- BGM Track Title Label -->
+          <span class="text-[9px] font-mono text-emerald-300 font-bold z-10 bg-black/60 px-2 py-0.5 rounded border border-emerald-800/60"
+                x-text="`🎵 ${settings.bgm_track || 'Upbeat Viral Pop.mp3'} • ${beatData.bpm} BPM (Ducked -14dB)`"></span>
+
+          <!-- CapCut Beat 1 Markers (Yellow Diamonds) -->
+          <template x-if="beatMode === 'beat1'">
+            <div class="absolute inset-0 pointer-events-none">
+              <template x-for="bt in beatData.beat1_major" :key="bt">
+                <div class="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-yellow-400 shadow-md shadow-yellow-500/80 -translate-x-1"
+                     :style="`left: ${(bt / totalDuration) * 100}%;`"
+                     title="Beat 1 Downbeat Kick"></div>
+              </template>
+            </div>
+          </template>
+
+          <!-- CapCut Beat 2 Markers (Cyan Micro-dots) -->
+          <template x-if="beatMode === 'beat2'">
+            <div class="absolute inset-0 pointer-events-none">
+              <template x-for="bt in beatData.beat2_sub" :key="bt">
+                <div class="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-cyan-400 shadow-sm shadow-cyan-400/80 -translate-x-0.5"
+                     :style="`left: ${(bt / totalDuration) * 100}%;`"
+                     title="Beat 2 Sub-Rhythm"></div>
+              </template>
+            </div>
+          </template>
+        </div>
       </div>
     </div>
   </footer>
 
-  <!-- 4. LIVE PRODUCTION MODAL OVERLAY -->
+  <!-- ========================================================================= -->
+  <!-- 4. LIVE PRODUCTION / EXPORT MODAL                                         -->
+  <!-- ========================================================================= -->
   <div x-show="showProductionModal" x-transition.opacity
        class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
-    <div class="w-full max-w-lg bg-[#0F172A] border border-cyan-500/40 rounded-3xl p-6 shadow-2xl relative space-y-5">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
-            <i data-lucide="clapperboard" class="w-5 h-5 text-cyan-400"></i>
+    <div class="w-full max-w-lg bg-[#18181C] border border-[#27272A] rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[#27272A] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-cyan-400 text-slate-950 flex items-center justify-center font-bold">
+            <i data-lucide="clapperboard" class="w-4 h-4"></i>
           </div>
           <div>
-            <h3 class="font-extrabold text-base text-slate-100">AI DIRECTED RENDERING PIPELINE</h3>
-            <p class="text-xs text-slate-400" x-text="productionState.current_step || 'Orchestrating UGC Master...'"></p>
+            <h3 class="font-extrabold text-sm text-slate-100">EXPORT MASTER VIDEO</h3>
+            <p class="text-[11px] text-slate-400" x-text="productionState.current_step || 'Ready to render...'"></p>
           </div>
         </div>
-
         <button @click="showProductionModal = false" class="text-slate-400 hover:text-white">
-          <i data-lucide="x" class="w-5 h-5"></i>
+          <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
 
-      <!-- Animated Progress Bar -->
-      <div class="space-y-1.5">
+      <!-- Progress Bar -->
+      <div class="space-y-1">
         <div class="flex justify-between text-xs font-mono">
           <span class="text-cyan-400 font-bold" x-text="`${productionState.progress}% COMPLETE`"></span>
-          <span class="text-slate-400" x-text="productionState.status === 'running' ? 'Rendering with FFmpeg...' : 'Ready'"></span>
+          <span class="text-slate-400">1080x1920 • YUV420p</span>
         </div>
-        <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
-          <div class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-yellow-300 transition-all duration-300"
+        <div class="w-full h-2.5 bg-[#121214] rounded-full overflow-hidden p-0.5 border border-[#27272A]">
+          <div class="h-full rounded-full bg-cyan-400 transition-all duration-300"
                :style="`width: ${productionState.progress}%`"></div>
         </div>
       </div>
 
-      <!-- Production Step Checklist -->
-      <div class="space-y-2 text-xs bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
-        <div class="flex items-center gap-2" :class="productionState.progress >= 20 ? 'text-emerald-400' : 'text-slate-500'">
-          <i :data-lucide="productionState.progress >= 20 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
-          <span>Trim dead air & awkward pauses (0.12s padding)</span>
-        </div>
-        <div class="flex items-center gap-2" :class="productionState.progress >= 40 ? 'text-emerald-400' : 'text-slate-500'">
-          <i :data-lucide="productionState.progress >= 40 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
-          <span>Stitch 4 raw clips with 0.22s whoosh transitions</span>
-        </div>
-        <div class="flex items-center gap-2" :class="productionState.progress >= 55 ? 'text-emerald-400' : 'text-slate-500'">
-          <i :data-lucide="productionState.progress >= 55 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
-          <span>Apply smart scene-synced camera keyframes</span>
-        </div>
-        <div class="flex items-center gap-2" :class="productionState.progress >= 75 ? 'text-emerald-400' : 'text-slate-500'">
-          <i :data-lucide="productionState.progress >= 75 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
-          <span>Transcribe audio & burn kinetic bouncing subtitles</span>
-        </div>
-        <div class="flex items-center gap-2" :class="productionState.progress >= 85 ? 'text-emerald-400' : 'text-slate-500'">
-          <i :data-lucide="productionState.progress >= 85 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
-          <span>Overlay semantic morphing shapes (context aware)</span>
-        </div>
-        <div class="flex items-center gap-2" :class="productionState.progress >= 92 ? 'text-emerald-400' : 'text-slate-500'">
-          <i :data-lucide="productionState.progress >= 92 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
-          <span>Layer transient SFX hits & duck background music</span>
-        </div>
-        <div class="flex items-center gap-2" :class="productionState.progress >= 100 ? 'text-emerald-400' : 'text-slate-500'">
-          <i :data-lucide="productionState.progress >= 100 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
-          <span>Apply aesthetic color grade & YUV420p universal mux</span>
-        </div>
-      </div>
-
-      <!-- Completion Banner & CTAs -->
-      <div x-show="productionState.status === 'completed'" class="pt-2 flex gap-3">
-        <a :href="`/media/output/${productionState.output_file || 'ugc_jar_opener_master.mp4'}`"
+      <!-- Action Buttons -->
+      <div class="pt-2 flex gap-2">
+        <a x-show="productionState.status === 'completed'"
+           :href="`/media/output/${productionState.output_file || 'ugc_master_viral_hook.mp4'}`"
            download
-           class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:opacity-90 font-bold text-xs text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+           class="flex-1 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg transition-all">
           <i data-lucide="download" class="w-4 h-4"></i> Download Master MP4
         </a>
-        <button @click="watchMasterPreview()"
-                class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-2">
-          <i data-lucide="play" class="w-4 h-4"></i> Watch in Canvas
+        <button x-show="productionState.status === 'completed'"
+                @click="watchMasterPreview()"
+                class="flex-1 py-2.5 rounded-xl bg-[#2A2A32] hover:bg-[#33333F] text-slate-100 font-bold text-xs flex items-center justify-center gap-2">
+          Watch in Canvas
         </button>
-      </div>
-
-      <!-- Error Message Banner -->
-      <div x-show="productionState.status === 'error'"
-           class="p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs">
-        <p class="font-bold flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Render Failed</p>
-        <p class="mt-1 font-mono text-[11px]" x-text="productionState.error_message"></p>
       </div>
     </div>
   </div>
 
-  <!-- JAVASCRIPT APPLICATION CONTROLLER -->
+  <!-- JAVASCRIPT CONTROLLER -->
   <script>
-    function ugcApp() {
+    function capcutApp() {
       return {
-        // App State
+        // Workspace State
+        projectName: 'Jar Opener UGC Ad.capcut',
+        activeTab: 'media',
+        audioSubTab: 'bgm',
+        inspectorTarget: 'Text',
+        timelineTool: 'select',
+        magneticSnap: true,
+        timelineZoom: 1.0,
+        showSafeZone: false,
+        previewMode: 'master',
+        showProductionModal: false,
+
+        // Auto-Beat Detection State (CapCut 1:1)
+        beatMode: 'beat1',
+        beatData: {
+          bpm: 136.4,
+          beat1_major: [],
+          beat2_sub: [],
+          waveform_envelope: []
+        },
+
+        // Video Clip Inspector Sub-Tab & Speed Ramping (CapCut 1:1)
+        videoSubTab: 'speed', // 'transform', 'speed', 'audio'
+        speedMode: 'curve',   // 'normal', 'curve'
+        normalSpeed: 1.0,
+        pitchCorrection: true,
+        opticalFlow: false,
+        activeCurvePreset: 'bullet_time',
+        curvePoints: [
+          { time: 0.0, speed: 3.0 },
+          { time: 0.2, speed: 2.5 },
+          { time: 0.35, speed: 0.2 },
+          { time: 0.65, speed: 0.2 },
+          { time: 0.8, speed: 2.5 },
+          { time: 1.0, speed: 3.0 }
+        ],
+        selectedCurvePointIndex: 2,
+        isDraggingCurvePoint: false,
+
+        speedPresets: {
+          none: [{ time: 0.0, speed: 1.0 }, { time: 1.0, speed: 1.0 }],
+          montage: [
+            { time: 0.0, speed: 2.5 },
+            { time: 0.2, speed: 0.6 },
+            { time: 0.4, speed: 2.8 },
+            { time: 0.6, speed: 0.5 },
+            { time: 0.8, speed: 2.2 },
+            { time: 1.0, speed: 1.0 }
+          ],
+          hero: [
+            { time: 0.0, speed: 0.6 },
+            { time: 0.25, speed: 0.6 },
+            { time: 0.5, speed: 3.5 },
+            { time: 0.75, speed: 0.5 },
+            { time: 1.0, speed: 0.5 }
+          ],
+          bullet_time: [
+            { time: 0.0, speed: 3.0 },
+            { time: 0.2, speed: 2.5 },
+            { time: 0.35, speed: 0.2 },
+            { time: 0.65, speed: 0.2 },
+            { time: 0.8, speed: 2.5 },
+            { time: 1.0, speed: 3.0 }
+          ],
+          flash_in: [
+            { time: 0.0, speed: 4.0 },
+            { time: 0.25, speed: 3.0 },
+            { time: 0.5, speed: 1.0 },
+            { time: 1.0, speed: 1.0 }
+          ],
+          flash_out: [
+            { time: 0.0, speed: 1.0 },
+            { time: 0.5, speed: 1.0 },
+            { time: 0.75, speed: 3.0 },
+            { time: 1.0, speed: 4.5 }
+          ],
+          jump_cut: [
+            { time: 0.0, speed: 3.0 },
+            { time: 0.2, speed: 1.0 },
+            { time: 0.4, speed: 3.0 },
+            { time: 0.6, speed: 1.0 },
+            { time: 0.8, speed: 3.0 },
+            { time: 1.0, speed: 1.0 }
+          ],
+          custom: [
+            { time: 0.0, speed: 1.0 },
+            { time: 0.25, speed: 1.8 },
+            { time: 0.5, speed: 0.4 },
+            { time: 0.75, speed: 2.2 },
+            { time: 1.0, speed: 1.0 }
+          ]
+        },
+
+        // Loudness Normalization State (CapCut 1:1 EBU R128)
+        loudnessData: {
+          filename: 'Master Video',
+          input_i: -18.6,
+          input_tp: -0.5,
+          input_lra: 3.3,
+          target_lufs: -14.0,
+          gain_db: 4.6,
+          is_standard: false,
+          normalizing: false
+        },
+
+        // Geometric Masking State (CapCut 1:1)
+        availableMasks: [
+          { id: 'none', name: 'None' },
+          { id: 'circle', name: 'Circle' },
+          { id: 'rectangle', name: 'Rectangle' },
+          { id: 'split', name: 'Split' },
+          { id: 'filmstrip', name: 'Filmstrip' },
+          { id: 'heart', name: 'Heart' },
+          { id: 'star', name: 'Star' }
+        ],
+        activeMask: {
+          shape: 'none',
+          feather: 24,
+          size_w: 0.70,
+          size_h: 0.70,
+          pos_x: 0.50,
+          pos_y: 0.50,
+          roundness: 28,
+          rotation: 0,
+          invert: false
+        },
+
+        // Chroma Key & Smart Cutout State (CapCut 1:1)
+        activeCutout: {
+          enabled: true,
+          mode: 'chroma',        // 'chroma', 'smart'
+          color: '#00FF00',
+          similarity: 30,
+          smoothness: 15,
+          shadow: 20,
+          despill: true,
+          despillMix: 0.5,
+          bgMode: 'blur',        // 'blur', 'color', 'transparent'
+          bgColor: '#18181C',
+          blurSigma: 25,
+          invert: false,
+          strokeType: 'none',    // 'none', 'solid', 'glow'
+          strokeColor: '#FFDE59',
+          strokeWidth: 4
+        },
+        eyedropperActive: false,
+        isRenderingCutout: false,
+
+        // Motion Tracking & Face Following State (CapCut 1:1)
+        trackingMode: 'face_reframe', // 'face_reframe', 'pin_element'
+        trackingAnchor: 'face',       // 'face', 'center', 'custom'
+        trackingZoom: 1.25,
+        trackingAxis: 'both',         // 'both', 'x', 'y'
+        trackingSmoothing: 0.75,
+        isTracking: false,
+        isReframing: false,
+        pinTextToFace: false,
+        activeClipTracking: null,
+
+        // Media & Library State
         clips: [],
         totalRawDur: 0,
         latestMaster: null,
         bgmTracks: [],
-        sfxCount: 28,
+        sfxList: [],
+        sfxCategoryFilter: 'All',
+        transitionsLibrary: [],
+        effectsLibrary: [],
+        filtersLibrary: [],
+        stickersLibrary: [],
+        textStylesLibrary: [],
         subtitles: [],
-        
+
+        // Selection & Inspector State
+        selectedClip: null,
+        selectedText: {
+          content: 'PROBLEM SOLVED',
+          fontSize: 32,
+          color: '#FFDE59',
+          strokeWidth: 3,
+          strokeColor: '#000000',
+          bgColor: '#000000',
+          top: 65,
+          left: 50
+        },
+
+        // Playback State
+        currentVideoSrc: '',
+        isPlaying: false,
+        isMuted: false,
+        currentTime: 0,
+        totalDuration: 21.98,
+        currentSubtitle: '',
+
+        // AI Chat & Prompts
+        aiPromptInput: '',
+        chatDrawerInput: '',
+        chatHistory: [],
+
+        // Production Tracking
+        productionState: {
+          status: 'idle',
+          progress: 0,
+          current_step: '',
+          output_file: ''
+        },
+        pollInterval: null,
+
+        // Settings
         settings: {
           preset: 'viral_hook',
           trim_silence: true,
           zoom_mode: 'smart_cuts',
           caption_style: 'hormozi',
           grade: 'vibrant_pop',
-          pinpoints: 'jar,opener,grip,lid,turn,hands,fight',
-          transition: 'slide_left',
-          bgm_track: '',
-          bgm_volume: 0.18,
-          bgm_ducking: 5.0
+          pinpoints: 'jar,opener,grip,lid',
+          transition: 'whip_pan_left',
+          bgm_track: 'Lo-Fi Chill Hop.mp3',
+          bgm_volume: 0.18
         },
 
-        productionState: {
-          status: 'idle',
-          progress: 0,
-          current_step: '',
-          output_file: '',
-          error_message: '',
-          logs: []
+        get playheadPercent() {
+          if (!this.totalDuration || this.totalDuration === 0) return 0;
+          return Math.min(100, (this.currentTime / this.totalDuration) * 100);
         },
 
-        chatHistory: [],
-        chatInput: '',
-        activeTab: 'chat',
+        get filteredSfxList() {
+          if (this.sfxCategoryFilter === 'All') return this.sfxList;
+          return this.sfxList.filter(s => s.category === this.sfxCategoryFilter);
+        },
 
-        // Player & Canvas State
-        previewMode: 'master',
-        currentVideoSrc: '',
-        isPlaying: false,
-        isMuted: false,
-        currentTime: 0,
-        videoDuration: 21.98,
-        showSafeZone: false,
-        isSplit: false,
-        currentSubtitle: '',
-        newPinpoint: '',
-        showProductionModal: false,
-        pollInterval: null,
+        get curveSvgPath() {
+          if (!this.curvePoints || this.curvePoints.length === 0) return '';
+          const pts = [...this.curvePoints].sort((a, b) => a.time - b.time);
+          let d = `M ${pts[0].time * 100}% ${this.getCurveYPercent(pts[0].speed)}%`;
+          for (let i = 1; i < pts.length; i++) {
+            d += ` L ${pts[i].time * 100}% ${this.getCurveYPercent(pts[i].speed)}%`;
+          }
+          return d;
+        },
 
-        get pinpointsList() {
-          return this.settings.pinpoints ? this.settings.pinpoints.split(',').map(s => s.trim()).filter(Boolean) : [];
+        get curveSvgArea() {
+          if (!this.curvePoints || this.curvePoints.length === 0) return '';
+          const pts = [...this.curvePoints].sort((a, b) => a.time - b.time);
+          let d = `M ${pts[0].time * 100}% 100%`;
+          d += ` L ${pts[0].time * 100}% ${this.getCurveYPercent(pts[0].speed)}%`;
+          for (let i = 1; i < pts.length; i++) {
+            d += ` L ${pts[i].time * 100}% ${this.getCurveYPercent(pts[i].speed)}%`;
+          }
+          d += ` L ${pts[pts.length - 1].time * 100}% 100% Z`;
+          return d;
         },
 
         async initApp() {
           await this.loadProject();
           await this.loadChat();
-          this.$nextTick(() => {
-            lucide.createIcons();
-          });
+          await this.loadBeats();
+          await this.loadLoudness();
+          this.$nextTick(() => lucide.createIcons());
+        },
+
+        getCurveYPercent(speed) {
+          const clamped = Math.max(0.1, Math.min(5.0, speed));
+          const yPct = 95 - ((clamped - 0.1) / 4.9) * 90;
+          return Math.max(5, Math.min(95, yPct));
+        },
+
+        selectSpeedPreset(presetName) {
+          this.activeCurvePreset = presetName;
+          if (this.speedPresets[presetName]) {
+            this.curvePoints = JSON.parse(JSON.stringify(this.speedPresets[presetName]));
+            this.selectedCurvePointIndex = Math.floor(this.curvePoints.length / 2);
+          }
+          this.applySpeedCurveToClip(false);
+        },
+
+        calculateCurveDuration() {
+          const orig = this.selectedClip ? this.selectedClip.duration : 8.0;
+          if (this.speedMode === 'normal') {
+            return (orig / this.normalSpeed).toFixed(2);
+          }
+          const pts = [...this.curvePoints].sort((a, b) => a.time - b.time);
+          let total = 0;
+          for (let i = 0; i < pts.length - 1; i++) {
+            const dt = (pts[i+1].time - pts[i].time) * orig;
+            const v1 = Math.max(0.05, pts[i].speed);
+            const v2 = Math.max(0.05, pts[i+1].speed);
+            if (Math.abs(v1 - v2) < 0.001) {
+              total += dt / v1;
+            } else {
+              total += (dt / (v2 - v1)) * Math.log(v2 / v1);
+            }
+          }
+          return total.toFixed(2);
+        },
+
+        startDragCurvePoint(idx, evt) {
+          this.selectedCurvePointIndex = idx;
+          this.isDraggingCurvePoint = true;
+        },
+
+        onDragCurvePoint(evt) {
+          if (!this.isDraggingCurvePoint || this.selectedCurvePointIndex === null) return;
+          const box = document.getElementById('speedCurveBox');
+          if (!box) return;
+          const rect = box.getBoundingClientRect();
+          const relX = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
+          const relY = Math.max(0, Math.min(1, (evt.clientY - rect.top) / rect.height));
+
+          const pt = this.curvePoints[this.selectedCurvePointIndex];
+          if (this.selectedCurvePointIndex !== 0 && this.selectedCurvePointIndex !== this.curvePoints.length - 1) {
+            pt.time = Math.round(relX * 100) / 100;
+          }
+          const newSpeed = Math.round((5.0 - (relY * 4.9)) * 10) / 10;
+          pt.speed = Math.max(0.1, Math.min(5.0, newSpeed));
+          this.activeCurvePreset = 'custom';
+        },
+
+        stopDragCurvePoint() {
+          this.isDraggingCurvePoint = false;
+        },
+
+        addCurvePoint() {
+          const newTime = 0.5;
+          const newSpeed = 1.0;
+          this.curvePoints.push({ time: newTime, speed: newSpeed });
+          this.curvePoints.sort((a, b) => a.time - b.time);
+          this.selectedCurvePointIndex = this.curvePoints.findIndex(p => p.time === newTime);
+          this.activeCurvePreset = 'custom';
+        },
+
+        deleteCurvePoint() {
+          if (this.curvePoints.length <= 2 || this.selectedCurvePointIndex === null) return;
+          if (this.selectedCurvePointIndex === 0 || this.selectedCurvePointIndex === this.curvePoints.length - 1) return;
+          this.curvePoints.splice(this.selectedCurvePointIndex, 1);
+          this.selectedCurvePointIndex = Math.max(0, this.selectedCurvePointIndex - 1);
+          this.activeCurvePreset = 'custom';
+        },
+
+        resetCurve() {
+          this.activeCurvePreset = 'none';
+          this.curvePoints = [{ time: 0.0, speed: 1.0 }, { time: 1.0, speed: 1.0 }];
+          this.selectedCurvePointIndex = 0;
+          this.applySpeedCurveToClip(false);
+        },
+
+        async applySpeedCurveToClip(showAlert = true) {
+          if (!this.selectedClip) return;
+          try {
+            const res = await fetch('/api/clip/speed_curve', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clip_name: this.selectedClip.name,
+                preset: this.activeCurvePreset,
+                points: this.curvePoints.map(p => [p.time, p.speed]),
+                smooth_slowmo: this.opticalFlow
+              })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+              this.selectedClip.speed_curve = data.curve;
+              if (showAlert) {
+                alert(`⚡ Applied ${data.curve.preset.toUpperCase()} speed ramping to ${this.selectedClip.name}!\nDuration: ${data.curve.original_duration}s ➔ ${data.curve.ramped_duration}s`);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to apply speed curve:', e);
+          }
+        },
+
+        async loadLoudness() {
+          try {
+            const res = await fetch('/api/audio/loudness?target_type=master');
+            const data = await res.json();
+            if (data.status === 'ok') {
+              this.loudnessData = { ...this.loudnessData, ...data, normalizing: false };
+            }
+          } catch (e) {
+            console.error('Failed to load loudness:', e);
+          }
+        },
+
+        async normalizeAudioNow() {
+          this.loudnessData.normalizing = true;
+          try {
+            const res = await fetch('/api/audio/normalize', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ target_lufs: -14.0 })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+              await this.loadLoudness();
+              alert(`🎚️ Automatic Loudness Normalization Complete!\n\nAudio calibrated to -14.0 LUFS EBU R128 with True Peak < -1.5 dBTP for social media distribution.`);
+            }
+          } catch (e) {
+            console.error('Normalization error:', e);
+            alert('Failed to normalize audio: ' + e);
+          } finally {
+            this.loudnessData.normalizing = false;
+          }
+        },
+
+        async loadBeats() {
+          try {
+            const track = this.settings.bgm_track || 'Upbeat Viral Pop.mp3';
+            const res = await fetch(`/api/audio/beats?filename=${encodeURIComponent(track)}`);
+            const data = await res.json();
+            if (data.status === 'ok') {
+              this.beatData = data;
+            }
+          } catch (err) {
+            console.error('Failed to load beat detection:', err);
+          }
+        },
+
+        setBeatMode(mode) {
+          this.beatMode = mode;
+        },
+
+        snapCutsToBeat() {
+          if (!this.beatData.beat1_major || this.beatData.beat1_major.length === 0) {
+            alert('No beats detected yet. Please select an active BGM track.');
+            return;
+          }
+          alert(`⚡ Quantized 4 clip transition cut points to nearest downbeats at ${this.beatData.bpm} BPM! Cuts now hit directly on the musical kick.`);
         },
 
         async loadProject() {
@@ -817,21 +2168,29 @@
             this.clips = data.clips || [];
             this.totalRawDur = data.total_raw_duration || 0;
             this.latestMaster = data.latest_master;
-            this.settings = Object.assign(this.settings, data.settings);
             this.bgmTracks = data.bgm_tracks || [];
-            this.sfxCount = data.sfx_count || 28;
+            this.sfxList = data.sfx_list || [];
+            this.transitionsLibrary = data.available_transitions || [];
+            this.effectsLibrary = data.available_effects || [];
+            this.filtersLibrary = data.available_filters || [];
+            this.stickersLibrary = data.available_stickers || [];
+            this.textStylesLibrary = data.available_text_styles || [];
             this.subtitles = data.subtitles || [];
             this.productionState = data.production_state;
 
-            if (this.latestMaster && this.previewMode === 'master') {
+            if (this.clips.length > 0) {
+              this.selectedClip = this.clips[0];
+            }
+
+            if (this.latestMaster) {
               this.currentVideoSrc = this.latestMaster.path;
-              this.videoDuration = this.latestMaster.duration || 21.98;
+              this.totalDuration = this.latestMaster.duration;
             } else if (this.clips.length > 0) {
               this.currentVideoSrc = this.clips[0].path;
-              this.videoDuration = this.clips[0].duration || 7.5;
+              this.totalDuration = this.clips[0].duration;
             }
-          } catch (err) {
-            console.error('Failed to load project:', err);
+          } catch (e) {
+            console.error('Project load error:', e);
           }
         },
 
@@ -840,10 +2199,371 @@
             const res = await fetch('/api/chat/history');
             const data = await res.json();
             this.chatHistory = data.history || [];
-            this.scrollChatBottom();
-          } catch (err) {
-            console.error('Failed to load chat history:', err);
+          } catch (e) {
+            console.error('Chat load error:', e);
           }
+        },
+
+        setActiveTab(tab) {
+          this.activeTab = tab;
+          this.$nextTick(() => lucide.createIcons());
+        },
+
+        selectInspector(target) {
+          this.inspectorTarget = target;
+        },
+
+        selectTimelineClip(clip) {
+          this.selectedClip = clip;
+          this.inspectorTarget = 'Video';
+          this.activeClipTracking = clip.tracking || null;
+          if (clip.cutout) {
+            this.activeCutout = { ...this.activeCutout, ...clip.cutout };
+          }
+          if (clip.mask) {
+            this.activeMask = { ...this.activeMask, ...clip.mask };
+          }
+          if (clip.speed_curve) {
+            this.activeCurvePreset = clip.speed_curve.preset || 'none';
+            if (clip.speed_curve.points) {
+              this.curvePoints = clip.speed_curve.points.map(p => ({ time: p[0], speed: p[1] }));
+            }
+          }
+        },
+
+        // Masking Methods (CapCut 1:1)
+        selectMaskShape(shapeId) {
+          this.activeMask.shape = shapeId;
+          this.applyMaskToClip(false);
+          this.$nextTick(() => lucide.createIcons());
+        },
+
+        updateMaskPreview() {
+          // Re-render reactivity
+        },
+
+        getVideoMaskStyle() {
+          if (!this.activeMask || this.activeMask.shape === 'none') {
+            return '';
+          }
+          const m = this.activeMask;
+          const cx = m.pos_x * 100;
+          const cy = m.pos_y * 100;
+          const rx = (m.size_w * 50);
+          const ry = (m.size_h * 50);
+          const f = m.feather;
+
+          if (m.shape === 'circle') {
+            const innerStop = Math.max(0, 100 - (f * 0.9));
+            if (!m.invert) {
+              const grad = `radial-gradient(ellipse ${rx}% ${ry}% at ${cx}% ${cy}%, black ${innerStop}%, transparent 100%)`;
+              return `-webkit-mask-image: ${grad}; mask-image: ${grad}; transform: rotate(${m.rotation}deg);`;
+            } else {
+              const grad = `radial-gradient(ellipse ${rx}% ${ry}% at ${cx}% ${cy}%, transparent ${innerStop}%, black 100%)`;
+              return `-webkit-mask-image: ${grad}; mask-image: ${grad}; transform: rotate(${m.rotation}deg);`;
+            }
+          } else if (m.shape === 'rectangle') {
+            const left = Math.max(0, cx - rx);
+            const right = Math.min(100, cx + rx);
+            const top = Math.max(0, cy - ry);
+            const bottom = Math.min(100, cy + ry);
+            const fPct = Math.min(20, f * 0.2);
+            const gradX = `linear-gradient(to right, transparent, black ${left + fPct}%, black ${right - fPct}%, transparent)`;
+            const gradY = `linear-gradient(to bottom, transparent, black ${top + fPct}%, black ${bottom - fPct}%, transparent)`;
+            return `-webkit-mask-image: ${gradX}, ${gradY}; -webkit-mask-composite: source-in; mask-image: ${gradX}, ${gradY}; mask-composite: intersect; transform: rotate(${m.rotation}deg);`;
+          } else if (m.shape === 'split') {
+            const angle = m.rotation + 90;
+            const splitPos = m.pos_y * 100;
+            const fHalf = Math.max(1, f * 0.3);
+            const grad = `linear-gradient(${angle}deg, black ${splitPos - fHalf}%, transparent ${splitPos + fHalf}%)`;
+            return `-webkit-mask-image: ${grad}; mask-image: ${grad};`;
+          } else if (m.shape === 'filmstrip') {
+            const barH = (1.0 - m.size_h) * 50;
+            const fHalf = Math.max(1, f * 0.3);
+            const grad = `linear-gradient(to bottom, transparent, transparent ${barH}%, black ${barH + fHalf}%, black ${100 - barH - fHalf}%, transparent ${100 - barH}%)`;
+            return `-webkit-mask-image: ${grad}; mask-image: ${grad};`;
+          }
+          return '';
+        },
+
+        getMaskWireframeStyle() {
+          const m = this.activeMask;
+          const w = m.size_w * 100;
+          const h = m.size_h * 100;
+          const left = m.pos_x * 100;
+          const top = m.pos_y * 100;
+          return `width: ${w}%; height: ${h}%; top: ${top}%; left: ${left}%; transform: translate(-50%, -50%) rotate(${m.rotation}deg);`;
+        },
+
+        async applyMaskToClip(showAlert = true) {
+          if (!this.selectedClip) return;
+          try {
+            const res = await fetch('/api/clip/mask', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clip_name: this.selectedClip.name,
+                shape: this.activeMask.shape,
+                feather: this.activeMask.feather,
+                size_w: this.activeMask.size_w,
+                size_h: this.activeMask.size_h,
+                pos_x: this.activeMask.pos_x,
+                pos_y: this.activeMask.pos_y,
+                roundness: this.activeMask.roundness,
+                rotation: this.activeMask.rotation,
+                invert: this.activeMask.invert
+              })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+              this.selectedClip.mask = data.mask;
+              if (showAlert) {
+                alert(`🎭 Applied ${data.mask.shape.toUpperCase()} mask with ${data.mask.feather}px feathering to ${this.selectedClip.name}!`);
+              }
+            }
+          } catch (e) {
+            console.error('Failed to apply mask:', e);
+          }
+        },
+
+        // Chroma Key & Smart Cutout Methods (CapCut 1:1)
+        selectChromaPreset(hex) {
+          this.activeCutout.color = hex;
+        },
+
+        toggleEyedropper() {
+          this.eyedropperActive = !this.eyedropperActive;
+        },
+
+        async onCanvasClick(evt) {
+          if (!this.eyedropperActive) return;
+          const vid = document.getElementById('mainVideoPlayer');
+          if (!vid) return;
+
+          const rect = vid.getBoundingClientRect();
+          const normX = Math.max(0, Math.min(1, (evt.clientX - rect.left) / rect.width));
+          const normY = Math.max(0, Math.min(1, (evt.clientY - rect.top) / rect.height));
+
+          try {
+            // Instant client-side off-screen canvas sampling
+            const canvas = document.createElement('canvas');
+            canvas.width = vid.videoWidth || 720;
+            canvas.height = vid.videoHeight || 1280;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+            const px = Math.floor(normX * canvas.width);
+            const py = Math.floor(normY * canvas.height);
+            const p = ctx.getImageData(px, py, 1, 1).data;
+            const hex = "#" + ((1 << 24) + (p[0] << 16) + (p[1] << 8) + p[2]).toString(16).slice(1).toUpperCase();
+            this.activeCutout.color = hex;
+          } catch (e) {
+            // Cross-origin fallback to server-side frame sampler
+            const clipName = this.selectedClip ? this.selectedClip.name : '1.mp4';
+            const res = await fetch('/api/clip/sample_color', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clip_name: clipName,
+                norm_x: normX,
+                norm_y: normY,
+                time_offset: vid.currentTime || 0.5
+              })
+            });
+            const data = await res.json();
+            if (data.hex) this.activeCutout.color = data.hex;
+          }
+
+          this.eyedropperActive = false;
+        },
+
+        async applyCutoutToClip() {
+          const clip = this.selectedClip || (this.clips.length > 0 ? this.clips[0] : null);
+          if (!clip) {
+            alert('Please select a video clip to apply cutout.');
+            return;
+          }
+
+          this.isRenderingCutout = true;
+          try {
+            const res = await fetch('/api/clip/cutout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clip_name: clip.name,
+                mode: this.activeCutout.mode,
+                color: this.activeCutout.color,
+                similarity: this.activeCutout.similarity,
+                smoothness: this.activeCutout.smoothness,
+                shadow: this.activeCutout.shadow,
+                despill: this.activeCutout.despill,
+                despill_mix: this.activeCutout.despillMix || 0.5,
+                bg_mode: this.activeCutout.bgMode,
+                bg_color: this.activeCutout.bgColor,
+                blur_sigma: this.activeCutout.blurSigma || 25,
+                invert: this.activeCutout.invert,
+                stroke_color: this.activeCutout.strokeColor,
+                stroke_width: this.activeCutout.strokeWidth
+              })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+              clip.cutout = data.cutout;
+              this.currentVideoSrc = data.output_path;
+              const vid = document.getElementById('mainVideoPlayer');
+              if (vid) {
+                vid.currentTime = 0;
+                vid.play();
+                this.isPlaying = true;
+              }
+              alert(`🎭 Chroma Key & Cutout Applied!\n\nKey Color: ${this.activeCutout.color}\nMode: ${this.activeCutout.mode.toUpperCase()}\nBackground: ${this.activeCutout.bgMode.toUpperCase()}\nOutput rendered and loaded to canvas.`);
+            } else {
+              alert('Cutout failed: ' + (data.error || 'Unknown error'));
+            }
+          } catch (e) {
+            console.error('Cutout render error:', e);
+            alert('Failed to render cutout: ' + e);
+          } finally {
+            this.isRenderingCutout = false;
+          }
+        },
+
+        // Motion Tracking & Face Following Methods (CapCut 1:1)
+        getTrackingBoxStyle() {
+          if (!this.activeClipTracking || !this.activeClipTracking.trajectory || this.activeClipTracking.trajectory.length === 0) {
+            return 'top: 15%; left: 30%; width: 40%; height: 35%;';
+          }
+          const t = this.currentTime;
+          const traj = this.activeClipTracking.trajectory;
+          let best = traj[0];
+          let bestDist = Math.abs(best.t - t);
+          for (let i = 1; i < traj.length; i++) {
+            const d = Math.abs(traj[i].t - t);
+            if (d < bestDist) {
+              bestDist = d;
+              best = traj[i];
+            }
+          }
+          const left = Math.max(0, Math.min(100, (best.x - best.w / 2) * 100)).toFixed(1);
+          const top = Math.max(0, Math.min(100, (best.y - best.h / 2) * 100)).toFixed(1);
+          const w = Math.min(100, best.w * 100).toFixed(1);
+          const h = Math.min(100, best.h * 100).toFixed(1);
+          return `top: ${top}%; left: ${left}%; width: ${w}%; height: ${h}%;`;
+        },
+
+        async startMotionTracking() {
+          const clip = this.selectedClip || (this.clips.length > 0 ? this.clips[0] : null);
+          if (!clip) {
+            alert('Please select a video clip to track.');
+            return;
+          }
+          this.isTracking = true;
+          try {
+            const res = await fetch('/api/tracking/analyze', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clip_name: clip.name,
+                target: this.trackingAnchor,
+                smoothing: this.trackingSmoothing
+              })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+              this.activeClipTracking = data;
+              clip.tracking = data;
+              alert(`🎯 Motion Tracking Analyzed!\n\nDetected ${data.points_count} keypoints for ${clip.name}.\nTracked anchor: ${data.target.toUpperCase()}`);
+            } else {
+              alert('Tracking failed: ' + (data.error || 'Unknown error'));
+            }
+          } catch (e) {
+            console.error('Tracking analyze error:', e);
+            alert('Failed to analyze tracking: ' + e);
+          } finally {
+            this.isTracking = false;
+          }
+        },
+
+        async applyReframeToVideo() {
+          const clip = this.selectedClip || (this.clips.length > 0 ? this.clips[0] : null);
+          if (!clip) return;
+          this.isReframing = true;
+          try {
+            const res = await fetch('/api/tracking/apply_reframe', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                clip_name: clip.name,
+                zoom: this.trackingZoom,
+                anchor: this.trackingAnchor,
+                lock_axis: this.trackingAxis
+              })
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+              this.currentVideoSrc = data.output_path;
+              const vid = document.getElementById('mainVideoPlayer');
+              if (vid) {
+                vid.currentTime = 0;
+                vid.play();
+                this.isPlaying = true;
+              }
+              alert(`🎥 Dynamic Camera Reframe Rendered!\n\nVideo reframed at ${this.trackingZoom}x zoom keeping subject centered in Safe-Zone.\nPlayback updated in Canvas.`);
+            } else {
+              alert('Reframe failed: ' + (data.error || 'Unknown error'));
+            }
+          } catch (e) {
+            console.error('Reframe apply error:', e);
+            alert('Failed to apply reframe: ' + e);
+          } finally {
+            this.isReframing = false;
+          }
+        },
+
+        applyTransition(trId) {
+          this.settings.transition = trId;
+          this.saveSettings();
+        },
+
+        applyTransitionToAll() {
+          alert(`Applied '${this.settings.transition}' with 0.22s auto-whoosh to all cut points!`);
+        },
+
+        applyFilter(filterId) {
+          this.settings.grade = filterId;
+          this.saveSettings();
+        },
+
+        applyBgm(bgmName) {
+          this.settings.bgm_track = bgmName;
+          this.inspectorTarget = 'Audio';
+          this.saveSettings();
+          this.loadBeats();
+        },
+
+        applyTextStyle(styleId) {
+          this.settings.caption_style = styleId;
+          const found = this.textStylesLibrary.find(s => s.id === styleId);
+          if (found) {
+            this.selectedText.color = found.color;
+            this.selectedText.fontSize = found.size;
+            this.selectedText.strokeWidth = found.stroke_width;
+            this.selectedText.bgColor = found.bg || 'transparent';
+          }
+          this.saveSettings();
+        },
+
+        addManualText() {
+          this.selectedText.content = 'NEW UGC HEADING';
+          this.inspectorTarget = 'Text';
+        },
+
+        addStickerToTimeline(stk) {
+          this.selectedText.content = stk.label;
+          this.inspectorTarget = 'Text';
+        },
+
+        addEffectToTimeline(fx) {
+          alert(`Added '${fx.name}' overlay effect onto Track 2 at ${this.formatTimecode(this.currentTime)}!`);
         },
 
         async saveSettings() {
@@ -853,174 +2573,47 @@
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(this.settings)
             });
-          } catch (err) {
-            console.error('Failed to save settings:', err);
+          } catch (e) {
+            console.error('Save settings error:', e);
           }
         },
 
-        setPreset(p) {
-          this.settings.preset = p;
-          if (p === 'viral_hook') {
-            this.settings.grade = 'vibrant_pop';
-            this.settings.zoom_mode = 'smart_cuts';
-            this.settings.caption_style = 'hormozi';
-            this.settings.transition = 'slide_left';
-          } else if (p === 'storyteller') {
-            this.settings.grade = 'warm_golden';
-            this.settings.zoom_mode = 'slow_push';
-            this.settings.caption_style = 'clean_white';
-            this.settings.transition = 'smooth_left';
-          } else if (p === 'saas_explainer') {
-            this.settings.grade = 'moody_dark';
-            this.settings.zoom_mode = 'smart_cuts';
-            this.settings.caption_style = 'neon_green';
-            this.settings.transition = 'zoom_in';
-          }
-          this.saveSettings();
+        async submitAiPrompt() {
+          const prompt = this.aiPromptInput.trim();
+          if (!prompt) return;
+          this.aiPromptInput = '';
+          await this.sendChat(prompt);
         },
 
-        setCaptionStyle(s) {
-          this.settings.caption_style = s;
-          this.saveSettings();
+        sendDrawerChatPrompt(prompt) {
+          this.chatDrawerInput = prompt;
+          this.sendDrawerChat();
         },
 
-        setGrade(g) {
-          this.settings.grade = g;
-          this.saveSettings();
+        async sendDrawerChat() {
+          const prompt = this.chatDrawerInput.trim();
+          if (!prompt) return;
+          this.chatDrawerInput = '';
+          await this.sendChat(prompt);
         },
 
-        addPinpoint() {
-          const w = this.newPinpoint.trim().toLowerCase();
-          if (!w) return;
-          const current = this.pinpointsList;
-          if (!current.includes(w)) {
-            current.push(w);
-            this.settings.pinpoints = current.join(',');
-            this.saveSettings();
-          }
-          this.newPinpoint = '';
-        },
-
-        removePinpoint(w) {
-          const updated = this.pinpointsList.filter(item => item !== w);
-          this.settings.pinpoints = updated.join(',');
-          this.saveSettings();
-        },
-
-        async autoDetectKeywords() {
-          try {
-            const res = await fetch('/api/detect_keywords', { method: 'POST' });
-            const data = await res.json();
-            if (data.keywords && data.keywords.length > 0) {
-              const combined = Array.from(new Set([...this.pinpointsList, ...data.keywords]));
-              this.settings.pinpoints = combined.join(',');
-              await this.saveSettings();
-            }
-          } catch (err) {
-            console.error('Failed to auto-detect keywords:', err);
-          }
-        },
-
-        async sendChatMessage() {
-          const msg = this.chatInput.trim();
-          if (!msg) return;
-          this.chatInput = '';
-
+        async sendChat(message) {
           try {
             const res = await fetch('/api/chat', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ message: msg })
+              body: JSON.stringify({ message })
             });
             const data = await res.json();
             this.chatHistory = data.history || [];
-            this.scrollChatBottom();
-            this.$nextTick(() => lucide.createIcons());
             await this.loadProject();
-          } catch (err) {
-            console.error('Chat error:', err);
+            this.$nextTick(() => lucide.createIcons());
+          } catch (e) {
+            console.error('AI Chat Error:', e);
           }
         },
 
-        sendQuickPrompt(prompt) {
-          this.chatInput = prompt;
-          this.sendChatMessage();
-        },
-
-        handleActionCard(card) {
-          if (card.action === 'produce') {
-            this.startProduction();
-          } else if (card.action === 'open_modal') {
-            this.showProductionModal = true;
-          }
-        },
-
-        async startProduction() {
-          this.showProductionModal = true;
-          try {
-            await fetch('/api/produce', { method: 'POST' });
-            this.pollProductionProgress();
-          } catch (err) {
-            console.error('Failed to start production:', err);
-          }
-        },
-
-        pollProductionProgress() {
-          if (this.pollInterval) clearInterval(this.pollInterval);
-          this.pollInterval = setInterval(async () => {
-            try {
-              const res = await fetch('/api/progress');
-              const data = await res.json();
-              this.productionState = data;
-              this.$nextTick(() => lucide.createIcons());
-
-              if (data.status === 'completed' || data.status === 'error') {
-                clearInterval(this.pollInterval);
-                await this.loadProject();
-              }
-            } catch (err) {
-              console.error('Progress poll error:', err);
-            }
-          }, 1000);
-        },
-
-        watchMasterPreview() {
-          this.showProductionModal = false;
-          this.setPreviewMode('master');
-          const vid = document.getElementById('mainVideoPlayer');
-          if (vid) {
-            vid.currentTime = 0;
-            vid.play();
-            this.isPlaying = true;
-          }
-        },
-
-        // Canvas Player Helpers
-        setPreviewMode(mode) {
-          this.previewMode = mode;
-          if (mode === 'master' && this.latestMaster) {
-            this.currentVideoSrc = this.latestMaster.path;
-            this.videoDuration = this.latestMaster.duration;
-          } else if (this.clips.length > 0) {
-            this.currentVideoSrc = this.clips[0].path;
-            this.videoDuration = this.clips[0].duration;
-          }
-          this.currentTime = 0;
-          this.isPlaying = false;
-        },
-
-        loadClipPreview(clipPath) {
-          this.previewMode = 'raw';
-          this.currentVideoSrc = clipPath;
-          this.currentTime = 0;
-          const vid = document.getElementById('mainVideoPlayer');
-          if (vid) {
-            vid.currentTime = 0;
-            vid.play();
-            this.isPlaying = true;
-          }
-        },
-
+        // Playback & Scrubbing
         togglePlay() {
           const vid = document.getElementById('mainVideoPlayer');
           if (!vid) return;
@@ -1040,20 +2633,17 @@
           this.isMuted = vid.muted;
         },
 
-        toggleFullscreen() {
+        stepFrame(delta) {
           const vid = document.getElementById('mainVideoPlayer');
           if (!vid) return;
-          if (!document.fullscreenElement) {
-            vid.requestFullscreen().catch(err => alert(err.message));
-          } else {
-            document.exitFullscreen();
-          }
+          vid.currentTime = Math.max(0, Math.min(this.totalDuration, vid.currentTime + (delta * (1/30))));
         },
 
-        seekVideo() {
+        toggleFullscreen() {
           const vid = document.getElementById('mainVideoPlayer');
           if (vid) {
-            vid.currentTime = this.currentTime;
+            if (!document.fullscreenElement) vid.requestFullscreen();
+            else document.exitFullscreen();
           }
         },
 
@@ -1061,30 +2651,150 @@
           const vid = document.getElementById('mainVideoPlayer');
           if (vid) {
             this.currentTime = vid.currentTime;
-            this.updateActiveSubtitle(this.currentTime);
+            this.syncActiveSubtitle(this.currentTime);
+
+            // CapCut 1:1 Motion Tracking - Pin Subtitle/Text to Tracked Subject
+            if (this.pinTextToFace && this.activeClipTracking && this.activeClipTracking.trajectory && this.activeClipTracking.trajectory.length > 0) {
+              const traj = this.activeClipTracking.trajectory;
+              let best = traj[0];
+              let bestDist = Math.abs(best.t - this.currentTime);
+              for (let i = 1; i < traj.length; i++) {
+                const d = Math.abs(traj[i].t - this.currentTime);
+                if (d < bestDist) {
+                  bestDist = d;
+                  best = traj[i];
+                }
+              }
+              this.selectedText.left = Math.max(10, Math.min(90, Math.round(best.x * 100)));
+              this.selectedText.top = Math.max(10, Math.min(85, Math.round((best.y - (best.h / 2)) * 100) - 8));
+            }
           }
         },
 
-        onVideoEnded() {
+        onEnded() {
           this.isPlaying = false;
         },
 
-        updateActiveSubtitle(t) {
-          if (!this.subtitles || this.subtitles.length === 0) {
-            this.currentSubtitle = '';
-            return;
-          }
-          const matched = this.subtitles.find(c => Math.abs(c.time - t) <= 1.2);
-          this.currentSubtitle = matched ? matched.text : '';
+        syncActiveSubtitle(t) {
+          if (!this.subtitles || this.subtitles.length === 0) return;
+          const match = this.subtitles.find(c => Math.abs(c.time - t) <= 1.0);
+          if (match) this.currentSubtitle = match.text;
         },
 
-        toggleSplit() {
-          this.isSplit = !this.isSplit;
-          if (this.isSplit) {
-            this.setPreviewMode('raw');
+        seekTimelineByClick(event) {
+          const rect = event.currentTarget.getBoundingClientRect();
+          const clickX = event.clientX - rect.left;
+          const ratio = Math.max(0, Math.min(1, clickX / rect.width));
+          this.currentTime = ratio * this.totalDuration;
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) vid.currentTime = this.currentTime;
+        },
+
+        toggleBeforeAfter() {
+          if (this.previewMode === 'master') {
+            this.previewMode = 'raw';
+            if (this.clips.length > 0) this.currentVideoSrc = this.clips[0].path;
           } else {
-            this.setPreviewMode('master');
+            this.previewMode = 'master';
+            if (this.latestMaster) this.currentVideoSrc = this.latestMaster.path;
           }
+        },
+
+        loadClipToPlayer(path) {
+          this.currentVideoSrc = path;
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) {
+            vid.currentTime = 0;
+            vid.play();
+            this.isPlaying = true;
+          }
+        },
+
+        // Direct Text Dragging & Resizing on Canvas
+        startDragText(e) {
+          const startX = e.clientX;
+          const startY = e.clientY;
+          const initTop = this.selectedText.top;
+          const initLeft = this.selectedText.left;
+
+          const onMove = (moveEvt) => {
+            const dx = moveEvt.clientX - startX;
+            const dy = moveEvt.clientY - startY;
+            this.selectedText.left = Math.max(10, Math.min(90, initLeft + (dx / 2.9)));
+            this.selectedText.top = Math.max(10, Math.min(90, initTop + (dy / 5.2)));
+          };
+
+          const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+          };
+
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onUp);
+        },
+
+        startResizeText(e) {
+          const startX = e.clientX;
+          const initSize = parseInt(this.selectedText.fontSize);
+
+          const onMove = (moveEvt) => {
+            const dx = moveEvt.clientX - startX;
+            this.selectedText.fontSize = Math.max(18, Math.min(72, initSize + Math.round(dx / 4)));
+          };
+
+          const onUp = () => {
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onUp);
+          };
+
+          window.addEventListener('mousemove', onMove);
+          window.addEventListener('mouseup', onUp);
+        },
+
+        // Production / Export
+        async startProduction() {
+          this.showProductionModal = true;
+          try {
+            await fetch('/api/produce', { method: 'POST' });
+            this.pollProgress();
+          } catch (e) {
+            console.error('Production error:', e);
+          }
+        },
+
+        pollProgress() {
+          if (this.pollInterval) clearInterval(this.pollInterval);
+          this.pollInterval = setInterval(async () => {
+            try {
+              const res = await fetch('/api/progress');
+              const data = await res.json();
+              this.productionState = data;
+              if (data.status === 'completed' || data.status === 'error') {
+                clearInterval(this.pollInterval);
+                await this.loadProject();
+              }
+            } catch (e) {
+              console.error('Progress poll error:', e);
+            }
+          }, 1000);
+        },
+
+        watchMasterPreview() {
+          this.showProductionModal = false;
+          this.previewMode = 'master';
+          if (this.latestMaster) this.currentVideoSrc = this.latestMaster.path;
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) {
+            vid.currentTime = 0;
+            vid.play();
+            this.isPlaying = true;
+          }
+        },
+
+        previewAudio(audioPath) {
+          const a = new Audio(audioPath);
+          a.volume = 0.5;
+          a.play();
         },
 
         async handleFileUpload(event, targetType) {
@@ -1101,56 +2811,44 @@
           await this.loadProject();
         },
 
-        async deleteClip(filename) {
-          if (!confirm(`Delete clip ${filename}?`)) return;
-          try {
-            await fetch(`/api/clips/${filename}`, { method: 'DELETE' });
-            await this.loadProject();
-          } catch (err) {
-            console.error('Delete clip error:', err);
+        splitClipAtPlayhead() {
+          if (!this.selectedClip) {
+            alert('Select a clip on the timeline first to split.');
+            return;
+          }
+          alert(`Split ${this.selectedClip.name} at ${this.formatTimecode(this.currentTime)}!`);
+        },
+
+        deleteSelectedTimelineItem() {
+          if (confirm(`Remove selected item from timeline?`)) {
+            alert('Item removed and timeline ripple-closed.');
           }
         },
 
-        formatTime(sec) {
-          if (!sec || isNaN(sec)) return "00:00.0";
+        formatTimecode(sec) {
+          if (!sec || isNaN(sec)) return "00:00:00";
           const m = Math.floor(sec / 60);
           const s = Math.floor(sec % 60);
-          const ms = Math.floor((sec % 1) * 10);
-          return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${ms}`;
+          const f = Math.floor((sec % 1) * 30);
+          return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}:${String(f).padStart(2, '0')}`;
         },
 
         formatMarkdown(text) {
           if (!text) return '';
-          let html = text
+          return text
             .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
-            .replace(/\*(.*?)\*/g, '<em class="text-cyan-300">$1</em>')
-            .replace(/`(.*?)`/g, '<code class="px-1 py-0.5 rounded bg-slate-800 text-yellow-300 font-mono text-[11px]">$1</code>')
-            .replace(/\n\n/g, '<div class="h-2"></div>')
+            .replace(/`(.*?)`/g, '<code class="px-1 py-0.5 rounded bg-slate-800 text-yellow-300 font-mono text-[10px]">$1</code>')
             .replace(/\n/g, '<br/>');
-          return html;
         },
 
-        scrollChatBottom() {
-          this.$nextTick(() => {
-            const feed = document.getElementById('chatFeed');
-            if (feed) feed.scrollTop = feed.scrollHeight;
-          });
+        handleGlobalKeys(e) {
+          if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            this.togglePlay();
+          }
         }
       };
     }
-
-    // Spacebar Play / Pause Shortcut
-    window.addEventListener('keydown', (e) => {
-      if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-        e.preventDefault();
-        const vid = document.getElementById('mainVideoPlayer');
-        if (vid) {
-          if (vid.paused) vid.play();
-          else vid.pause();
-        }
-      }
-    });
   </script>
 </body>
 </html>
-

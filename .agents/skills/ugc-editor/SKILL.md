@@ -435,4 +435,108 @@ Orchestrates all editing capabilities into an end-to-end autonomous pipeline, al
 - `--sfx / --no-sfx`: Layer sound effects (Default: `--sfx`).
 - `--bgm / --no-bgm`: Mix background music with voice ducking (Default: `--bgm`).
 - `--grade / --no-grade`: Apply aesthetic color grading (Default: `--grade`).
+- `--normalize-loudness / --no-normalize-loudness`: Broadcast -14 LUFS loudness normalization (Default: `--normalize-loudness`).
 - `--pinpoints <STR>`: Custom context keywords for caption scaling emphasis.
+
+---
+
+### Capability 11: Auto-Beat Detection & Visual Waveform Analysis
+
+Extracts musical rhythm transients using a 4th-order Butterworth bandpass filter (45–180Hz) and sliding window peak picking:
+- **Beat 1 (Downbeat Kicks)**: Primary yellow diamond markers for cutting between main scenes.
+- **Beat 2 (Sub-rhythms / 8th notes)**: Cyan micro-markers for rapid jump cuts and b-roll inserts.
+- **BPM Tempo Estimation & 120-slice Waveform Envelope**.
+
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/detect_beats.py analyze -i "BM/Upbeat Viral Pop.mp3"
+```
+
+---
+
+### Capability 12: Speed Ramping Curves (Montage, Bullet Time, Flash In, Hero)
+
+Applies variable velocity speed ramping with dynamic PTS mapping and chained `atempo` audio time-stretching:
+- **`montage`**: Fast intro (2.5x), slow dip (0.6x), explosive acceleration (2.8x), rhythmic finish.
+- **`bullet_time`**: Matrix freeze: fast entry (3.0x), ultra-slow-mo pocket (0.2x), high-speed exit.
+- **`flash_in`**: 4.0x plunge into standard playback.
+- **`flash_out`**: Acceleration into transition cut (1.0x -> 4.5x).
+- **`hero`**: Slow cinematic build (0.6x) into peak impact (3.5x).
+- **`custom`**: Arbitrary Bezier curve points `[(time_pct, speed), ...]`.
+- **`--smooth-slowmo`**: Optical flow motion interpolation (`minterpolate`) for 60fps slow motion.
+
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_speed_ramp.py apply -i "Input/1.mp4" -o "Output/ramped.mp4" -p bullet_time
+```
+
+---
+
+### Capability 13: Automatic Loudness Normalization (-14 LUFS EBU R128)
+
+Analyzes and normalizes audio to TikTok, Instagram Reels, and YouTube broadcast standards:
+- **EBU R128 / ITU-R BS.1770-4 2-Pass Loudness Control**: Targets integrated loudness of `-14.0 LUFS` with True Peak bounded at `-1.5 dBTP` to prevent inter-sample clipping on mobile speakers.
+- **Diagnostic Measurement**:
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/normalize_loudness.py measure -i "Output/viral_master.mp4"
+```
+- **Precision Normalization**:
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/normalize_loudness.py normalize -i "Output/viral_master.mp4" -o "Output/master_normalized.mp4" -t -14.0
+```
+
+---
+
+### Capability 14: Geometric Masking & Feather Slider
+
+Applies customizable geometric masks with adjustable Gaussian feather softness, rotation, corner roundness, and invert controls:
+- **`circle`**: Spotlight circle/oval cutout for faces, products, or PIP bubbles.
+- **`rectangle`**: Rounded rectangular window with customizable corner radius.
+- **`split`**: Before/after comparison split line with adjustable angle and position.
+- **`filmstrip`**: Dual cinematic letterboxing bars.
+- **`heart` & `star`**: Stylized aesthetic shapes.
+- **`feather`**: 0px to 100px Gaussian blur radius for seamless dissolved edge transitions.
+- **`invert`**: Flips mask to reveal the outer region instead of inner.
+
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_mask.py apply -i "Input/1.mp4" -o "Output/masked.mp4" -s circle -f 24.0 --width 0.70 --height 0.70
+```
+
+---
+
+### Capability 15: Motion Tracking & Face Following
+
+Tracks face and object motion frame-by-frame using OpenCV TrackerMIL and optical flow, generates smooth camera reframing coordinates, and binds subtitles or stickers to follow the moving subject:
+- **`track`**: Analyzes bounding box trajectories `(t, x, y, w, h)` across video frames with exponential moving average jitter smoothing.
+- **`reframe`**: Dynamically crops and pans the camera at adjustable zoom levels (1.1x–1.5x) keeping the face locked inside the TikTok/Reels upper-third safe zone.
+- **`pin_text`**: Binds kinetic subtitles or stickers to track subject motion in real-time.
+- **Axis Locking**: Options for `both`, horizontal `x` only, or vertical `y` only pan locks.
+
+#### CLI Execution:
+1. **Analyze Trajectory**:
+   ```powershell
+   .\.venv\Scripts\python.exe skills/ugc-editor/scripts/track_motion.py track -i "Input/1.mp4" -o "Output/tracking_1.json" -t face -s 0.75
+   ```
+2. **Apply Dynamic Camera Reframe**:
+   ```powershell
+   .\.venv\Scripts\python.exe skills/ugc-editor/scripts/track_motion.py reframe -i "Input/1.mp4" -o "Output/reframed_1.mp4" -t "Output/tracking_1.json" -z 1.25 -a face --axis both
+   ```
+
+---
+
+### Capability 16: Chroma Key & Smart Cutout (Green Screen / Background Remover)
+
+Removes green screen, blue screen, or custom color backdrops, with anti-aliasing smoothness, shadow retention, color spill suppression, and background compositing:
+- **`chroma`**: Keys out color with customizable Similarity (0–100%) and Smoothness (0–100% soft edge anti-aliasing).
+- **`sample_color`**: Eyedropper sampling tool that reads exact hex color from video frames.
+- **`despill`**: Eliminates green/blue fringe reflections on subject hair, skin, and shoulders (`despill=type=green:mix=0.5`).
+- **`smart_cutout`**: Portrait cutout with optional neon glow or solid stroke outline.
+- **Composited Backdrops**:
+  - `blur`: Cinematic UGC style — splits the stream, applies 25px Gaussian boxblur to background, and overlays crisp keyed foreground.
+  - `color`: Replaces backdrop with clean studio color (e.g. `#18181C`).
+  - `transparent`: Output with alpha channel or dark canvas.
+
+#### CLI Execution:
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_cutout.py chroma -i "Input/1.mp4" -o "Output/cutout_1.mp4" -c "#00FF00" -s 30 -m 15 -w 20 -b blur
+```
+
+
