@@ -191,12 +191,16 @@ Applies animated motion graphic overlays (bar graphs, circular progress motions,
 
 ---
 
-### Capability 4: Context SFX Layering & Auto-Sync
+### Capability 4: Context SFX Layering & Precision Transient Auto-Sync
 
-Intelligently layers and mixes sound effects from the curated `SFX/` library to punctuate cuts, transitions, pinpoint word reveals, and morphing shapes.
+Intelligently layers and mixes sound effects from the curated `SFX/` library to punctuate cuts, transitions, pinpoint word reveals, and morphing shapes with frame-accurate timing.
+
+#### Transient Peak Alignment Engine:
+- **Automatic Silence Stripping**: Automatically detects and trims dead air and leading silence from raw audio assets (e.g. eliminating the 3.5s silent pre-roll in `SLAP SFX.mp3`).
+- **Acoustic Crest / Transient Alignment**: Analyzes the audio waveform to identify the exact millisecond of the sound's peak volume/impact. Offsets audio start (`t_target - t_peak`) so the physical punch of the sound (shutter snap, slap impact, UI chime, whoosh crescendo) hits on the exact frame of the visual event.
 
 #### Available SFX Categories (28 Assets):
-- **`whoosh`**: Swipes, transitions, shape animations, slide-ins (`Whoosh Fast.wav`, `WHOOSH 2 SFX.mp3`, `Data_Whoosh.wav`, etc.).
+- **`whoosh`**: Swipes, transitions, shape animations, slide-ins (`whoosh-6316.mp3`, `WHOOSH 2 SFX.mp3`, `WHOOSH 6 SFX.mp3`, `Whoosh Fast.wav`).
 - **`click`**: Pinpoint pop-ins, kinetic text events, camera clicks (`Camera Shutter`, `Switch Click.mp3`, `UI Beep 5.wav`, `Typewriter 2.wav`).
 - **`riser`**: Suspense hooks, dramatic builds, questions (`Sharp Riser.wav`, `Suspense SFX.mp3`, `Riser Short.wav`).
 - **`impact`**: Dramatic reveals, punchlines, scene shifts (`SLAP SFX.mp3`, `Power Up.mp3`, `Scene Change.mp3`, `Splash.mp3`).
@@ -225,14 +229,19 @@ Intelligently layers and mixes sound effects from the curated `SFX/` library to 
 
 ---
 
-### Capability 5: Keyframed Camera Zooms & Dynamic Reframing
+### Capability 5: Keyframed Camera Zooms & Dynamic Reframing (Smart Zooming)
 
-Applies continuous slow zooms and punch-cut reframing to single-take footage, simulating high-end multi-camera production and maintaining continuous visual engagement.
+Applies continuous slow zooms, punch-cut reframing, and dialogue-aware smart camera switches to simulate high-end multi-camera production.
 
 #### Available Modes:
-- **`slow_push`**: Gradual continuous zoom-in (e.g. `1.0x -> 1.15x`) that builds emotional connection and focus during core explanations.
-- **`slow_pull`**: Continuous pull-back (e.g. `1.15x -> 1.0x`) for opening hooks or section summaries.
-- **`punch_cuts`**: Alternates between wide (`1.0x`) and punch-zoom (`1.15x`) every N seconds (e.g. every `3.5s`), simulating a dynamic two-camera shoot from a single smartphone angle.
+- **`smart_cuts`** *(UGC Standard)*: Dialogue- and scene-aware camera switching. Instead of arbitrary modulo timers, camera angle changes occur strictly on **clip transitions or sentence pauses**:
+  - **The Hook (0.0s - 2.0s)**: Opens with an immediate close-up punch (`1.18x`) to capture eye contact, then resets to wide (`1.0x`) as the premise is laid out.
+  - **Hero Reveal / Discovery**: Punches in (`1.18x`) to highlight the solution/product.
+  - **Demonstration**: Resets to wide/medium (`1.05x`) giving visual space for hands and actions.
+  - **Call-to-Action**: Punches in (`1.18x`) for commanding final authority.
+- **`slow_push`**: Gradual continuous zoom-in (`1.0x -> 1.15x`) that builds emotional connection and focus during core explanations.
+- **`slow_pull`**: Continuous pull-back (`1.15x -> 1.0x`) for opening hooks or section summaries.
+- **`punch_cuts`**: Alternates between wide (`1.0x`) and punch-zoom (`1.15x`) every N seconds (e.g. every `3.5s`).
 - **`custom`**: Explicit keyframe cues (`--cues "0:1.0, 3.5:1.18, 7.0:1.0"`).
 
 #### Smart Talking-Head Anchor (`--anchor face`):
@@ -240,14 +249,17 @@ Standard zoom filters crop toward the center (cutting off hair/foreheads and fra
 
 #### How to Execute:
 ```powershell
-.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_keyframes.py -i "Output/<video_file>.mp4" -o "Output/<video_file>_zoomed.mp4" --mode punch_cuts --max-zoom 1.15 --anchor face
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_keyframes.py -i "Output/<video_file>.mp4" -o "Output/<video_file>_zoomed.mp4" --mode smart_cuts --max-zoom 1.18 --anchor face --scene-cuts "7.7,10.9,16.9"
 ```
 
 #### CLI Parameters:
 - `-i, --input <PATH>`: Source video path (Required).
 - `-o, --output <PATH>`: Output video path.
-- `-m, --mode <STR>`: Zoom profile (`slow_push`, `slow_pull`, `punch_cuts`, `custom`).
-- `-z, --max-zoom <FLOAT>`: Peak zoom factor (Default: `1.15`x / 115%).
+- `-m, --mode <STR>`: Zoom profile (`smart_cuts`, `slow_push`, `slow_pull`, `punch_cuts`, `custom`).
+- `-z, --max-zoom <FLOAT>`: Peak zoom factor (Default: `1.18`x / 118%).
+- `-a, --anchor <STR>`: Framing anchor (`face`, `center`, `top`, `bottom`).
+- `--scene-cuts <STR>`: Comma-separated scene cut timestamps (e.g. `'7.76, 10.97, 16.97'`).
+- `--from-ass <PATH>`: Subtitle `.ass` file to align zooms to dialogue phrases.
 - `-a, --anchor <STR>`: Focus anchor: `face` (default for talking heads), `center`, `top`, `bottom`.
 - `-c, --cycle <FLOAT>`: Cycle period in seconds for `punch_cuts` (Default: `3.5`s).
 - `--cues <STR>`: Custom keyframe cues (e.g. `'0:1.0, 4.0:1.18, 8.0:1.0'`).
@@ -343,8 +355,10 @@ Stitches multiple raw clips in `Input/` using dynamic visual transitions (swipes
 - **`pixelize`**: Digital pixel glitch wipe (ideal for gaming/tech).
 - **`random`**: Alternates engaging transitions dynamically across every cut point.
 
-#### Auto-Synced Whoosh SFX (`--auto-sfx`):
-Automatically discovers whooshes from the `SFX/` library (e.g. `Whoosh Fast.wav`, `WHOOSH 2 SFX.mp3`) and layers them centered at each transition timestamp with volume balancing, eliminating manual audio alignment.
+#### Auto-Synced Whoosh SFX & Anti-Mumble Crossfading:
+1. **Snappy UGC Duration (`0.22s`)**: Transitions are configured to `0.22s` by default, fitting completely within natural speech pause buffers (`0.24s`) without cutting off spoken consonants.
+2. **Exponential Dialogue Crossfade**: Uses `acrossfade=d=0.22:curve1=exp:curve2=exp` so that dialogue across consecutive clips transitions cleanly without speech overlap or vocal mumbling.
+3. **Transient Peak Whoosh Alignment**: Selects punchy, low-latency whooshes (`whoosh-6316.mp3`, `WHOOSH 2 SFX.mp3`) and aligns their acoustic peak directly to the midpoint of the transition wipe for maximum impact.
 
 #### How to Execute:
 1. **List all transitions**:
@@ -353,18 +367,18 @@ Automatically discovers whooshes from the `SFX/` library (e.g. `Whoosh Fast.wav`
    ```
 2. **Apply transitions with auto-whoosh SFX**:
    ```powershell
-   .\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_transitions.py apply -i Input/ -o Output/transitioned_sequence.mp4 --transition slide_left --duration 0.35 --auto-sfx
+   .\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_transitions.py apply -i Input/ -o Output/transitioned_sequence.mp4 --transition slide_left --duration 0.22 --auto-sfx
    ```
 3. **Randomized dynamic transitions**:
    ```powershell
-   .\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_transitions.py apply -i Input/ -o Output/transitioned_sequence.mp4 --transition random --duration 0.30
+   .\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_transitions.py apply -i Input/ -o Output/transitioned_sequence.mp4 --transition random --duration 0.22
    ```
 
 #### CLI Parameters:
 - `-i, --input-dir <PATH>`: Directory containing source clips (Default: `Input/`).
 - `-o, --output <PATH>`: Target output video path.
 - `-t, --transition <STR>`: Transition style (`slide_left`, `slide_up`, `smooth_left`, `zoom_in`, `circle_crop`, `fade_white`, `pixelize`, `random`).
-- `-d, --duration <FLOAT>`: Transition length in seconds (Default: `0.35`s).
+- `-d, --duration <FLOAT>`: Transition length in seconds (Default: `0.22`s).
 - `--auto-sfx / --no-sfx`: Whether to auto-sync whoosh audio effects (Default: `--auto-sfx`).
 - `-r, --res <STR>`: Output canvas resolution (Default: `1080x1920`).
 - `--fps <INT>`: Unified frame rate (Default: `30` fps).

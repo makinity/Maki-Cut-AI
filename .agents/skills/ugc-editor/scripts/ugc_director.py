@@ -43,9 +43,9 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 
 STYLE_PRESETS = {
     "viral_hook": {
-        "description": "High-retention TikTok/Reels style: fast pacing, punch cuts, vibrant grade, whooshes, and Hormozi captions.",
+        "description": "High-retention TikTok/Reels style: fast pacing, smart cuts, vibrant grade, whooshes, and Hormozi captions.",
         "grade": "vibrant_pop",
-        "zoom_mode": "punch_cuts",
+        "zoom_mode": "smart_cuts",
         "caption_style": "hormozi",
         "transition": "slide_left",
         "shape_color": "cyan"
@@ -61,7 +61,7 @@ STYLE_PRESETS = {
     "saas_explainer": {
         "description": "Tech product & growth look: dark modern grade, bar graph overlays, neon green accents, and UI beeps.",
         "grade": "moody_dark",
-        "zoom_mode": "punch_cuts",
+        "zoom_mode": "smart_cuts",
         "caption_style": "neon_green",
         "transition": "zoom_in",
         "shape_color": "green"
@@ -223,12 +223,31 @@ def produce_video(
                     ], f"Trimming dead air from {c.name}")
                 clips_to_assemble_dir = trimmed_clips_dir
 
+            # Track scene cut times for smart dialogue-aware zooms
+            scene_cut_times = []
+            ffprobe_exe = str(Path(sys.prefix) / "Scripts" / "ffprobe.exe") if (Path(sys.prefix) / "Scripts" / "ffprobe.exe").exists() else "ffprobe"
+            assembled_files = sorted(list(clips_to_assemble_dir.glob("*.mp4")), key=lambda p: [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', p.stem)])
+            acc_t = 0.0
+            for idx, af in enumerate(assembled_files):
+                cmd = [ffprobe_exe, "-v", "error", "-show_entries", "format=duration", "-of", "json", str(af)]
+                res = subprocess.run(cmd, capture_output=True, text=True)
+                try:
+                    dur = float(json.loads(res.stdout)["format"]["duration"])
+                except Exception:
+                    dur = 5.0
+                if idx > 0:
+                    acc_t = (acc_t + dur) - 0.22
+                    scene_cut_times.append(round(acc_t, 2))
+                else:
+                    acc_t = dur
+
             current_video = temp_dir / "step1_assembled.mp4"
             run_step([
                 str(SCRIPT_DIR / "apply_transitions.py"), "apply",
                 "-i", str(clips_to_assemble_dir),
                 "-o", str(current_video),
                 "-t", cfg["transition"],
+                "-d", "0.22",
                 "--auto-sfx"
             ], f"Assembling {len(raw_clips)} clips with '{cfg['transition']}' transitions & auto-whooshes")
     else:
@@ -250,14 +269,18 @@ def produce_video(
 
     if add_zooms:
         zoomed_video = temp_dir / "step3_zoomed.mp4"
-        run_step([
+        zoom_args = [
             str(SCRIPT_DIR / "apply_keyframes.py"),
             "-i", str(current_video),
             "-o", str(zoomed_video),
             "-m", cfg["zoom_mode"],
-            "-z", "1.15",
+            "-z", "1.18",
             "-a", "face"
-        ], f"Applying '{cfg['zoom_mode']}' keyframed camera zooms (Face-Anchored)")
+        ]
+        if 'scene_cut_times' in locals() and scene_cut_times:
+            zoom_args.extend(["--scene-cuts", ",".join(map(str, scene_cut_times))])
+            
+        run_step(zoom_args, f"Applying '{cfg['zoom_mode']}' smart camera zooms (Face-Anchored & Scene-Synced)")
         current_video = zoomed_video
 
     ass_file = output_dir / f"{current_video.stem}_captions.ass"

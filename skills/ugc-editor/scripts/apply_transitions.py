@@ -93,7 +93,7 @@ def get_whoosh_sfx() -> Optional[Path]:
     sfx_dir = Path("SFX")
     if not sfx_dir.exists():
         return None
-    preferred = ["Whoosh Fast.wav", "WHOOSH 2 SFX.mp3", "Scene Change .mp3", "WHOOSH 3 SFX.mp3"]
+    preferred = ["whoosh-6316.mp3", "WHOOSH 2 SFX.mp3", "WHOOSH 6 SFX.mp3", "WHOOSH 3 SFX.mp3", "Whoosh Fast.wav"]
     for p_name in preferred:
         p = sfx_dir / p_name
         if p.exists():
@@ -101,6 +101,22 @@ def get_whoosh_sfx() -> Optional[Path]:
     for f in sfx_dir.glob("*whoosh*.*"):
         return f
     return None
+
+def prep_whoosh_sfx(sfx_path: Path) -> Tuple[Any, int]:
+    from pydub import AudioSegment, silence
+    import numpy as np
+    clip = AudioSegment.from_file(str(sfx_path))
+    nonsilent = silence.detect_nonsilent(clip, min_silence_len=20, silence_thresh=-40)
+    if nonsilent and nonsilent[0][0] > 10:
+        clip = clip[nonsilent[0][0] - 10:]
+    samples = np.array(clip.get_array_of_samples())
+    if len(samples) > 0:
+        max_search = min(len(samples), int(clip.frame_rate * 0.50 * clip.channels))
+        peak_idx = int(np.argmax(np.abs(samples[:max_search]))) // clip.channels
+        peak_ms = int((peak_idx / clip.frame_rate) * 1000)
+    else:
+        peak_ms = 70
+    return clip.apply_gain(-6.0), peak_ms
 
 @app.command(name="list")
 def list_transitions():
@@ -132,7 +148,7 @@ def apply_transitions(
     input_dir: Path = typer.Option(Path("Input"), "--input-dir", "-i", help="Directory containing source clips"),
     output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Target output video path"),
     transition: str = typer.Option("slide_left", "--transition", "-t", help="Transition: slide_left, slide_up, smooth_left, zoom_in, circle_crop, fade_white, pixelize, random"),
-    duration: float = typer.Option(0.35, "--duration", "-d", help="Transition duration in seconds (0.2s - 0.6s)"),
+    duration: float = typer.Option(0.22, "--duration", "-d", help="Transition duration in seconds (0.18s - 0.35s)"),
     auto_sfx: bool = typer.Option(True, "--auto-sfx/--no-sfx", help="Auto-sync whoosh sound effects on transitions"),
     target_res: str = typer.Option("1080x1920", "--res", "-r", help="Target output resolution (default: 1080x1920 vertical)"),
     fps: int = typer.Option(30, "--fps", help="Unified frame rate (default: 30 fps)")
@@ -202,7 +218,8 @@ def apply_transitions(
         v_xfade = f"[{cur_vid_label}][v{i}]xfade=transition={xfade_type}:duration={duration:.3f}:offset={offset:.3f}[{next_vid_label}]"
         filter_parts.append(v_xfade)
         
-        a_xfade = f"[{cur_aud_label}][a{i}]acrossfade=d={duration:.3f}[{next_aud_label}]"
+        # Exponential audio curve prevents voice blurring and mumble across sentence boundaries
+        a_xfade = f"[{cur_aud_label}][a{i}]acrossfade=d={duration:.3f}:curve1=exp:curve2=exp[{next_aud_label}]"
         filter_parts.append(a_xfade)
         
         cur_vid_label = next_vid_label
@@ -231,7 +248,7 @@ def apply_transitions(
     if auto_sfx:
         whoosh_file = get_whoosh_sfx()
         if whoosh_file:
-            console.print(f"[bold green]Auto-syncing Whoosh SFX:[/bold green] [yellow]{whoosh_file.name}[/yellow] on {len(transition_times)} cut points...")
+            console.print(f"[bold green]Auto-syncing Whoosh SFX:[/bold green] [yellow]{whoosh_file.name}[/yellow] (Transient-Peak Aligned)")
             from pydub import AudioSegment
             
             temp_wav = output_dir / "temp_t_audio.wav"
@@ -239,10 +256,12 @@ def apply_transitions(
             subprocess.run([ffmpeg_exe, "-y", "-i", str(temp_stitched), "-vn", "-acodec", "pcm_s16le", "-ar", "44100", "-ac", "2", str(temp_wav)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
             
             base_audio = AudioSegment.from_file(str(temp_wav))
-            sfx_clip = AudioSegment.from_file(str(whoosh_file)).apply_gain(-8.0)
+            sfx_clip, peak_ms = prep_whoosh_sfx(whoosh_file)
             
             for t_sec in transition_times:
-                pos_ms = max(0, int((t_sec - 0.10) * 1000))
+                # Align the whoosh peak exactly to the visual midpoint of the transition
+                midpoint_ms = int((t_sec + duration / 2.0) * 1000)
+                pos_ms = max(0, midpoint_ms - peak_ms)
                 if pos_ms < len(base_audio):
                     base_audio = base_audio.overlay(sfx_clip, position=pos_ms)
                     

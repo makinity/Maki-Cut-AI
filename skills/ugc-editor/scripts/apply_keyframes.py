@@ -51,12 +51,69 @@ def get_video_specs(video_path: Path, ffprobe_exe: str) -> Tuple[int, int, float
     fps = float(fps_parts[0]) / float(fps_parts[1]) if len(fps_parts) == 2 else 30.0
     return w, h, duration, fps
 
+def generate_smart_zoom_cues(
+    duration: float,
+    scene_cuts_str: Optional[str] = None,
+    ass_file: Optional[Path] = None,
+    max_zoom: float = 1.18
+) -> List[Tuple[float, float]]:
+    """
+    Intelligently generates camera framing cues aligned to scene boundaries,
+    sentence pauses, and retention hooks (no mid-sentence robotic cuts).
+    """
+    cuts = []
+    if scene_cuts_str:
+        for x in scene_cuts_str.split(","):
+            try:
+                val = float(x.strip())
+                if 0.5 < val < duration - 0.5:
+                    cuts.append(val)
+            except ValueError:
+                pass
+    elif ass_file and ass_file.exists():
+        with open(ass_file, "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("Dialogue:"):
+                    parts = line.split(",", 9)
+                    if len(parts) >= 10:
+                        h, m, s = parts[1].split(":")
+                        t_sec = int(h) * 3600 + int(m) * 60 + float(s)
+                        if not cuts or (t_sec - cuts[-1] >= 2.8 and t_sec < duration - 1.0):
+                            if t_sec > 0.8:
+                                cuts.append(t_sec)
+
+    cuts.sort()
+    if not cuts:
+        cur_t = 3.0
+        while cur_t < duration - 1.0:
+            cuts.append(cur_t)
+            cur_t += 3.2
+
+    cues = []
+    first_cut = cuts[0] if cuts else duration
+    if first_cut >= 3.5:
+        cues.append((0.0, max_zoom))
+        cues.append((2.0, 1.0))
+        is_zoomed = False
+    else:
+        cues.append((0.0, max_zoom))
+        is_zoomed = True
+
+    for cp in cuts:
+        is_zoomed = not is_zoomed
+        z_val = max_zoom if is_zoomed else 1.0
+        cues.append((cp, z_val))
+
+    return cues
+
 def build_zoom_expression(
     mode: str,
     duration: float,
     max_zoom: float = 1.15,
     cues_str: Optional[str] = None,
-    cycle_interval: float = 3.5
+    cycle_interval: float = 3.5,
+    scene_cuts: Optional[str] = None,
+    from_ass: Optional[Path] = None
 ) -> str:
     """
     Constructs an analytical mathematical expression Z(t) for FFmpeg crop filter.
@@ -71,6 +128,17 @@ def build_zoom_expression(
         
     elif mode == "punch_cuts":
         return f"(1.0+{zoom_delta:.4f}*mod(floor(t/{cycle_interval:.2f}),2))"
+        
+    elif mode == "smart_cuts":
+        cues_list = generate_smart_zoom_cues(duration, scene_cuts_str=scene_cuts, ass_file=from_ass, max_zoom=max_zoom)
+        if not cues_list:
+            return "1.0"
+        expr = f"{cues_list[-1][1]:.3f}"
+        for i in range(len(cues_list) - 1, 0, -1):
+            t_next = cues_list[i][0]
+            z_val = cues_list[i-1][1]
+            expr = f"if(lt(t,{t_next:.3f}),{z_val:.3f},{expr})"
+        return expr
         
     elif mode == "custom" and cues_str:
         cues = []
@@ -98,10 +166,12 @@ def build_zoom_expression(
 def apply_zoom(
     input_file: Path = typer.Option(..., "--input", "-i", help="Input video path (in Input/ or Output/)"),
     output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Target output video path"),
-    mode: str = typer.Option("slow_push", "--mode", "-m", help="Zoom mode: 'slow_push', 'slow_pull', 'punch_cuts', 'custom'"),
-    max_zoom: float = typer.Option(1.15, "--max-zoom", "-z", help="Peak zoom level (e.g. 1.15 = 115%, 1.25 = 125%)"),
+    mode: str = typer.Option("smart_cuts", "--mode", "-m", help="Zoom mode: 'smart_cuts', 'punch_cuts', 'slow_push', 'slow_pull', 'custom'"),
+    max_zoom: float = typer.Option(1.18, "--max-zoom", "-z", help="Peak zoom level (e.g. 1.15 = 115%, 1.25 = 125%)"),
     anchor: str = typer.Option("face", "--anchor", "-a", help="Focal anchor point: 'face' (upper third), 'center', 'top', 'bottom'"),
     cycle: float = typer.Option(3.5, "--cycle", "-c", help="Interval in seconds for punch_cuts alternating zoom"),
+    scene_cuts: Optional[str] = typer.Option(None, "--scene-cuts", help="Scene cut timestamps e.g. '7.7, 10.9, 16.9'"),
+    from_ass: Optional[Path] = typer.Option(None, "--from-ass", help="Generate smart zoom cuts from ASS subtitle timestamps"),
     cues: Optional[str] = typer.Option(None, "--cues", help="Custom timestamp cues (e.g. '0:1.0, 4.0:1.18, 8.0:1.0')")
 ):
     """
@@ -126,7 +196,15 @@ def apply_zoom(
     w, h, duration, fps = get_video_specs(input_file, ffprobe_exe)
     console.print(f"Video: [bold yellow]{w}x{h}[/bold yellow] · [bold yellow]{duration:.2f}s[/bold yellow] · [bold yellow]{fps:.1f} fps[/bold yellow]")
     
-    zoom_expr = build_zoom_expression(mode, duration, max_zoom=max_zoom, cues_str=cues, cycle_interval=cycle)
+    zoom_expr = build_zoom_expression(
+        mode,
+        duration,
+        max_zoom=max_zoom,
+        cues_str=cues,
+        cycle_interval=cycle,
+        scene_cuts=scene_cuts,
+        from_ass=from_ass
+    )
     console.print(f"Applied Zoom Profile: [bold cyan]{mode.upper()}[/bold cyan] (Max: {max_zoom}x)")
     
     y_factor = ANCHOR_Y_FACTORS.get(anchor.lower(), 0.35 if h > w else 0.50)

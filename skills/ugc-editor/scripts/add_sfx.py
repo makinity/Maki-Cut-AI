@@ -80,6 +80,32 @@ def find_best_sfx_match(query: str, catalog: Dict[str, Dict[str, Any]]) -> Optio
             
     return None
 
+def load_and_prep_sfx(sfx_path: Path, gain_db: float) -> Tuple[AudioSegment, int]:
+    """
+    Loads SFX audio, automatically trims leading dead air/silence, and detects peak transient offset (ms)
+    so the auditory impact lands frame-accurately on the visual cue.
+    """
+    clip = AudioSegment.from_file(str(sfx_path))
+    from pydub import silence
+    nonsilent = silence.detect_nonsilent(clip, min_silence_len=30, silence_thresh=-40)
+    if nonsilent and nonsilent[0][0] > 15:
+        lead_trim_ms = max(0, nonsilent[0][0] - 10)
+        clip = clip[lead_trim_ms:]
+        
+    clip = clip.apply_gain(gain_db)
+    
+    import numpy as np
+    samples = np.array(clip.get_array_of_samples())
+    if len(samples) > 0:
+        max_search = min(len(samples), int(clip.frame_rate * 0.50 * clip.channels))
+        search_samples = np.abs(samples[:max_search])
+        peak_idx = int(np.argmax(search_samples)) // clip.channels
+        peak_ms = int((peak_idx / clip.frame_rate) * 1000)
+    else:
+        peak_ms = 0
+        
+    return clip, peak_ms
+
 @app.command(name="list")
 def list_sfx():
     """List all available sound effects in the SFX/ directory grouped by category."""
@@ -190,12 +216,12 @@ def apply_sfx(
     base_audio = AudioSegment.from_file(str(temp_wav))
     gain_db = 20 * math.log10(max(0.01, volume))
     
-    console.print(f"Mixing [bold cyan]{len(cue_list)}[/bold cyan] SFX triggers into audio timeline...")
+    console.print(f"Mixing [bold cyan]{len(cue_list)}[/bold cyan] SFX triggers with transient-peak alignment...")
     for t_sec, sfx_path in cue_list:
-        pos_ms = int(t_sec * 1000)
+        target_ms = int(t_sec * 1000)
+        sfx_clip, peak_ms = load_and_prep_sfx(sfx_path, gain_db)
+        pos_ms = max(0, target_ms - peak_ms)
         if pos_ms < len(base_audio):
-            sfx_clip = AudioSegment.from_file(str(sfx_path))
-            sfx_clip = sfx_clip.apply_gain(gain_db)
             base_audio = base_audio.overlay(sfx_clip, position=pos_ms)
             
     base_audio.export(str(temp_mixed_wav), format="wav")
