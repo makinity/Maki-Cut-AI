@@ -1,0 +1,1156 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Makinity UGC Director — Autonomous AI Video Editor</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#080C14',
+              surface: '#0F172A',
+              card: '#1E293B',
+              border: '#334155',
+              cyan: '#00F0FF',
+              yellow: '#FFDE59',
+              green: '#10B981',
+              accent: '#6366F1'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Alpine.js -->
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0F172A; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* Smartphone Mockup Frame */
+    .phone-mockup {
+      width: 290px;
+      height: 580px;
+      border-radius: 40px;
+      border: 10px solid #1E293B;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(0, 240, 255, 0.15);
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
+    .phone-notch {
+      position: absolute;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 22px;
+      background: #1E293B;
+      border-radius: 12px;
+      z-index: 30;
+    }
+
+    /* Pulse Glow */
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(0, 240, 255, 0.8); }
+    }
+    .glow-cyan { animation: pulse-glow 3s infinite; }
+  </style>
+</head>
+
+<body class="bg-[#080C14] text-slate-100 min-h-screen flex flex-col font-sans select-none"
+      x-data="ugcApp()" x-init="initApp()">
+
+  <!-- 1. TOP NAVBAR -->
+  <header class="h-16 border-b border-slate-800 bg-[#0B1120] px-6 flex items-center justify-between shrink-0 z-20">
+    <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+          <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-base tracking-wide flex items-center gap-1.5">
+            MAKINITY <span class="bg-gradient-to-r from-cyan-400 to-yellow-300 bg-clip-text text-transparent">UGC DIRECTOR</span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-cyan-950/80 text-cyan-400 border border-cyan-800 font-mono">AI v2.0</span>
+          </h1>
+          <p class="text-xs text-slate-400">Autonomous Video Retention Engine</p>
+        </div>
+      </div>
+
+      <div class="h-6 w-px bg-slate-800 mx-1"></div>
+
+      <!-- Quick Preset Badge -->
+      <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-lg px-3 py-1.5 text-xs">
+        <span class="text-slate-400">Preset:</span>
+        <span class="font-semibold text-yellow-400 uppercase tracking-wider" x-text="settings.preset.replace('_', ' ')">VIRAL HOOK</span>
+      </div>
+
+      <!-- Raw Clips Counter -->
+      <div class="hidden md:flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-lg px-3 py-1.5 text-xs">
+        <i data-lucide="layers" class="w-3.5 h-3.5 text-cyan-400"></i>
+        <span class="text-slate-300" x-text="`${clips.length} Clips (${totalRawDur}s raw)`">4 Clips</span>
+      </div>
+    </div>
+
+    <!-- Right Navbar Actions -->
+    <div class="flex items-center gap-3">
+      <!-- Master Render Status Pill -->
+      <div class="flex items-center gap-2 text-xs px-3 py-1.5 rounded-lg border"
+           :class="latestMaster ? 'bg-emerald-950/40 border-emerald-700/60 text-emerald-300' : 'bg-slate-900 border-slate-800 text-slate-400'">
+        <span class="w-2 h-2 rounded-full" :class="latestMaster ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'"></span>
+        <span x-text="latestMaster ? `Master Ready (${latestMaster.duration}s)` : 'No Master Rendered'"></span>
+      </div>
+
+      <!-- Primary Produce Button -->
+      <button @click="startProduction()"
+              :disabled="productionState.status === 'running'"
+              class="relative group overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 via-indigo-600 to-yellow-400 p-[1.5px] focus:outline-none transition-transform active:scale-95 disabled:opacity-50">
+        <div class="px-5 py-2 rounded-[10px] bg-[#0B1120] group-hover:bg-opacity-80 transition-all flex items-center gap-2">
+          <i data-lucide="play-circle" class="w-4 h-4 text-cyan-400 group-hover:text-yellow-300 transition-colors"></i>
+          <span class="font-bold text-sm tracking-wide text-white group-hover:text-yellow-300 transition-colors">
+            PRODUCE MASTER VIDEO
+          </span>
+        </div>
+      </button>
+    </div>
+  </header>
+
+  <!-- 2. MAIN 3-ZONE WORKSPACE -->
+  <main class="flex-1 flex overflow-hidden">
+    
+    <!-- ========================================== -->
+    <!-- ZONE A: LEFT ASSET DECK                   -->
+    <!-- ========================================== -->
+    <aside class="w-80 border-r border-slate-800 bg-[#0B1120]/80 flex flex-col shrink-0">
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <i data-lucide="folder-video" class="w-4 h-4 text-cyan-400"></i>
+          <h2 class="text-sm font-semibold tracking-wide text-slate-200">SOURCE CLIPS</h2>
+        </div>
+        <span class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400" x-text="`${clips.length} ready`">4 ready</span>
+      </div>
+
+      <!-- Clip Drag Drop Upload Box -->
+      <div class="p-3">
+        <label class="border-2 border-dashed border-slate-700/80 hover:border-cyan-500/60 rounded-xl p-3 flex flex-col items-center justify-center cursor-pointer transition-all bg-slate-900/40 hover:bg-slate-900/80 group">
+          <input type="file" multiple accept="video/*" class="hidden" @change="handleFileUpload($event, 'input')">
+          <i data-lucide="upload-cloud" class="w-5 h-5 text-slate-400 group-hover:text-cyan-400 transition-colors"></i>
+          <p class="text-xs font-medium text-slate-300 mt-1">Drop raw video clips here</p>
+          <span class="text-[10px] text-slate-500">Auto-orders 1.mp4, 2.mp4...</span>
+        </label>
+      </div>
+
+      <!-- Clips List -->
+      <div class="flex-1 overflow-y-auto px-3 space-y-2">
+        <template x-for="(clip, idx) in clips" :key="clip.name">
+          <div class="p-2.5 rounded-xl border border-slate-800 bg-slate-900/60 hover:border-cyan-500/40 hover:bg-slate-800/60 transition-all flex items-center justify-between group">
+            <div class="flex items-center gap-2.5 overflow-hidden">
+              <span class="w-6 h-6 rounded-lg bg-cyan-950/80 border border-cyan-800/60 text-cyan-400 text-xs font-mono font-bold flex items-center justify-center shrink-0"
+                    x-text="idx + 1">1</span>
+              <div class="overflow-hidden">
+                <p class="text-xs font-semibold text-slate-200 truncate" x-text="clip.name">1.mp4</p>
+                <div class="flex items-center gap-2 text-[10px] text-slate-400">
+                  <span x-text="`${clip.duration}s`">7.5s</span>
+                  <span>•</span>
+                  <span x-text="`${clip.size_mb} MB`">4.8 MB</span>
+                  <span>•</span>
+                  <span class="text-emerald-400">9:16</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-1">
+              <button @click="loadClipPreview(clip.path)" title="Preview Clip"
+                      class="p-1 rounded text-slate-400 hover:text-cyan-400 hover:bg-slate-700/60 transition-colors">
+                <i data-lucide="play" class="w-3.5 h-3.5"></i>
+              </button>
+              <button @click="deleteClip(clip.name)" title="Remove Clip"
+                      class="p-1 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-700/60 transition-colors">
+                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+              </button>
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Audio & SFX Deck Footer -->
+      <div class="p-3 border-t border-slate-800 bg-slate-950/80 space-y-3">
+        <!-- BGM Selector -->
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="text-slate-300 font-medium flex items-center gap-1.5">
+              <i data-lucide="music" class="w-3.5 h-3.5 text-indigo-400"></i> BGM Ducking
+            </span>
+            <span class="text-slate-400 text-[10px]" x-text="`${settings.bgm_volume * 100}%`">18%</span>
+          </div>
+          <select x-model="settings.bgm_track" @change="saveSettings()"
+                  class="w-full text-xs bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-500">
+            <option value="">(None / Ambient UGC Speech)</option>
+            <template x-for="bgm in bgmTracks" :key="bgm">
+              <option :value="bgm" x-text="bgm"></option>
+            </template>
+          </select>
+        </div>
+
+        <!-- SFX Library Status -->
+        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800 text-xs">
+          <div class="flex items-center gap-2">
+            <i data-lucide="volume-2" class="w-4 h-4 text-yellow-400"></i>
+            <div>
+              <p class="font-medium text-slate-200">SFX Library</p>
+              <p class="text-[10px] text-slate-400" x-text="`${sfxCount} assets • Peak-aligned`">28 assets</p>
+            </div>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800">SYNCED</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ========================================== -->
+    <!-- ZONE B: CENTER STAGE (9:16 CANVAS)        -->
+    <!-- ========================================== -->
+    <section class="flex-1 bg-[#060910] flex flex-col items-center justify-between p-4 overflow-hidden relative">
+      
+      <!-- Top Canvas Mode Bar -->
+      <div class="w-full max-w-xl flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-800 rounded-lg p-1 text-xs">
+          <button @click="setPreviewMode('master')"
+                  :class="previewMode === 'master' ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/50' : 'text-slate-400 hover:text-slate-200'"
+                  class="px-3 py-1 rounded transition-all">
+            ✨ UGC Master
+          </button>
+          <button @click="setPreviewMode('raw')"
+                  :class="previewMode === 'raw' ? 'bg-slate-700 text-white font-semibold' : 'text-slate-400 hover:text-slate-200'"
+                  class="px-3 py-1 rounded transition-all">
+            Raw Clip
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <!-- Safe Zone Toggle Button -->
+          <button @click="showSafeZone = !showSafeZone"
+                  :class="showSafeZone ? 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'"
+                  class="px-2.5 py-1 text-xs rounded-lg border flex items-center gap-1.5 transition-all">
+            <i data-lucide="layout-grid" class="w-3.5 h-3.5"></i>
+            <span>TikTok Safe-Zones</span>
+          </button>
+
+          <!-- Split Screen Button -->
+          <button @click="toggleSplit()"
+                  :class="isSplit ? 'bg-indigo-500/20 text-indigo-300 border-indigo-500/40' : 'bg-slate-900 text-slate-400 border-slate-800'"
+                  class="px-2.5 py-1 text-xs rounded-lg border flex items-center gap-1.5 transition-all">
+            <i data-lucide="split" class="w-3.5 h-3.5"></i>
+            <span>Before / After</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Smartphone Mockup Container -->
+      <div class="relative flex items-center justify-center flex-1 my-auto">
+        <div class="phone-mockup relative flex items-center justify-center bg-black">
+          <div class="phone-notch"></div>
+
+          <!-- HTML5 Video Player -->
+          <video id="mainVideoPlayer"
+                 class="w-full h-full object-cover"
+                 playsinline
+                 @timeupdate="onTimeUpdate()"
+                 @ended="onVideoEnded()"
+                 :src="currentVideoSrc">
+          </video>
+
+          <!-- Safe Zone Overlays (TikTok/Reels UI) -->
+          <div x-show="showSafeZone" x-transition.opacity
+               class="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-20">
+            <!-- Top Audio Pill Safe Zone -->
+            <div class="w-32 h-6 mx-auto rounded-full border border-dashed border-yellow-400/60 bg-yellow-400/10 flex items-center justify-center">
+              <span class="text-[9px] text-yellow-300 font-mono">Top UI Safe Zone</span>
+            </div>
+
+            <!-- Right-Hand Engagement Buttons (Like, Comment, Share) -->
+            <div class="self-end flex flex-col gap-3 items-center mr-1">
+              <div class="w-7 h-7 rounded-full border border-dashed border-rose-400/60 bg-rose-400/10 flex items-center justify-center">
+                <i data-lucide="heart" class="w-3 h-3 text-rose-300"></i>
+              </div>
+              <div class="w-7 h-7 rounded-full border border-dashed border-slate-400/60 bg-slate-400/10 flex items-center justify-center">
+                <i data-lucide="message-circle" class="w-3 h-3 text-slate-300"></i>
+              </div>
+              <div class="w-7 h-7 rounded-full border border-dashed border-cyan-400/60 bg-cyan-400/10 flex items-center justify-center">
+                <i data-lucide="share-2" class="w-3 h-3 text-cyan-300"></i>
+              </div>
+            </div>
+
+            <!-- Bottom Caption & Creator Handle Safe Zone -->
+            <div class="w-full h-16 rounded-xl border border-dashed border-yellow-400/60 bg-yellow-400/10 flex items-center justify-center">
+              <span class="text-[9px] text-yellow-300 font-mono">Keep text above this area</span>
+            </div>
+          </div>
+
+          <!-- Active Subtitle Display Pill -->
+          <div x-show="currentSubtitle"
+               class="absolute bottom-24 left-3 right-3 text-center pointer-events-none z-10 transition-all">
+            <span class="px-3 py-1.5 rounded-lg bg-black/80 font-black text-sm text-yellow-300 uppercase tracking-wider shadow-lg border border-yellow-400/40"
+                  x-text="currentSubtitle">
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Playback Controls Bar -->
+      <div class="w-full max-w-xl bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col gap-2 shadow-2xl backdrop-blur-md">
+        <!-- Interactive Scrubber -->
+        <div class="relative w-full flex items-center">
+          <input type="range" min="0" :max="videoDuration" step="0.05"
+                 x-model="currentTime"
+                 @input="seekVideo()"
+                 class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+        </div>
+
+        <div class="flex items-center justify-between text-xs">
+          <div class="flex items-center gap-3">
+            <!-- Play / Pause Button -->
+            <button @click="togglePlay()"
+                    class="w-8 h-8 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 flex items-center justify-center transition-transform active:scale-90">
+              <i :data-lucide="isPlaying ? 'pause' : 'play'" class="w-4 h-4 fill-current"></i>
+            </button>
+
+            <!-- Time Display -->
+            <span class="font-mono text-slate-400 text-xs">
+              <span class="text-slate-100 font-semibold" x-text="formatTime(currentTime)">00:00.0</span> / 
+              <span x-text="formatTime(videoDuration)">00:21.9</span>
+            </span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <!-- Mute Button -->
+            <button @click="toggleMute()" class="text-slate-400 hover:text-slate-200">
+              <i :data-lucide="isMuted ? 'volume-x' : 'volume-2'" class="w-4 h-4"></i>
+            </button>
+
+            <!-- Fullscreen Button -->
+            <button @click="toggleFullscreen()" class="text-slate-400 hover:text-slate-200">
+              <i data-lucide="maximize-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- ZONE C: RIGHT INSPECTOR (AI CHAT / MANUAL) -->
+    <!-- ========================================== -->
+    <aside class="w-96 border-l border-slate-800 bg-[#0B1120]/90 flex flex-col shrink-0">
+      
+      <!-- Tab Header -->
+      <div class="flex border-b border-slate-800 p-1.5 bg-slate-950/60">
+        <button @click="activeTab = 'chat'"
+                :class="activeTab === 'chat' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/40 font-bold' : 'text-slate-400 hover:text-slate-200'"
+                class="flex-1 py-2 text-xs rounded-lg flex items-center justify-center gap-2 transition-all">
+          <i data-lucide="bot" class="w-4 h-4"></i>
+          <span>AI Creative Director</span>
+        </button>
+        <button @click="activeTab = 'manual'"
+                :class="activeTab === 'manual' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/40 font-bold' : 'text-slate-400 hover:text-slate-200'"
+                class="flex-1 py-2 text-xs rounded-lg flex items-center justify-center gap-2 transition-all">
+          <i data-lucide="sliders" class="w-4 h-4"></i>
+          <span>Studio Controls</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: AI CREATIVE DIRECTOR CHAT -->
+      <div x-show="activeTab === 'chat'" class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Suggested Prompt Pills -->
+        <div class="p-3 border-b border-slate-800 bg-slate-900/40">
+          <p class="text-[10px] uppercase font-mono text-slate-400 mb-2 flex items-center gap-1">
+            <i data-lucide="lightbulb" class="w-3 h-3 text-yellow-400"></i> Direct Edits with 1 Click
+          </p>
+          <div class="flex flex-wrap gap-1.5">
+            <button @click="sendQuickPrompt('Make the hook punchier with smart zoom')"
+                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+              🔥 Punchier Hook
+            </button>
+            <button @click="sendQuickPrompt('Cut dead air and pauses tighter')"
+                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+              ✂️ Fast Jump-Cuts
+            </button>
+            <button @click="sendQuickPrompt('Switch subtitles to Hormozi electric yellow')"
+                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+              ⚡ Hormozi Captions
+            </button>
+            <button @click="sendQuickPrompt('Apply warm golden hour color grade')"
+                    class="text-[11px] px-2.5 py-1 rounded-full bg-slate-800 hover:bg-cyan-950 hover:border-cyan-500 border border-slate-700 text-slate-300 hover:text-cyan-300 transition-all">
+              🎨 Golden Hour
+            </button>
+          </div>
+        </div>
+
+        <!-- Chat Stream Messages -->
+        <div id="chatFeed" class="flex-1 overflow-y-auto p-4 space-y-3">
+          <template x-for="(msg, i) in chatHistory" :key="i">
+            <div>
+              <!-- User Bubble -->
+              <div x-show="msg.role === 'user'" class="flex justify-end mb-2">
+                <div class="bg-indigo-600 text-white rounded-2xl rounded-tr-none px-3.5 py-2 text-xs max-w-[85%] shadow-md"
+                     x-text="msg.content">
+                </div>
+              </div>
+
+              <!-- Assistant Bubble -->
+              <div x-show="msg.role === 'assistant'" class="flex gap-2.5 mb-2">
+                <div class="w-6 h-6 rounded-lg bg-cyan-950 border border-cyan-800 text-cyan-400 flex items-center justify-center shrink-0 text-xs">
+                  <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+                </div>
+                <div class="space-y-2 flex-1">
+                  <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-3 text-xs text-slate-300 space-y-1.5 leading-relaxed shadow-md"
+                       x-html="formatMarkdown(msg.content)">
+                  </div>
+
+                  <!-- Action Card (if any) -->
+                  <template x-if="msg.action_card">
+                    <div class="p-3 rounded-xl border border-cyan-500/40 bg-cyan-950/20 space-y-2">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-xs text-cyan-300 flex items-center gap-1.5">
+                          <i data-lucide="check-circle-2" class="w-3.5 h-3.5"></i>
+                          <span x-text="msg.action_card.title"></span>
+                        </span>
+                      </div>
+                      <p class="text-[11px] text-slate-400" x-text="msg.action_card.details"></p>
+                      <button @click="handleActionCard(msg.action_card)"
+                              class="w-full py-1.5 rounded-lg bg-gradient-to-r from-cyan-500 to-indigo-600 hover:opacity-90 font-bold text-xs text-slate-950 transition-all flex items-center justify-center gap-1.5">
+                        <i data-lucide="zap" class="w-3.5 h-3.5 fill-current"></i>
+                        <span x-text="msg.action_card.button_text"></span>
+                      </button>
+                    </div>
+                  </template>
+                </div>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="p-3 border-t border-slate-800 bg-slate-950 flex items-center gap-2">
+          <input type="text"
+                 x-model="chatInput"
+                 @keydown.enter="sendChatMessage()"
+                 placeholder="Ask your AI Director to reframe, cut, or style..."
+                 class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+          <button @click="sendChatMessage()"
+                  class="p-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-colors">
+            <i data-lucide="send" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: MANUAL STUDIO CONTROLS -->
+      <div x-show="activeTab === 'manual'" class="flex-1 overflow-y-auto p-4 space-y-5">
+        
+        <!-- Preset Cards -->
+        <div>
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Creative Style Preset</label>
+          <div class="grid grid-cols-1 gap-2">
+            <!-- Viral Hook -->
+            <button @click="setPreset('viral_hook')"
+                    :class="settings.preset === 'viral_hook' ? 'border-yellow-400 bg-yellow-950/20 ring-1 ring-yellow-400' : 'border-slate-800 bg-slate-900/60'"
+                    class="p-2.5 rounded-xl border text-left transition-all">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-yellow-300">🔥 Viral Hook (TikTok/Reels)</span>
+                <span class="text-[10px] text-yellow-400 bg-yellow-950/80 px-1.5 py-0.5 rounded font-mono">RECOMMENDED</span>
+              </div>
+              <p class="text-[11px] text-slate-400 mt-1">Snappy jump cuts, 1.18x smart zooms, Hormozi captions & whooshes.</p>
+            </button>
+
+            <!-- Storyteller -->
+            <button @click="setPreset('storyteller')"
+                    :class="settings.preset === 'storyteller' ? 'border-yellow-400 bg-yellow-950/20 ring-1 ring-yellow-400' : 'border-slate-800 bg-slate-900/60'"
+                    class="p-2.5 rounded-xl border text-left transition-all">
+              <span class="text-xs font-bold text-slate-200">📖 Storyteller</span>
+              <p class="text-[11px] text-slate-400 mt-1">Cinematic slow push, warm golden hour grade, clean minimal white captions.</p>
+            </button>
+
+            <!-- SaaS Explainer -->
+            <button @click="setPreset('saas_explainer')"
+                    :class="settings.preset === 'saas_explainer' ? 'border-yellow-400 bg-yellow-950/20 ring-1 ring-yellow-400' : 'border-slate-800 bg-slate-900/60'"
+                    class="p-2.5 rounded-xl border text-left transition-all">
+              <span class="text-xs font-bold text-slate-200">🚀 SaaS / Product Explainer</span>
+              <p class="text-[11px] text-slate-400 mt-1">Moody tech dark theme, metric bar graphs, neon green accents, UI beeps.</p>
+            </button>
+          </div>
+        </div>
+
+        <!-- Pacing & Dead Air -->
+        <div class="border-t border-slate-800 pt-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Fast UGC Pacing</span>
+            <input type="checkbox" x-model="settings.trim_silence" @change="saveSettings()"
+                   class="w-4 h-4 accent-cyan-500 rounded">
+          </div>
+          <p class="text-[11px] text-slate-400">Trims awkward silences longer than 0.40s down to 0.12s natural speech buffer.</p>
+        </div>
+
+        <!-- Camera Zooming -->
+        <div class="border-t border-slate-800 pt-4">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Smart Camera Zooms</label>
+          <select x-model="settings.zoom_mode" @change="saveSettings()"
+                  class="w-full text-xs bg-slate-900 border border-slate-800 rounded-lg p-2 text-slate-200 focus:outline-none focus:border-cyan-500">
+            <option value="smart_cuts">Smart Cuts (Scene & Sentence Synced)</option>
+            <option value="slow_push">Cinematic Slow Push</option>
+            <option value="punch_cuts">Punch Cuts (Static Zoom)</option>
+            <option value="none">Off (Static Framing)</option>
+          </select>
+        </div>
+
+        <!-- Subtitle Styles -->
+        <div class="border-t border-slate-800 pt-4">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Kinetic Caption Theme</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button @click="setCaptionStyle('hormozi')"
+                    :class="settings.caption_style === 'hormozi' ? 'border-yellow-400 bg-yellow-950/40 text-yellow-300 font-bold' : 'border-slate-800 text-slate-400'"
+                    class="p-2 rounded-lg border text-center text-xs">
+              Hormozi
+            </button>
+            <button @click="setCaptionStyle('neon_green')"
+                    :class="settings.caption_style === 'neon_green' ? 'border-emerald-400 bg-emerald-950/40 text-emerald-300 font-bold' : 'border-slate-800 text-slate-400'"
+                    class="p-2 rounded-lg border text-center text-xs">
+              Neon Green
+            </button>
+            <button @click="setCaptionStyle('clean_white')"
+                    :class="settings.caption_style === 'clean_white' ? 'border-white bg-slate-800 text-white font-bold' : 'border-slate-800 text-slate-400'"
+                    class="p-2 rounded-lg border text-center text-xs">
+              Clean White
+            </button>
+          </div>
+        </div>
+
+        <!-- Pinpoint Words -->
+        <div class="border-t border-slate-800 pt-4">
+          <div class="flex items-center justify-between mb-2">
+            <label class="text-xs font-bold text-slate-300 uppercase tracking-wider">Highlight Pinpoints</label>
+            <button @click="autoDetectKeywords()" class="text-[10px] text-cyan-400 hover:underline flex items-center gap-1">
+              <i data-lucide="wand-2" class="w-3 h-3"></i> Auto-Detect
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-1.5 mb-2">
+            <template x-for="word in pinpointsList" :key="word">
+              <span class="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-xs text-yellow-300 flex items-center gap-1 font-mono">
+                <span x-text="word"></span>
+                <button @click="removePinpoint(word)" class="text-slate-500 hover:text-rose-400">×</button>
+              </span>
+            </template>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" x-model="newPinpoint" @keydown.enter="addPinpoint()"
+                   placeholder="Add keyword (e.g. jar, grip)..."
+                   class="flex-1 bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-slate-200">
+            <button @click="addPinpoint()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-bold">
+              Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Color Grade Selection -->
+        <div class="border-t border-slate-800 pt-4 pb-6">
+          <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block mb-2">Aesthetic Color Grade</label>
+          <div class="grid grid-cols-1 gap-2">
+            <button @click="setGrade('vibrant_pop')"
+                    :class="settings.grade === 'vibrant_pop' ? 'border-cyan-400 bg-cyan-950/20' : 'border-slate-800 bg-slate-900/60'"
+                    class="p-2 rounded-lg border text-left text-xs flex items-center justify-between">
+              <div>
+                <p class="font-bold text-slate-200">Vibrant Commercial Pop</p>
+                <p class="text-[10px] text-slate-400">High contrast & mobile feed saturation</p>
+              </div>
+              <span class="w-3 h-3 rounded-full bg-cyan-400"></span>
+            </button>
+
+            <button @click="setGrade('warm_golden')"
+                    :class="settings.grade === 'warm_golden' ? 'border-yellow-400 bg-yellow-950/20' : 'border-slate-800 bg-slate-900/60'"
+                    class="p-2 rounded-lg border text-left text-xs flex items-center justify-between">
+              <div>
+                <p class="font-bold text-slate-200">Warm Golden Hour</p>
+                <p class="text-[10px] text-slate-400">Warm skin tones & cinematic ambient</p>
+              </div>
+              <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+            </button>
+
+            <button @click="setGrade('moody_dark')"
+                    :class="settings.grade === 'moody_dark' ? 'border-indigo-400 bg-indigo-950/20' : 'border-slate-800 bg-slate-900/60'"
+                    class="p-2 rounded-lg border text-left text-xs flex items-center justify-between">
+              <div>
+                <p class="font-bold text-slate-200">Moody Tech Dark</p>
+                <p class="text-[10px] text-slate-400">Deep blacks & modern tech feel</p>
+              </div>
+              <span class="w-3 h-3 rounded-full bg-indigo-400"></span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+  </main>
+
+  <!-- 3. BOTTOM STORYLINE TIMELINE STRIP -->
+  <footer class="h-28 border-t border-slate-800 bg-[#0B1120] px-4 py-2 flex flex-col shrink-0 select-none z-10">
+    <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono mb-1">
+      <span class="flex items-center gap-1.5 font-semibold text-slate-300">
+        <i data-lucide="film" class="w-3.5 h-3.5 text-cyan-400"></i> MULTI-TRACK NARRATIVE STORYLINE
+      </span>
+      <span>Total Run: <span class="text-cyan-400 font-bold" x-text="`${videoDuration.toFixed(1)}s`">21.9s</span></span>
+    </div>
+
+    <!-- Timeline Tracks -->
+    <div class="flex-1 flex flex-col gap-1.5 justify-center">
+      <!-- Track 1: Clips & Transitions -->
+      <div class="h-7 w-full bg-slate-900/80 rounded-lg border border-slate-800/80 flex items-center p-1 gap-1">
+        <template x-for="(clip, idx) in clips" :key="clip.name">
+          <div class="flex items-center gap-1 flex-1 h-full">
+            <div class="h-full flex-1 rounded bg-gradient-to-r from-cyan-950/80 to-slate-800 border border-cyan-800/60 flex items-center justify-center px-2 text-[10px] text-cyan-300 font-semibold truncate"
+                 :title="clip.name">
+              <span x-text="`${clip.name} (${clip.duration}s)`"></span>
+            </div>
+            <!-- Transition Pill -->
+            <template x-if="idx < clips.length - 1">
+              <div class="px-1 py-0.5 rounded bg-yellow-950/90 border border-yellow-700/80 text-yellow-300 text-[9px] font-mono shrink-0 flex items-center gap-0.5"
+                   title="0.22s Slide Transition & Whoosh">
+                ⚡ 0.22s
+              </div>
+            </template>
+          </div>
+        </template>
+      </div>
+
+      <!-- Track 2: Semantic Motion Graphics & SFX Hits -->
+      <div class="h-5 w-full bg-slate-900/40 rounded flex items-center px-2 gap-3 text-[9px]">
+        <span class="text-slate-500 font-mono">DYNAMIC BEATS:</span>
+        <span class="px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800 font-mono">
+          [PROBLEM SOLVED] @ 5.4s
+        </span>
+        <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-mono">
+          [100% EASY] @ 10.8s
+        </span>
+        <span class="px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-mono">
+          [🔥 ZERO STRUGGLE] @ 18.2s
+        </span>
+        <span class="ml-auto text-slate-500 font-mono flex items-center gap-1">
+          <i data-lucide="zap" class="w-3 h-3 text-yellow-400"></i> Transient SFX Auto-Aligned
+        </span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 4. LIVE PRODUCTION MODAL OVERLAY -->
+  <div x-show="showProductionModal" x-transition.opacity
+       class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-[#0F172A] border border-cyan-500/40 rounded-3xl p-6 shadow-2xl relative space-y-5">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center">
+            <i data-lucide="clapperboard" class="w-5 h-5 text-cyan-400"></i>
+          </div>
+          <div>
+            <h3 class="font-extrabold text-base text-slate-100">AI DIRECTED RENDERING PIPELINE</h3>
+            <p class="text-xs text-slate-400" x-text="productionState.current_step || 'Orchestrating UGC Master...'"></p>
+          </div>
+        </div>
+
+        <button @click="showProductionModal = false" class="text-slate-400 hover:text-white">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Animated Progress Bar -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between text-xs font-mono">
+          <span class="text-cyan-400 font-bold" x-text="`${productionState.progress}% COMPLETE`"></span>
+          <span class="text-slate-400" x-text="productionState.status === 'running' ? 'Rendering with FFmpeg...' : 'Ready'"></span>
+        </div>
+        <div class="w-full h-3 bg-slate-900 rounded-full overflow-hidden p-0.5 border border-slate-800">
+          <div class="h-full rounded-full bg-gradient-to-r from-cyan-400 via-indigo-500 to-yellow-300 transition-all duration-300"
+               :style="`width: ${productionState.progress}%`"></div>
+        </div>
+      </div>
+
+      <!-- Production Step Checklist -->
+      <div class="space-y-2 text-xs bg-slate-950/60 p-4 rounded-2xl border border-slate-800/80">
+        <div class="flex items-center gap-2" :class="productionState.progress >= 20 ? 'text-emerald-400' : 'text-slate-500'">
+          <i :data-lucide="productionState.progress >= 20 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
+          <span>Trim dead air & awkward pauses (0.12s padding)</span>
+        </div>
+        <div class="flex items-center gap-2" :class="productionState.progress >= 40 ? 'text-emerald-400' : 'text-slate-500'">
+          <i :data-lucide="productionState.progress >= 40 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
+          <span>Stitch 4 raw clips with 0.22s whoosh transitions</span>
+        </div>
+        <div class="flex items-center gap-2" :class="productionState.progress >= 55 ? 'text-emerald-400' : 'text-slate-500'">
+          <i :data-lucide="productionState.progress >= 55 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
+          <span>Apply smart scene-synced camera keyframes</span>
+        </div>
+        <div class="flex items-center gap-2" :class="productionState.progress >= 75 ? 'text-emerald-400' : 'text-slate-500'">
+          <i :data-lucide="productionState.progress >= 75 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
+          <span>Transcribe audio & burn kinetic bouncing subtitles</span>
+        </div>
+        <div class="flex items-center gap-2" :class="productionState.progress >= 85 ? 'text-emerald-400' : 'text-slate-500'">
+          <i :data-lucide="productionState.progress >= 85 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
+          <span>Overlay semantic morphing shapes (context aware)</span>
+        </div>
+        <div class="flex items-center gap-2" :class="productionState.progress >= 92 ? 'text-emerald-400' : 'text-slate-500'">
+          <i :data-lucide="productionState.progress >= 92 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
+          <span>Layer transient SFX hits & duck background music</span>
+        </div>
+        <div class="flex items-center gap-2" :class="productionState.progress >= 100 ? 'text-emerald-400' : 'text-slate-500'">
+          <i :data-lucide="productionState.progress >= 100 ? 'check-circle' : 'circle'" class="w-4 h-4 shrink-0"></i>
+          <span>Apply aesthetic color grade & YUV420p universal mux</span>
+        </div>
+      </div>
+
+      <!-- Completion Banner & CTAs -->
+      <div x-show="productionState.status === 'completed'" class="pt-2 flex gap-3">
+        <a :href="`/media/output/${productionState.output_file || 'ugc_jar_opener_master.mp4'}`"
+           download
+           class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 hover:opacity-90 font-bold text-xs text-slate-950 flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20">
+          <i data-lucide="download" class="w-4 h-4"></i> Download Master MP4
+        </a>
+        <button @click="watchMasterPreview()"
+                class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs flex items-center justify-center gap-2">
+          <i data-lucide="play" class="w-4 h-4"></i> Watch in Canvas
+        </button>
+      </div>
+
+      <!-- Error Message Banner -->
+      <div x-show="productionState.status === 'error'"
+           class="p-3 rounded-xl bg-rose-950/60 border border-rose-800 text-rose-300 text-xs">
+        <p class="font-bold flex items-center gap-1.5"><i data-lucide="alert-triangle" class="w-4 h-4"></i> Render Failed</p>
+        <p class="mt-1 font-mono text-[11px]" x-text="productionState.error_message"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION CONTROLLER -->
+  <script>
+    function ugcApp() {
+      return {
+        // App State
+        clips: [],
+        totalRawDur: 0,
+        latestMaster: null,
+        bgmTracks: [],
+        sfxCount: 28,
+        subtitles: [],
+        
+        settings: {
+          preset: 'viral_hook',
+          trim_silence: true,
+          zoom_mode: 'smart_cuts',
+          caption_style: 'hormozi',
+          grade: 'vibrant_pop',
+          pinpoints: 'jar,opener,grip,lid,turn,hands,fight',
+          transition: 'slide_left',
+          bgm_track: '',
+          bgm_volume: 0.18,
+          bgm_ducking: 5.0
+        },
+
+        productionState: {
+          status: 'idle',
+          progress: 0,
+          current_step: '',
+          output_file: '',
+          error_message: '',
+          logs: []
+        },
+
+        chatHistory: [],
+        chatInput: '',
+        activeTab: 'chat',
+
+        // Player & Canvas State
+        previewMode: 'master',
+        currentVideoSrc: '',
+        isPlaying: false,
+        isMuted: false,
+        currentTime: 0,
+        videoDuration: 21.98,
+        showSafeZone: false,
+        isSplit: false,
+        currentSubtitle: '',
+        newPinpoint: '',
+        showProductionModal: false,
+        pollInterval: null,
+
+        get pinpointsList() {
+          return this.settings.pinpoints ? this.settings.pinpoints.split(',').map(s => s.trim()).filter(Boolean) : [];
+        },
+
+        async initApp() {
+          await this.loadProject();
+          await this.loadChat();
+          this.$nextTick(() => {
+            lucide.createIcons();
+          });
+        },
+
+        async loadProject() {
+          try {
+            const res = await fetch('/api/project');
+            const data = await res.json();
+            this.clips = data.clips || [];
+            this.totalRawDur = data.total_raw_duration || 0;
+            this.latestMaster = data.latest_master;
+            this.settings = Object.assign(this.settings, data.settings);
+            this.bgmTracks = data.bgm_tracks || [];
+            this.sfxCount = data.sfx_count || 28;
+            this.subtitles = data.subtitles || [];
+            this.productionState = data.production_state;
+
+            if (this.latestMaster && this.previewMode === 'master') {
+              this.currentVideoSrc = this.latestMaster.path;
+              this.videoDuration = this.latestMaster.duration || 21.98;
+            } else if (this.clips.length > 0) {
+              this.currentVideoSrc = this.clips[0].path;
+              this.videoDuration = this.clips[0].duration || 7.5;
+            }
+          } catch (err) {
+            console.error('Failed to load project:', err);
+          }
+        },
+
+        async loadChat() {
+          try {
+            const res = await fetch('/api/chat/history');
+            const data = await res.json();
+            this.chatHistory = data.history || [];
+            this.scrollChatBottom();
+          } catch (err) {
+            console.error('Failed to load chat history:', err);
+          }
+        },
+
+        async saveSettings() {
+          try {
+            await fetch('/api/settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.settings)
+            });
+          } catch (err) {
+            console.error('Failed to save settings:', err);
+          }
+        },
+
+        setPreset(p) {
+          this.settings.preset = p;
+          if (p === 'viral_hook') {
+            this.settings.grade = 'vibrant_pop';
+            this.settings.zoom_mode = 'smart_cuts';
+            this.settings.caption_style = 'hormozi';
+            this.settings.transition = 'slide_left';
+          } else if (p === 'storyteller') {
+            this.settings.grade = 'warm_golden';
+            this.settings.zoom_mode = 'slow_push';
+            this.settings.caption_style = 'clean_white';
+            this.settings.transition = 'smooth_left';
+          } else if (p === 'saas_explainer') {
+            this.settings.grade = 'moody_dark';
+            this.settings.zoom_mode = 'smart_cuts';
+            this.settings.caption_style = 'neon_green';
+            this.settings.transition = 'zoom_in';
+          }
+          this.saveSettings();
+        },
+
+        setCaptionStyle(s) {
+          this.settings.caption_style = s;
+          this.saveSettings();
+        },
+
+        setGrade(g) {
+          this.settings.grade = g;
+          this.saveSettings();
+        },
+
+        addPinpoint() {
+          const w = this.newPinpoint.trim().toLowerCase();
+          if (!w) return;
+          const current = this.pinpointsList;
+          if (!current.includes(w)) {
+            current.push(w);
+            this.settings.pinpoints = current.join(',');
+            this.saveSettings();
+          }
+          this.newPinpoint = '';
+        },
+
+        removePinpoint(w) {
+          const updated = this.pinpointsList.filter(item => item !== w);
+          this.settings.pinpoints = updated.join(',');
+          this.saveSettings();
+        },
+
+        async autoDetectKeywords() {
+          try {
+            const res = await fetch('/api/detect_keywords', { method: 'POST' });
+            const data = await res.json();
+            if (data.keywords && data.keywords.length > 0) {
+              const combined = Array.from(new Set([...this.pinpointsList, ...data.keywords]));
+              this.settings.pinpoints = combined.join(',');
+              await this.saveSettings();
+            }
+          } catch (err) {
+            console.error('Failed to auto-detect keywords:', err);
+          }
+        },
+
+        async sendChatMessage() {
+          const msg = this.chatInput.trim();
+          if (!msg) return;
+          this.chatInput = '';
+
+          try {
+            const res = await fetch('/api/chat', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ message: msg })
+            });
+            const data = await res.json();
+            this.chatHistory = data.history || [];
+            this.scrollChatBottom();
+            this.$nextTick(() => lucide.createIcons());
+            await this.loadProject();
+          } catch (err) {
+            console.error('Chat error:', err);
+          }
+        },
+
+        sendQuickPrompt(prompt) {
+          this.chatInput = prompt;
+          this.sendChatMessage();
+        },
+
+        handleActionCard(card) {
+          if (card.action === 'produce') {
+            this.startProduction();
+          } else if (card.action === 'open_modal') {
+            this.showProductionModal = true;
+          }
+        },
+
+        async startProduction() {
+          this.showProductionModal = true;
+          try {
+            await fetch('/api/produce', { method: 'POST' });
+            this.pollProductionProgress();
+          } catch (err) {
+            console.error('Failed to start production:', err);
+          }
+        },
+
+        pollProductionProgress() {
+          if (this.pollInterval) clearInterval(this.pollInterval);
+          this.pollInterval = setInterval(async () => {
+            try {
+              const res = await fetch('/api/progress');
+              const data = await res.json();
+              this.productionState = data;
+              this.$nextTick(() => lucide.createIcons());
+
+              if (data.status === 'completed' || data.status === 'error') {
+                clearInterval(this.pollInterval);
+                await this.loadProject();
+              }
+            } catch (err) {
+              console.error('Progress poll error:', err);
+            }
+          }, 1000);
+        },
+
+        watchMasterPreview() {
+          this.showProductionModal = false;
+          this.setPreviewMode('master');
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) {
+            vid.currentTime = 0;
+            vid.play();
+            this.isPlaying = true;
+          }
+        },
+
+        // Canvas Player Helpers
+        setPreviewMode(mode) {
+          this.previewMode = mode;
+          if (mode === 'master' && this.latestMaster) {
+            this.currentVideoSrc = this.latestMaster.path;
+            this.videoDuration = this.latestMaster.duration;
+          } else if (this.clips.length > 0) {
+            this.currentVideoSrc = this.clips[0].path;
+            this.videoDuration = this.clips[0].duration;
+          }
+          this.currentTime = 0;
+          this.isPlaying = false;
+        },
+
+        loadClipPreview(clipPath) {
+          this.previewMode = 'raw';
+          this.currentVideoSrc = clipPath;
+          this.currentTime = 0;
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) {
+            vid.currentTime = 0;
+            vid.play();
+            this.isPlaying = true;
+          }
+        },
+
+        togglePlay() {
+          const vid = document.getElementById('mainVideoPlayer');
+          if (!vid) return;
+          if (vid.paused) {
+            vid.play();
+            this.isPlaying = true;
+          } else {
+            vid.pause();
+            this.isPlaying = false;
+          }
+        },
+
+        toggleMute() {
+          const vid = document.getElementById('mainVideoPlayer');
+          if (!vid) return;
+          vid.muted = !vid.muted;
+          this.isMuted = vid.muted;
+        },
+
+        toggleFullscreen() {
+          const vid = document.getElementById('mainVideoPlayer');
+          if (!vid) return;
+          if (!document.fullscreenElement) {
+            vid.requestFullscreen().catch(err => alert(err.message));
+          } else {
+            document.exitFullscreen();
+          }
+        },
+
+        seekVideo() {
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) {
+            vid.currentTime = this.currentTime;
+          }
+        },
+
+        onTimeUpdate() {
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) {
+            this.currentTime = vid.currentTime;
+            this.updateActiveSubtitle(this.currentTime);
+          }
+        },
+
+        onVideoEnded() {
+          this.isPlaying = false;
+        },
+
+        updateActiveSubtitle(t) {
+          if (!this.subtitles || this.subtitles.length === 0) {
+            this.currentSubtitle = '';
+            return;
+          }
+          const matched = this.subtitles.find(c => Math.abs(c.time - t) <= 1.2);
+          this.currentSubtitle = matched ? matched.text : '';
+        },
+
+        toggleSplit() {
+          this.isSplit = !this.isSplit;
+          if (this.isSplit) {
+            this.setPreviewMode('raw');
+          } else {
+            this.setPreviewMode('master');
+          }
+        },
+
+        async handleFileUpload(event, targetType) {
+          const files = event.target.files;
+          if (!files || files.length === 0) return;
+          for (let i = 0; i < files.length; i++) {
+            const formData = new FormData();
+            formData.append('file', files[i]);
+            await fetch(`/api/upload?target_type=${targetType}`, {
+              method: 'POST',
+              body: formData
+            });
+          }
+          await this.loadProject();
+        },
+
+        async deleteClip(filename) {
+          if (!confirm(`Delete clip ${filename}?`)) return;
+          try {
+            await fetch(`/api/clips/${filename}`, { method: 'DELETE' });
+            await this.loadProject();
+          } catch (err) {
+            console.error('Delete clip error:', err);
+          }
+        },
+
+        formatTime(sec) {
+          if (!sec || isNaN(sec)) return "00:00.0";
+          const m = Math.floor(sec / 60);
+          const s = Math.floor(sec % 60);
+          const ms = Math.floor((sec % 1) * 10);
+          return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${ms}`;
+        },
+
+        formatMarkdown(text) {
+          if (!text) return '';
+          let html = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-bold">$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em class="text-cyan-300">$1</em>')
+            .replace(/`(.*?)`/g, '<code class="px-1 py-0.5 rounded bg-slate-800 text-yellow-300 font-mono text-[11px]">$1</code>')
+            .replace(/\n\n/g, '<div class="h-2"></div>')
+            .replace(/\n/g, '<br/>');
+          return html;
+        },
+
+        scrollChatBottom() {
+          this.$nextTick(() => {
+            const feed = document.getElementById('chatFeed');
+            if (feed) feed.scrollTop = feed.scrollHeight;
+          });
+        }
+      };
+    }
+
+    // Spacebar Play / Pause Shortcut
+    window.addEventListener('keydown', (e) => {
+      if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+        e.preventDefault();
+        const vid = document.getElementById('mainVideoPlayer');
+        if (vid) {
+          if (vid.paused) vid.play();
+          else vid.pause();
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+

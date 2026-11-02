@@ -167,7 +167,11 @@ def produce_video(
     add_sfx_layers: bool = typer.Option(True, "--sfx/--no-sfx", help="Layer sound effects"),
     add_bgm_track: bool = typer.Option(True, "--bgm/--no-bgm", help="Mix background music with voice ducking"),
     apply_grade: bool = typer.Option(True, "--grade/--no-grade", help="Apply aesthetic color grading"),
-    custom_pinpoints: Optional[str] = typer.Option(None, "--pinpoints", help="Context emphasis keywords (e.g. 'growth,sales,secret')")
+    custom_pinpoints: Optional[str] = typer.Option(None, "--pinpoints", help="Context emphasis keywords (e.g. 'growth,sales,secret')"),
+    custom_caption_style: Optional[str] = typer.Option(None, "--caption-style", help="Override subtitle style (hormozi, neon_green, clean_white)"),
+    custom_grade: Optional[str] = typer.Option(None, "--grade-preset", help="Override color grade (vibrant_pop, warm_golden, moody_dark)"),
+    custom_zoom_mode: Optional[str] = typer.Option(None, "--zoom-mode", help="Override zoom mode (smart_cuts, slow_push, punch_cuts)"),
+    custom_transition: Optional[str] = typer.Option(None, "--transition", help="Override transition (slide_left, smooth_left, zoom_in)")
 ):
     """
     Directs and produces a complete, polished, viral UGC video from raw inputs
@@ -178,7 +182,15 @@ def produce_video(
     temp_dir = output_dir / "temp_scratch"
     temp_dir.mkdir(parents=True, exist_ok=True)
     
-    cfg = STYLE_PRESETS.get(preset.lower(), STYLE_PRESETS["viral_hook"])
+    cfg = dict(STYLE_PRESETS.get(preset.lower(), STYLE_PRESETS["viral_hook"]))
+    if custom_caption_style:
+        cfg["caption_style"] = custom_caption_style
+    if custom_grade:
+        cfg["grade"] = custom_grade
+    if custom_zoom_mode:
+        cfg["zoom_mode"] = custom_zoom_mode
+    if custom_transition:
+        cfg["transition"] = custom_transition
     
     console.print(Panel(
         f"[bold]Selected Creative Preset:[/bold] [yellow]{preset.upper()}[/yellow]\n"
