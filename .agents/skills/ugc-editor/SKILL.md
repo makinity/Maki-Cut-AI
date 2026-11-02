@@ -539,4 +539,23 @@ Removes green screen, blue screen, or custom color backdrops, with anti-aliasing
 .\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_cutout.py chroma -i "Input/1.mp4" -o "Output/cutout_1.mp4" -c "#00FF00" -s 30 -m 15 -w 20 -b blur
 ```
 
+---
+
+### Capability 17: Precision Manual Trimming, Razor Splitting & MakiSync Brand UI
+
+Provides desktop-grade manual timeline editing and responsive styling following the **MakiSync** brand identity (`C:\Knowledge-Base\business\maki-sync.md`):
+- **Precision Trimming Handles**:
+  - Drag Left bracket (`in_point`) and Right bracket (`out_point`) on any clip block with dynamic pixel-to-second ratio calculations.
+  - Live video scrubbing previews exactly what frame you are trimming to.
+  - Automatic clip visual re-proportioning (`flex: clip.duration 0 0`) and total duration re-computation.
+- **Razor Split at Playhead**:
+  - `Ctrl+B` or single-key `S` cuts the clip under the playhead into Part 1 and Part 2 seamlessly with non-destructive in/out offsets.
+- **Ripple Delete**:
+  - `Del` or `Backspace` deletes selected clip and ripples the rest of the timeline closed.
+- **MakiSync Brand Identity**:
+  - **Color Palette**: Electric Blue `#1683DF` (Primary Accent), Soft Sky Blue `#93CCE9`, Clean White `#FFFFFF`, Dark Slate `#0B0F17`.
+  - **Typography**: `Poppins` for headings/branding, `Inter` for UI body.
+  - **Light Mode as Default**: High-contrast, clean minimalist workspace with 1-click Sun/Moon dark mode toggle.
+
+
 

@@ -74,7 +74,7 @@ AVAILABLE_STICKERS = [
 ]
 
 AVAILABLE_TEXT_STYLES = [
-    {"id": "hormozi", "name": "Hormozi Electric", "font": "Montserrat Black", "size": 44, "color": "#FFDE59", "stroke": "#000000", "stroke_width": 4, "bg": "#000000", "bg_padding": 8, "animation": "karaoke_bounce"},
+    {"id": "hormozi", "name": "Hormozi Electric", "font": "Montserrat Black", "size": 44, "color": "#FFDE59", "stroke": "#000000", "stroke_width": 4, "bg": "transparent", "bg_padding": 8, "animation": "karaoke_bounce"},
     {"id": "neon_green", "name": "Cyberpunk Neon", "font": "Inter Black", "size": 42, "color": "#00FF66", "stroke": "#042F2E", "stroke_width": 3, "bg": "transparent", "glow": "#00FF66", "animation": "pop_in"},
     {"id": "clean_white", "name": "Minimal Clean White", "font": "Inter Bold", "size": 38, "color": "#FFFFFF", "stroke": "#000000", "stroke_width": 2, "shadow": True, "animation": "slide_up"},
     {"id": "bold_punch", "name": "TikTok Bold Punch", "font": "The Bold Font", "size": 46, "color": "#FFFFFF", "bg": "#EF4444", "bg_padding": 10, "stroke": "none", "animation": "spring_pop"}
@@ -123,6 +123,7 @@ current_settings = {
     "clip_masks": {},
     "clip_tracking": {},
     "clip_cutouts": {},
+    "timeline_clips": None,
 }
 
 production_state = {
@@ -192,44 +193,55 @@ def get_project():
     BM_DIR.mkdir(parents=True, exist_ok=True)
     SFX_DIR.mkdir(parents=True, exist_ok=True)
 
-    # 1. Input Clips
+    # 1. Input Clips & Timeline Sequence
     raw_clips = [f for f in INPUT_DIR.glob("*.*") if f.suffix.lower() in [".mp4", ".mov", ".mkv", ".webm"]]
     raw_clips.sort(key=lambda p: natural_sort_key(p.name))
     clips_data = []
     total_raw_dur = 0.0
-    for c in raw_clips:
-        info = get_media_info(c)
-        total_raw_dur += info["duration"]
-        curve_meta = current_settings.get("clip_speed_curves", {}).get(c.name, {
-            "preset": "none",
-            "points": [[0.0, 1.0], [1.0, 1.0]],
-            "smooth_slowmo": False,
-            "original_duration": info["duration"],
-            "ramped_duration": info["duration"]
-        })
-        mask_meta = current_settings.get("clip_masks", {}).get(c.name, {
-            "shape": "none",
-            "feather": 20.0,
-            "size_w": 0.70,
-            "size_h": 0.70,
-            "pos_x": 0.50,
-            "pos_y": 0.50,
-            "roundness": 30.0,
-            "rotation": 0.0,
-            "invert": False
-        })
-        clips_data.append({
-            "name": c.name,
-            "path": f"/media/input/{c.name}",
-            "duration": info["duration"],
-            "size_mb": info["size_mb"],
-            "width": info["width"],
-            "height": info["height"],
-            "speed_curve": curve_meta,
-            "mask": mask_meta,
-            "tracking": current_settings.get("clip_tracking", {}).get(c.name),
-            "cutout": current_settings.get("clip_cutouts", {}).get(c.name)
-        })
+
+    if current_settings.get("timeline_clips"):
+        clips_data = current_settings["timeline_clips"]
+        total_raw_dur = sum(c.get("duration", 0.0) for c in clips_data)
+    else:
+        for idx, c in enumerate(raw_clips):
+            info = get_media_info(c)
+            total_raw_dur += info["duration"]
+            curve_meta = current_settings.get("clip_speed_curves", {}).get(c.name, {
+                "preset": "none",
+                "points": [[0.0, 1.0], [1.0, 1.0]],
+                "smooth_slowmo": False,
+                "original_duration": info["duration"],
+                "ramped_duration": info["duration"]
+            })
+            mask_meta = current_settings.get("clip_masks", {}).get(c.name, {
+                "shape": "none",
+                "feather": 20.0,
+                "size_w": 0.70,
+                "size_h": 0.70,
+                "pos_x": 0.50,
+                "pos_y": 0.50,
+                "roundness": 30.0,
+                "rotation": 0.0,
+                "invert": False
+            })
+            clips_data.append({
+                "id": f"clip_{idx+1}_{c.stem}",
+                "name": c.name,
+                "original_file": c.name,
+                "path": f"/media/input/{c.name}",
+                "file_duration": info["duration"],
+                "in_point": 0.0,
+                "out_point": info["duration"],
+                "duration": info["duration"],
+                "size_mb": info["size_mb"],
+                "width": info["width"],
+                "height": info["height"],
+                "speed_curve": curve_meta,
+                "mask": mask_meta,
+                "tracking": current_settings.get("clip_tracking", {}).get(c.name),
+                "cutout": current_settings.get("clip_cutouts", {}).get(c.name)
+            })
+        current_settings["timeline_clips"] = clips_data
 
     # 2. Output Master
     master_files = sorted(list(OUTPUT_DIR.glob("*.mp4")), key=lambda p: p.stat().st_mtime, reverse=True)
@@ -357,6 +369,23 @@ def update_settings(payload: SettingsUpdate):
     for k, v in payload.dict(exclude_unset=True).items():
         current_settings[k] = v
     return {"status": "ok", "settings": current_settings}
+
+class TimelineUpdateRequest(BaseModel):
+    clips: List[Dict[str, Any]]
+
+@app.post("/api/timeline/update")
+def update_timeline_clips(req: TimelineUpdateRequest):
+    current_settings["timeline_clips"] = req.clips
+    return {
+        "status": "ok",
+        "clips_count": len(req.clips),
+        "total_duration": sum(c.get("duration", 0.0) for c in req.clips)
+    }
+
+@app.post("/api/timeline/reset")
+def reset_timeline_clips():
+    current_settings["timeline_clips"] = None
+    return {"status": "ok"}
 
 def run_production_thread():
     global production_state
@@ -564,31 +593,34 @@ def handle_chat(payload: ChatMessage):
 def get_chat_history():
     return {"history": chat_history}
 
-# Import detect_beats, normalize_loudness, apply_speed_ramp
+# Import detect_beats, normalize_loudness, apply_speed_ramp dynamically
+import importlib
+
 sys.path.append(str(SCRIPTS_DIR))
+
 try:
-    import detect_beats
-except ImportError:
+    detect_beats = importlib.import_module("detect_beats")
+except Exception:
     detect_beats = None
 
 try:
-    import normalize_loudness
-except ImportError:
+    normalize_loudness = importlib.import_module("normalize_loudness")
+except Exception:
     normalize_loudness = None
 
 try:
-    import apply_speed_ramp
-except ImportError:
+    apply_speed_ramp = importlib.import_module("apply_speed_ramp")
+except Exception:
     apply_speed_ramp = None
 
 try:
-    import apply_mask
-except ImportError:
+    apply_mask = importlib.import_module("apply_mask")
+except Exception:
     apply_mask = None
 
 try:
-    import track_motion
-except ImportError:
+    track_motion = importlib.import_module("track_motion")
+except Exception:
     track_motion = None
 
 @app.get("/api/audio/beats")
