@@ -11,6 +11,9 @@ description: >-
 Standardized captioning skill for **Client BioChroma** video ads (TikTok, Instagram Reels, YouTube Shorts).
 Whenever the user asks to **"put a caption for biochroma ad"**, **"caption this biochroma ad"**, or mentions **"BioChroma ad captions"**, this exact skill and setup must be used.
 
+For the complete end-to-end competitor reskinning, Italian audio alignment, and placeholder slate workflow, see:
+* [`BIOCHROMA_WORKFLOW.md`](file:///c:/work/Makinity%20Cut/BIOCHROMA_WORKFLOW.md)
+
 ---
 
 ## Client BioChroma Style Specifications
@@ -74,6 +77,39 @@ Run the dedicated engine script from the repository root:
 * `--outline-width <FLOAT>`: Stroke width (Defaults to `4.0`).
 * `--margin-v <INT>`: Vertical margin offset (Defaults to `520`).
 * `--skip-render`: Generates `.ass` and `.srt` without video re-encoding for instant preview.
+
+---
+
+## Competitor Reskinning & Frame-Accurate Slicing Pipeline
+
+For creative reskins where the client provides a competitor reference video and a new Italian voiceover `.mp3`:
+
+### 1. Frame-Accurate Cut Review (`review-cuts`)
+Exports 4-image visual review strips (`BEFORE`, `START`, `END`, `AFTER`) into `preview_frames/cuts_review/`:
+```powershell
+.\.venv\Scripts\python.exe skills/biochroma-captions/scripts/reskin_competitor_ad.py review-cuts `
+  --competitor "Input/competitor_ad.mp4" `
+  --cuts "14.2-18.5, 32.0-36.4"
+```
+
+### 2. Full Project Ingestion & Sequence Export (`process`)
+Slices competitor B-roll, cuts packaging & incompatible textures (creams/masks), generates dynamic placeholder slates (matching exact Italian audio duration down to the frame), and exports `clips/ 01, 02, 03...` with a bilingual storyboard guide:
+```powershell
+.\.venv\Scripts\python.exe skills/biochroma-captions/scripts/reskin_competitor_ad.py process `
+  --competitor "Input/competitor_ad.mp4" `
+  --voiceover "Input/biochroma_voiceover.mp3" `
+  --product-cuts "14.2-18.5, 32.0-36.4" `
+  --texture-cuts "18.5-22.0" `
+  --output-dir "Output/biochroma_reskin_project_01"
+```
+
+### 3. Final Master Assembly (`assemble`)
+Stitches the sequenced clips after manual editing / AI video replacement and burns official 78pt Roboto Bold static subtitles:
+```powershell
+.\.venv\Scripts\python.exe skills/biochroma-captions/scripts/reskin_competitor_ad.py assemble `
+  --project-dir "Output/biochroma_reskin_project_01" `
+  --output "Output/BioChroma_Master_Italian_Ad.mp4"
+```
 
 ---
 

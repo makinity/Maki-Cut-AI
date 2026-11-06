@@ -1,0 +1,914 @@
+[
+  {
+    "it": "Ci sono 3 segnali chiave",
+    "en": "There are 3 key signs",
+    "type": "broll",
+    "prompt": "Cinematic vertical 9:16 portrait of a 40yo woman looking in mirror examining facial aging"
+  },
+  {
+    "it": "che ti serve un lifting...",
+    "en": "that you need a facelift...",
+    "type": "broll",
+    "prompt": "Close-up of face with subtle skin laxity around cheeks and jawline"
+  },
+  {
+    "it": "Scoprili qui.",
+    "en": "Check them out here.",
+    "type": "broll",
+    "prompt": "Charismatic presenter pointing toward camera with engaging expression"
+  },
+  {
+    "it": "Ehi, amica mia.",
+    "en": "Hey, my friend.",
+    "type": "broll",
+    "prompt": "Presenter smiling warmly speaking directly to viewer"
+  },
+  {
+    "it": "Se le pieghe naso-labiali",
+    "en": "If your nasolabial folds",
+    "type": "broll",
+    "prompt": "Macro close-up highlighting nasolabial smile lines around nose and mouth"
+  },
+  {
+    "it": "iniziano ad",
+    "en": "start to",
+    "type": "broll",
+    "prompt": "Lighting accentuating deep expression smile lines on mature cheek"
+  },
+  {
+    "it": "avere questo aspetto...",
+    "en": "look like this...",
+    "type": "broll",
+    "prompt": "Lighting accentuating deep expression smile lines on mature cheek"
+  },
+  {
+    "it": "È ora del lifting.",
+    "en": "It’s facelift time.",
+    "type": "broll",
+    "prompt": "Presenter tilting head with knowing, empathic nod"
+  },
+  {
+    "it": "Quando il contorno occhi",
+    "en": "When your eye contour",
+    "type": "broll",
+    "prompt": "Close-up macro of under-eye area showing dark hollow circles and fine lines"
+  },
+  {
+    "it": "inizia ad affossarsi",
+    "en": "starts to",
+    "type": "broll",
+    "prompt": "Fatigued under-eye hollows and shadows on mature skin"
+  },
+  {
+    "it": "e a scurirsi?",
+    "en": "hollow and darken?",
+    "type": "broll",
+    "prompt": "Fatigued under-eye hollows and shadows on mature skin"
+  },
+  {
+    "it": "È ora del lifting.",
+    "en": "It’s facelift time.",
+    "type": "broll",
+    "prompt": "Presenter speaking with direct, honest gesture"
+  },
+  {
+    "it": "Quando quelle 11",
+    "en": "When those",
+    "type": "broll",
+    "prompt": "Macro shot of forehead glabellar 11 frown lines between eyebrows"
+  },
+  {
+    "it": "rughe sulla fronte",
+    "en": "11 forehead lines",
+    "type": "broll",
+    "prompt": "Macro shot of forehead glabellar 11 frown lines between eyebrows"
+  },
+  {
+    "it": "iniziano ad approfondirsi",
+    "en": "start to deepen",
+    "type": "broll",
+    "prompt": "Close-up of forehead wrinkles deepening during expression"
+  },
+  {
+    "it": "sempre di più...",
+    "en": "more and more...",
+    "type": "broll",
+    "prompt": "Woman sighing looking at forehead expression lines in mirror"
+  },
+  {
+    "it": "Ehi, ragazza!",
+    "en": "Hey, girl!",
+    "type": "broll",
+    "prompt": "Presenter raising hands with friendly urgency"
+  },
+  {
+    "it": "È ora del lifting.",
+    "en": "It’s facelift time.",
+    "type": "broll",
+    "prompt": "Presenter nodding knowingly at camera"
+  },
+  {
+    "it": "Ma a meno",
+    "en": "But unless",
+    "type": "broll",
+    "prompt": "Woman looking shocked at expensive cosmetic clinic price list"
+  },
+  {
+    "it": "che tu non abbia",
+    "en": "you have",
+    "type": "broll",
+    "prompt": "Woman looking shocked at expensive cosmetic clinic price list"
+  },
+  {
+    "it": "15.000 euro",
+    "en": "15,000 euros",
+    "type": "broll",
+    "prompt": "Piggy bank or invoice showing exorbitant medical bills"
+  },
+  {
+    "it": "per un intervento...",
+    "en": "for surgery...",
+    "type": "broll",
+    "prompt": "Piggy bank or invoice showing exorbitant medical bills"
+  },
+  {
+    "it": "probabilmente",
+    "en": "you’re",
+    "type": "broll",
+    "prompt": "Woman scrolling through viral TikTok beauty hacks on smartphone"
+  },
+  {
+    "it": "stai provando",
+    "en": "probably trying",
+    "type": "broll",
+    "prompt": "Woman scrolling through viral TikTok beauty hacks on smartphone"
+  },
+  {
+    "it": "tutti i trucchetti per la pelle",
+    "en": "all the skincare hacks",
+    "type": "broll",
+    "prompt": "Rapid montage of bizarre viral social media beauty trends"
+  },
+  {
+    "it": "che vedi su",
+    "en": "you see on",
+    "type": "broll",
+    "prompt": "Glowing phone screen reflecting vibrant social media feeds"
+  },
+  {
+    "it": "TikTok e Instagram",
+    "en": "TikTok and Instagram",
+    "type": "broll",
+    "prompt": "Glowing phone screen reflecting vibrant social media feeds"
+  },
+  {
+    "it": "in questo momento.",
+    "en": "right now.",
+    "type": "broll",
+    "prompt": "Presenter pointing down at phone screen smiling playfully"
+  },
+  {
+    "it": "Valutiamoli al volo.",
+    "en": "Let’s rate them quickly.",
+    "type": "broll",
+    "prompt": "Presenter holding up hands ready to count down hacks"
+  },
+  {
+    "it": "Da quelli che",
+    "en": "From those that",
+    "type": "broll",
+    "prompt": "Split lighting showing youthful radiant glow"
+  },
+  {
+    "it": "ti fanno sembrare",
+    "en": "make you look",
+    "type": "broll",
+    "prompt": "Split lighting showing youthful radiant glow"
+  },
+  {
+    "it": "più giovane...",
+    "en": "younger...",
+    "type": "broll",
+    "prompt": "Woman smiling with fresh, lifted skin"
+  },
+  {
+    "it": "a quelli che ti invecchiano.",
+    "en": "to those that age you.",
+    "type": "broll",
+    "prompt": "Presenter making an amused grimace at bad skincare advice"
+  },
+  {
+    "it": "Il risciacquo con",
+    "en": "The rice",
+    "type": "broll",
+    "prompt": "Bowl of organic milky rice water with submerged rice grains"
+  },
+  {
+    "it": "l’acqua di riso?",
+    "en": "water rinse?",
+    "type": "broll",
+    "prompt": "Bowl of organic milky rice water with submerged rice grains"
+  },
+  {
+    "it": "Non male affatto.",
+    "en": "Not bad at all.",
+    "type": "broll",
+    "prompt": "Presenter giving an approving thumb gesture"
+  },
+  {
+    "it": "Gli antiossidanti",
+    "en": "The antioxidants",
+    "type": "broll",
+    "prompt": "Woman gently splashing face with clear soothing water, glowing complexion"
+  },
+  {
+    "it": "illuminano davvero",
+    "en": "really brighten",
+    "type": "broll",
+    "prompt": "Woman gently splashing face with clear soothing water, glowing complexion"
+  },
+  {
+    "it": "il tono della",
+    "en": "skin tone",
+    "type": "broll",
+    "prompt": "Sunlight illuminating a clear radiant cheek"
+  },
+  {
+    "it": "pelle nel tempo.",
+    "en": "over time.",
+    "type": "broll",
+    "prompt": "Sunlight illuminating a clear radiant cheek"
+  },
+  {
+    "it": "Non è un",
+    "en": "Not a",
+    "type": "broll",
+    "prompt": "Presenter shrugging with gentle smile"
+  },
+  {
+    "it": "lifting, ma è innocuo.",
+    "en": "facelift, but harmless.",
+    "type": "broll",
+    "prompt": "Presenter shrugging with gentle smile"
+  },
+  {
+    "it": "E avvolgere degli elastici",
+    "en": "And wrapping rubber bands",
+    "type": "broll",
+    "prompt": "Presenter showing rubber hair bands with skeptical smirk"
+  },
+  {
+    "it": "intorno alle orecchie",
+    "en": "around your ears",
+    "type": "broll",
+    "prompt": "Close-up of viral hack wrapping bands around ears"
+  },
+  {
+    "it": "per drenare",
+    "en": "to drain",
+    "type": "broll",
+    "prompt": "Presenter mimicking ear pulling face playfully"
+  },
+  {
+    "it": "i liquidi linfatici?",
+    "en": "lymphatic fluids?",
+    "type": "broll",
+    "prompt": "Presenter mimicking ear pulling face playfully"
+  },
+  {
+    "it": "Riduce il",
+    "en": "Reduces puffiness",
+    "type": "broll",
+    "prompt": "Woman checking facial depuffing in mirror"
+  },
+  {
+    "it": "gonfiore per un’ora.",
+    "en": "for an hour.",
+    "type": "broll",
+    "prompt": "Woman checking facial depuffing in mirror"
+  },
+  {
+    "it": "Dura?",
+    "en": "Does it last?",
+    "type": "broll",
+    "prompt": "Presenter raising eyebrows inquiringly"
+  },
+  {
+    "it": "Ragazza... ovviamente no.",
+    "en": "Girl... obviously not.",
+    "type": "broll",
+    "prompt": "Presenter shaking head with emphatic eye roll"
+  },
+  {
+    "it": "Le maschere in tessuto?",
+    "en": "Sheet masks?",
+    "type": "broll",
+    "prompt": "Presenter holding dripping wet cosmetic sheet mask"
+  },
+  {
+    "it": "Ragazza, no.",
+    "en": "Girl, no.",
+    "type": "broll",
+    "prompt": "Presenter looking at wet sheet mask with utter disdain"
+  },
+  {
+    "it": "È solo un",
+    "en": "It’s just a",
+    "type": "broll",
+    "prompt": "Dripping translucent cellulose sheet mask being tossed in trash"
+  },
+  {
+    "it": "pezzo di carta bagnata",
+    "en": "wet piece of paper",
+    "type": "broll",
+    "prompt": "Dripping translucent cellulose sheet mask being tossed in trash"
+  },
+  {
+    "it": "che ti sta",
+    "en": "sitting on your",
+    "type": "broll",
+    "prompt": "Soggy sheet mask clinging uncomfortably to face"
+  },
+  {
+    "it": "sul viso per un’ora.",
+    "en": "face for an hour.",
+    "type": "broll",
+    "prompt": "Soggy sheet mask clinging uncomfortably to face"
+  },
+  {
+    "it": "Una buona crema idratante",
+    "en": "A good moisturizer",
+    "type": "broll",
+    "prompt": "Presenter gesturing toward vanity skincare shelves"
+  },
+  {
+    "it": "farebbe lo stesso lavoro",
+    "en": "would do the same job",
+    "type": "broll",
+    "prompt": "Woman applying rich moisturizer cream to cheek"
+  },
+  {
+    "it": "in 30 secondi.",
+    "en": "in 30 seconds.",
+    "type": "broll",
+    "prompt": "Presenter snapping fingers with quick smile"
+  },
+  {
+    "it": "I sieri ai peptidi?",
+    "en": "Peptide serums?",
+    "type": "broll",
+    "prompt": "Presenter smiling widely with glowing enthusiasm"
+  },
+  {
+    "it": "I migliori!",
+    "en": "The best!",
+    "type": "broll",
+    "prompt": "Presenter giving two enthusiastic thumbs up"
+  },
+  {
+    "it": "I peptidi aiutano a levigare",
+    "en": "Peptides help smooth",
+    "type": "broll",
+    "prompt": "3D cellular animation of peptide chains firming extracellular skin matrix"
+  },
+  {
+    "it": "l’aspetto delle rughe sottili",
+    "en": "the look of fine lines",
+    "type": "broll",
+    "prompt": "Animation of fine lines flattening out and filling with moisture"
+  },
+  {
+    "it": "e a sostenere una pelle",
+    "en": "and support skin",
+    "type": "broll",
+    "prompt": "Collagen elastin fibers tightening underneath epidermal layer"
+  },
+  {
+    "it": "dall’aspetto più compatto.",
+    "en": "looking firmer.",
+    "type": "broll",
+    "prompt": "Woman touching jawline feeling visible firmness and rebound"
+  },
+  {
+    "it": "E gli ingredienti idratanti",
+    "en": "And hydrating ingredients",
+    "type": "broll",
+    "prompt": "Water drop splashing creating ripples of moisture"
+  },
+  {
+    "it": "e illuminanti",
+    "en": "and brighteners",
+    "type": "broll",
+    "prompt": "Golden light glistening across smooth cheekbone"
+  },
+  {
+    "it": "aggiungono",
+    "en": "add",
+    "type": "broll",
+    "prompt": "Radiant Korean glass skin aesthetic with natural dewy bounce"
+  },
+  {
+    "it": "rimpolpamento",
+    "en": "plumpness",
+    "type": "broll",
+    "prompt": "Radiant Korean glass skin aesthetic with natural dewy bounce"
+  },
+  {
+    "it": "e luminosità.",
+    "en": "and glow.",
+    "type": "broll",
+    "prompt": "Radiant Korean glass skin aesthetic with natural dewy bounce"
+  },
+  {
+    "it": "Quelli buoni,",
+    "en": "The good ones,",
+    "type": "product",
+    "prompt": "Hero reveal of luxury BioChroma glass vial standing upright on marble counter"
+  },
+  {
+    "it": "come il Siero ai",
+    "en": "like BioChroma",
+    "type": "product",
+    "prompt": "Cinematic 4K macro commercial close-up of BioChroma Silk Peptide bottle with golden threads visible inside"
+  },
+  {
+    "it": "Peptidi di Seta BioChroma,",
+    "en": "Silk Peptide Serum,",
+    "type": "product",
+    "prompt": "Cinematic 4K macro commercial close-up of BioChroma Silk Peptide bottle with golden threads visible inside"
+  },
+  {
+    "it": "sono ancora meglio.",
+    "en": "are even better.",
+    "type": "product",
+    "prompt": "Elegant studio beam of light illuminating BioChroma serum vial"
+  },
+  {
+    "it": "È un",
+    "en": "It’s a",
+    "type": "product",
+    "prompt": "BioChroma bottle rotating smoothly on podium displaying clean minimalist luxury branding"
+  },
+  {
+    "it": "siero anti-età multi-attivo:",
+    "en": "multi-active anti-aging serum:",
+    "type": "product",
+    "prompt": "BioChroma bottle rotating smoothly on podium displaying clean minimalist luxury branding"
+  },
+  {
+    "it": "i suoi Peptidi",
+    "en": "its Golden",
+    "type": "product",
+    "prompt": "Extreme macro of shimmering microscopic golden silk peptide threads suspended in crystal-clear serum"
+  },
+  {
+    "it": "Dorati di Seta —",
+    "en": "Silk Peptides —",
+    "type": "product",
+    "prompt": "Extreme macro of shimmering microscopic golden silk peptide threads suspended in crystal-clear serum"
+  },
+  {
+    "it": "estratti dalla seta grezza",
+    "en": "extracted from raw silk",
+    "type": "broll",
+    "prompt": "Golden organic natural raw silk fibers glistening in soft laboratory light"
+  },
+  {
+    "it": "del baco da seta coreano,",
+    "en": "of the Korean silkworm,",
+    "type": "broll",
+    "prompt": "Clean traditional Korean heritage imagery, silkworm cocoons and silk harvest"
+  },
+  {
+    "it": "utilizzata da secoli",
+    "en": "used for centuries",
+    "type": "broll",
+    "prompt": "Ancient Korean herbal apothecary scrolls and traditional botanical extraction"
+  },
+  {
+    "it": "nella medicina",
+    "en": "in traditional",
+    "type": "broll",
+    "prompt": "Herbal botanical ingredients being prepared in traditional Korean stone mortar"
+  },
+  {
+    "it": "tradizionale coreana",
+    "en": "Korean medicine",
+    "type": "broll",
+    "prompt": "Herbal botanical ingredients being prepared in traditional Korean stone mortar"
+  },
+  {
+    "it": "per le sue",
+    "en": "for its",
+    "type": "broll",
+    "prompt": "Cellular regeneration visualization, youthful cell division and renewal"
+  },
+  {
+    "it": "proprietà rigenerative —",
+    "en": "regenerative properties —",
+    "type": "broll",
+    "prompt": "Cellular regeneration visualization, youthful cell division and renewal"
+  },
+  {
+    "it": "agiscono sull’aspetto",
+    "en": "target the",
+    "type": "broll",
+    "prompt": "Split screen smoothing out crow’s feet and marionette lines"
+  },
+  {
+    "it": "delle rughe sottili.",
+    "en": "appearance of fine lines.",
+    "type": "broll",
+    "prompt": "Split screen smoothing out crow’s feet and marionette lines"
+  },
+  {
+    "it": "Il Copper Tripeptide-1",
+    "en": "Copper Tripeptide-1",
+    "type": "texture",
+    "prompt": "3D molecular visualization of blue Copper Tripeptide-1 molecules binding to skin receptors"
+  },
+  {
+    "it": "riattiva i fibroblasti,",
+    "en": "reactivates fibroblasts,",
+    "type": "texture",
+    "prompt": "Biological animation of dormant fibroblast cells waking up and pumping out fresh collagen"
+  },
+  {
+    "it": "e il collagene",
+    "en": "and",
+    "type": "texture",
+    "prompt": "Micro collagen nano-particles effortlessly penetrating the deep stratum corneum"
+  },
+  {
+    "it": "a basso peso molecolare",
+    "en": "low-molecular-weight collagen",
+    "type": "texture",
+    "prompt": "Micro collagen nano-particles effortlessly penetrating the deep stratum corneum"
+  },
+  {
+    "it": "e il",
+    "en": "and dual",
+    "type": "texture",
+    "prompt": "Dual-weight hyaluronic acid molecules binding 1000x their weight in water molecules"
+  },
+  {
+    "it": "doppio Acido Ialuronico",
+    "en": "Hyaluronic Acid",
+    "type": "texture",
+    "prompt": "Dual-weight hyaluronic acid molecules binding 1000x their weight in water molecules"
+  },
+  {
+    "it": "rimpolpano e",
+    "en": "plump and",
+    "type": "texture",
+    "prompt": "Liquid golden serum gliding over smooth skin, instantly plumping texture"
+  },
+  {
+    "it": "idratano a contatto",
+    "en": "hydrate on contact",
+    "type": "texture",
+    "prompt": "Liquid golden serum gliding over smooth skin, instantly plumping texture"
+  },
+  {
+    "it": "per una pelle",
+    "en": "for fuller,",
+    "type": "broll",
+    "prompt": "Woman’s glowing cheek reflecting soft studio lights with visible bounce"
+  },
+  {
+    "it": "più piena e luminosa.",
+    "en": "glowing skin.",
+    "type": "broll",
+    "prompt": "Woman’s glowing cheek reflecting soft studio lights with visible bounce"
+  },
+  {
+    "it": "E amica mia...",
+    "en": "And my friend...",
+    "type": "broll",
+    "prompt": "Presenter speaking intimately to viewer with genuine warmth"
+  },
+  {
+    "it": "Di tutti i sieri",
+    "en": "Out of all",
+    "type": "broll",
+    "prompt": "Presenter gesturing dismissively past ordinary cosmetic products"
+  },
+  {
+    "it": "ai peptidi che ho provato,",
+    "en": "peptide serums I’ve tried,",
+    "type": "broll",
+    "prompt": "Presenter gesturing dismissively past ordinary cosmetic products"
+  },
+  {
+    "it": "questo è il migliore.",
+    "en": "this one is the best.",
+    "type": "product",
+    "prompt": "BioChroma bottle held gently in manicured hand catching soft sunlight"
+  },
+  {
+    "it": "È l’unico siero",
+    "en": "It’s the only",
+    "type": "product",
+    "prompt": "Macro beauty hero shot of BioChroma vial standing proud amongst botanicals"
+  },
+  {
+    "it": "che ho trovato",
+    "en": "serum I found",
+    "type": "product",
+    "prompt": "Macro beauty hero shot of BioChroma vial standing proud amongst botanicals"
+  },
+  {
+    "it": "che agisce su tutto:",
+    "en": "that targets everything:",
+    "type": "product",
+    "prompt": "BioChroma golden dropper releasing a single radiant amber droplet"
+  },
+  {
+    "it": "le rughe, la spentezza,",
+    "en": "wrinkles, dullness,",
+    "type": "broll",
+    "prompt": "Side-by-side comparison of dull textured skin becoming bright and revitalized"
+  },
+  {
+    "it": "la perdita di tono.",
+    "en": "loss of firmness.",
+    "type": "broll",
+    "prompt": "Upward lifting motion along cheekbones showing rebound and elasticity"
+  },
+  {
+    "it": "È l’unico che nomina",
+    "en": "It’s the only one naming",
+    "type": "product",
+    "prompt": "Clean BioChroma product box highlighting transparent active ingredients list"
+  },
+  {
+    "it": "ogni ingrediente attivo",
+    "en": "every active ingredient",
+    "type": "product",
+    "prompt": "Macro shot of ingredient labels: Acetyl Hexapeptide-8, Copper Tripeptide-1, Centella Asiatica"
+  },
+  {
+    "it": "e ti dice",
+    "en": "and telling you exactly",
+    "type": "product",
+    "prompt": "Presenter pointing with confidence at ingredient details"
+  },
+  {
+    "it": "esattamente cosa fa:",
+    "en": "what it does:",
+    "type": "product",
+    "prompt": "Presenter pointing with confidence at ingredient details"
+  },
+  {
+    "it": "l’Acetyl Hexapeptide-8",
+    "en": "Acetyl Hexapeptide-8",
+    "type": "texture",
+    "prompt": "3D visual of Acetyl Hexapeptide-8 relaxing facial micro-tensions like topical botox"
+  },
+  {
+    "it": "per l’aspetto",
+    "en": "for the",
+    "type": "texture",
+    "prompt": "Smoothing effect across forehead and smile lines"
+  },
+  {
+    "it": "delle rughe sottili,",
+    "en": "look of fine lines,",
+    "type": "texture",
+    "prompt": "Smoothing effect across forehead and smile lines"
+  },
+  {
+    "it": "il Copper Tripeptide-1",
+    "en": "Copper Tripeptide-1",
+    "type": "texture",
+    "prompt": "Glowing copper peptide molecules restoring cellular vitality"
+  },
+  {
+    "it": "e la Centella Asiatica",
+    "en": "and Centella Asiatica",
+    "type": "texture",
+    "prompt": "Lush green Centella Asiatica leaf with glistening dew drops calming skin redness"
+  },
+  {
+    "it": "per la spentezza e",
+    "en": "for dullness",
+    "type": "texture",
+    "prompt": "Skin transforming from fatigued yellow undertone to vibrant rosy vitality"
+  },
+  {
+    "it": "la perdita di tono,",
+    "en": "and firmness loss,",
+    "type": "texture",
+    "prompt": "Skin transforming from fatigued yellow undertone to vibrant rosy vitality"
+  },
+  {
+    "it": "il collagene e",
+    "en": "collagen and",
+    "type": "texture",
+    "prompt": "Deep cellular hydration mesh trapping moisture in skin layers"
+  },
+  {
+    "it": "il doppio Acido Ialuronico",
+    "en": "dual Hyaluronic Acid",
+    "type": "texture",
+    "prompt": "Deep cellular hydration mesh trapping moisture in skin layers"
+  },
+  {
+    "it": "per",
+    "en": "for",
+    "type": "texture",
+    "prompt": "Micro droplet touching skin surface and instantly smoothing fine dry lines"
+  },
+  {
+    "it": "il",
+    "en": "immediate",
+    "type": "texture",
+    "prompt": "Micro droplet touching skin surface and instantly smoothing fine dry lines"
+  },
+  {
+    "it": "rimpolpamento immediato.",
+    "en": "plumping.",
+    "type": "texture",
+    "prompt": "Micro droplet touching skin surface and instantly smoothing fine dry lines"
+  },
+  {
+    "it": "Nessun",
+    "en": "No",
+    "type": "broll",
+    "prompt": "Presenter gesturing 'no' with a clear honest expression"
+  },
+  {
+    "it": "“complesso segreto”,",
+    "en": "'secret complex',",
+    "type": "broll",
+    "prompt": "Presenter gesturing 'no' with a clear honest expression"
+  },
+  {
+    "it": "nessun mistero.",
+    "en": "no mystery.",
+    "type": "broll",
+    "prompt": "Presenter smiling candidly into camera"
+  },
+  {
+    "it": "Se un siero non",
+    "en": "If a serum won’t",
+    "type": "broll",
+    "prompt": "Presenter pushing away a shady unlabelled cosmetic bottle"
+  },
+  {
+    "it": "ti dice cosa contiene,",
+    "en": "tell you what’s in it,",
+    "type": "broll",
+    "prompt": "Presenter pushing away a shady unlabelled cosmetic bottle"
+  },
+  {
+    "it": "questo mi dice già tutto.",
+    "en": "this already tells me everything.",
+    "type": "broll",
+    "prompt": "Presenter holding up finger in knowing agreement"
+  },
+  {
+    "it": "E quello che amo di più",
+    "en": "And what I love most",
+    "type": "broll",
+    "prompt": "Presenter placing hand on heart with sincere appreciation"
+  },
+  {
+    "it": "sono i risultati immediati:",
+    "en": "are the immediate results:",
+    "type": "broll",
+    "prompt": "Woman looking in mirror with joyful amazement"
+  },
+  {
+    "it": "senti subito",
+    "en": "you immediately",
+    "type": "texture",
+    "prompt": "Hands gently pressing golden serum upward along cheekbones, visible tightening"
+  },
+  {
+    "it": "la pelle tendersi",
+    "en": "feel the skin tighten",
+    "type": "texture",
+    "prompt": "Hands gently pressing golden serum upward along cheekbones, visible tightening"
+  },
+  {
+    "it": "e sollevarsi dall’interno,",
+    "en": "and lift from within,",
+    "type": "texture",
+    "prompt": "Macro view of cheek skin firming with subtle natural lift effect"
+  },
+  {
+    "it": "e la",
+    "en": "and see",
+    "type": "broll",
+    "prompt": "Radiant mature woman smiling with full plump cheeks"
+  },
+  {
+    "it": "vedi visibilmente",
+    "en": "it",
+    "type": "broll",
+    "prompt": "Radiant mature woman smiling with full plump cheeks"
+  },
+  {
+    "it": "più rimpolpata",
+    "en": "visibly plumper",
+    "type": "broll",
+    "prompt": "Radiant mature woman smiling with full plump cheeks"
+  },
+  {
+    "it": "già dal primo utilizzo.",
+    "en": "from the very first use.",
+    "type": "broll",
+    "prompt": "Woman tapping fingers against glowing plump cheekbone"
+  },
+  {
+    "it": "E c’è di meglio:",
+    "en": "And what’s even better:",
+    "type": "broll",
+    "prompt": "Presenter smiling excitedly leaning closer to camera"
+  },
+  {
+    "it": "adesso, per",
+    "en": "now, for",
+    "type": "broll",
+    "prompt": "Autumn golden leaves falling softly with warm ambient lighting"
+  },
+  {
+    "it": "un periodo limitato,",
+    "en": "a limited time,",
+    "type": "broll",
+    "prompt": "Autumn golden leaves falling softly with warm ambient lighting"
+  },
+  {
+    "it": "con l’offerta autunnale",
+    "en": "with the autumn offer",
+    "type": "product",
+    "prompt": "Autumn special bundle display: two BioChroma gold peptide vials on wooden pedestal"
+  },
+  {
+    "it": "compri una",
+    "en": "buy one",
+    "type": "product",
+    "prompt": "First BioChroma vial placed forward with pristine gold packaging"
+  },
+  {
+    "it": "fiala di BioChroma",
+    "en": "BioChroma vial",
+    "type": "product",
+    "prompt": "First BioChroma vial placed forward with pristine gold packaging"
+  },
+  {
+    "it": "e ne ricevi un’altra gratis,",
+    "en": "and get another one free,",
+    "type": "product",
+    "prompt": "Second twin BioChroma vial appearing alongside with +1 FREE glowing badge"
+  },
+  {
+    "it": "più la Fiala",
+    "en": "plus the Korean",
+    "type": "product",
+    "prompt": "Luxury Korean PDRN gift vial joining the bundle with FREE GIFT banner"
+  },
+  {
+    "it": "Coreana PDRN in omaggio,",
+    "en": "PDRN vial free,",
+    "type": "product",
+    "prompt": "Luxury Korean PDRN gift vial joining the bundle with FREE GIFT banner"
+  },
+  {
+    "it": "con 99 giorni di garanzia",
+    "en": "with a 99-day guarantee",
+    "type": "product",
+    "prompt": "Official 99-Day Money-Back Guarantee gold embossed seal"
+  },
+  {
+    "it": "soddisfatti o rimborsati.",
+    "en": "money-back guaranteed.",
+    "type": "product",
+    "prompt": "Confidence guarantee badge gleaming next to BioChroma bundle"
+  },
+  {
+    "it": "Il siero lo tieni comunque.",
+    "en": "You keep the serum regardless.",
+    "type": "product",
+    "prompt": "Presenter smiling reassuringly with open palms"
+  },
+  {
+    "it": "Ti lascio il",
+    "en": "I’ll leave",
+    "type": "product",
+    "prompt": "Presenter pointing down toward link area with inviting smile"
+  },
+  {
+    "it": "link di BioChroma",
+    "en": "the BioChroma link",
+    "type": "product",
+    "prompt": "Presenter pointing down toward link area with inviting smile"
+  },
+  {
+    "it": "qui sotto, tesoro.",
+    "en": "below, babe.",
+    "type": "product",
+    "prompt": "Final CTA end card with complete BioChroma Autumn Bundle and tap link button"
+  }
+]

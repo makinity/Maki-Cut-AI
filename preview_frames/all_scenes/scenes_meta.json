@@ -1,0 +1,555 @@
+[
+  {
+    "scene_idx": 0,
+    "start": 3.966667,
+    "end": 8.566667,
+    "mid": 6.267,
+    "file": "preview_frames/all_scenes/scene_00_3.97-8.57.jpg"
+  },
+  {
+    "scene_idx": 1,
+    "start": 8.566667,
+    "end": 9.633333,
+    "mid": 9.1,
+    "file": "preview_frames/all_scenes/scene_01_8.57-9.63.jpg"
+  },
+  {
+    "scene_idx": 2,
+    "start": 9.633333,
+    "end": 11.9,
+    "mid": 10.767,
+    "file": "preview_frames/all_scenes/scene_02_9.63-11.90.jpg"
+  },
+  {
+    "scene_idx": 3,
+    "start": 11.9,
+    "end": 12.8,
+    "mid": 12.35,
+    "file": "preview_frames/all_scenes/scene_03_11.90-12.80.jpg"
+  },
+  {
+    "scene_idx": 4,
+    "start": 12.8,
+    "end": 13.9,
+    "mid": 13.35,
+    "file": "preview_frames/all_scenes/scene_04_12.80-13.90.jpg"
+  },
+  {
+    "scene_idx": 5,
+    "start": 13.9,
+    "end": 16.0,
+    "mid": 14.95,
+    "file": "preview_frames/all_scenes/scene_05_13.90-16.00.jpg"
+  },
+  {
+    "scene_idx": 6,
+    "start": 16.0,
+    "end": 16.8,
+    "mid": 16.4,
+    "file": "preview_frames/all_scenes/scene_06_16.00-16.80.jpg"
+  },
+  {
+    "scene_idx": 7,
+    "start": 16.8,
+    "end": 17.333333,
+    "mid": 17.067,
+    "file": "preview_frames/all_scenes/scene_07_16.80-17.33.jpg"
+  },
+  {
+    "scene_idx": 8,
+    "start": 17.333333,
+    "end": 18.233333,
+    "mid": 17.783,
+    "file": "preview_frames/all_scenes/scene_08_17.33-18.23.jpg"
+  },
+  {
+    "scene_idx": 9,
+    "start": 18.233333,
+    "end": 19.033333,
+    "mid": 18.633,
+    "file": "preview_frames/all_scenes/scene_09_18.23-19.03.jpg"
+  },
+  {
+    "scene_idx": 10,
+    "start": 19.033333,
+    "end": 19.966667,
+    "mid": 19.5,
+    "file": "preview_frames/all_scenes/scene_10_19.03-19.97.jpg"
+  },
+  {
+    "scene_idx": 11,
+    "start": 19.966667,
+    "end": 20.933333,
+    "mid": 20.45,
+    "file": "preview_frames/all_scenes/scene_11_19.97-20.93.jpg"
+  },
+  {
+    "scene_idx": 12,
+    "start": 20.933333,
+    "end": 24.966667,
+    "mid": 22.95,
+    "file": "preview_frames/all_scenes/scene_12_20.93-24.97.jpg"
+  },
+  {
+    "scene_idx": 13,
+    "start": 24.966667,
+    "end": 25.933333,
+    "mid": 25.45,
+    "file": "preview_frames/all_scenes/scene_13_24.97-25.93.jpg"
+  },
+  {
+    "scene_idx": 14,
+    "start": 25.933333,
+    "end": 26.733333,
+    "mid": 26.333,
+    "file": "preview_frames/all_scenes/scene_14_25.93-26.73.jpg"
+  },
+  {
+    "scene_idx": 15,
+    "start": 26.733333,
+    "end": 27.7,
+    "mid": 27.217,
+    "file": "preview_frames/all_scenes/scene_15_26.73-27.70.jpg"
+  },
+  {
+    "scene_idx": 16,
+    "start": 27.7,
+    "end": 28.6,
+    "mid": 28.15,
+    "file": "preview_frames/all_scenes/scene_16_27.70-28.60.jpg"
+  },
+  {
+    "scene_idx": 17,
+    "start": 28.6,
+    "end": 29.366667,
+    "mid": 28.983,
+    "file": "preview_frames/all_scenes/scene_17_28.60-29.37.jpg"
+  },
+  {
+    "scene_idx": 18,
+    "start": 29.366667,
+    "end": 33.033333,
+    "mid": 31.2,
+    "file": "preview_frames/all_scenes/scene_18_29.37-33.03.jpg"
+  },
+  {
+    "scene_idx": 19,
+    "start": 33.033333,
+    "end": 34.666667,
+    "mid": 33.85,
+    "file": "preview_frames/all_scenes/scene_19_33.03-34.67.jpg"
+  },
+  {
+    "scene_idx": 20,
+    "start": 34.666667,
+    "end": 36.0,
+    "mid": 35.333,
+    "file": "preview_frames/all_scenes/scene_20_34.67-36.00.jpg"
+  },
+  {
+    "scene_idx": 21,
+    "start": 36.0,
+    "end": 37.3,
+    "mid": 36.65,
+    "file": "preview_frames/all_scenes/scene_21_36.00-37.30.jpg"
+  },
+  {
+    "scene_idx": 22,
+    "start": 37.3,
+    "end": 40.3,
+    "mid": 38.8,
+    "file": "preview_frames/all_scenes/scene_22_37.30-40.30.jpg"
+  },
+  {
+    "scene_idx": 23,
+    "start": 40.3,
+    "end": 41.1,
+    "mid": 40.7,
+    "file": "preview_frames/all_scenes/scene_23_40.30-41.10.jpg"
+  },
+  {
+    "scene_idx": 24,
+    "start": 41.1,
+    "end": 42.133333,
+    "mid": 41.617,
+    "file": "preview_frames/all_scenes/scene_24_41.10-42.13.jpg"
+  },
+  {
+    "scene_idx": 25,
+    "start": 42.133333,
+    "end": 43.5,
+    "mid": 42.817,
+    "file": "preview_frames/all_scenes/scene_25_42.13-43.50.jpg"
+  },
+  {
+    "scene_idx": 26,
+    "start": 43.5,
+    "end": 45.133333,
+    "mid": 44.317,
+    "file": "preview_frames/all_scenes/scene_26_43.50-45.13.jpg"
+  },
+  {
+    "scene_idx": 27,
+    "start": 45.133333,
+    "end": 47.8,
+    "mid": 46.467,
+    "file": "preview_frames/all_scenes/scene_27_45.13-47.80.jpg"
+  },
+  {
+    "scene_idx": 28,
+    "start": 47.8,
+    "end": 48.5,
+    "mid": 48.15,
+    "file": "preview_frames/all_scenes/scene_28_47.80-48.50.jpg"
+  },
+  {
+    "scene_idx": 29,
+    "start": 48.5,
+    "end": 49.266667,
+    "mid": 48.883,
+    "file": "preview_frames/all_scenes/scene_29_48.50-49.27.jpg"
+  },
+  {
+    "scene_idx": 30,
+    "start": 49.266667,
+    "end": 50.2,
+    "mid": 49.733,
+    "file": "preview_frames/all_scenes/scene_30_49.27-50.20.jpg"
+  },
+  {
+    "scene_idx": 31,
+    "start": 50.2,
+    "end": 50.966667,
+    "mid": 50.583,
+    "file": "preview_frames/all_scenes/scene_31_50.20-50.97.jpg"
+  },
+  {
+    "scene_idx": 32,
+    "start": 50.966667,
+    "end": 51.4,
+    "mid": 51.183,
+    "file": "preview_frames/all_scenes/scene_32_50.97-51.40.jpg"
+  },
+  {
+    "scene_idx": 33,
+    "start": 51.4,
+    "end": 51.733333,
+    "mid": 51.567,
+    "file": "preview_frames/all_scenes/scene_33_51.40-51.73.jpg"
+  },
+  {
+    "scene_idx": 34,
+    "start": 51.733333,
+    "end": 52.466667,
+    "mid": 52.1,
+    "file": "preview_frames/all_scenes/scene_34_51.73-52.47.jpg"
+  },
+  {
+    "scene_idx": 35,
+    "start": 52.466667,
+    "end": 53.466667,
+    "mid": 52.967,
+    "file": "preview_frames/all_scenes/scene_35_52.47-53.47.jpg"
+  },
+  {
+    "scene_idx": 36,
+    "start": 53.466667,
+    "end": 55.7,
+    "mid": 54.583,
+    "file": "preview_frames/all_scenes/scene_36_53.47-55.70.jpg"
+  },
+  {
+    "scene_idx": 37,
+    "start": 55.7,
+    "end": 56.566667,
+    "mid": 56.133,
+    "file": "preview_frames/all_scenes/scene_37_55.70-56.57.jpg"
+  },
+  {
+    "scene_idx": 38,
+    "start": 56.566667,
+    "end": 58.033333,
+    "mid": 57.3,
+    "file": "preview_frames/all_scenes/scene_38_56.57-58.03.jpg"
+  },
+  {
+    "scene_idx": 39,
+    "start": 58.033333,
+    "end": 59.6,
+    "mid": 58.817,
+    "file": "preview_frames/all_scenes/scene_39_58.03-59.60.jpg"
+  },
+  {
+    "scene_idx": 40,
+    "start": 59.6,
+    "end": 64.866667,
+    "mid": 62.233,
+    "file": "preview_frames/all_scenes/scene_40_59.60-64.87.jpg"
+  },
+  {
+    "scene_idx": 41,
+    "start": 64.866667,
+    "end": 68.8,
+    "mid": 66.833,
+    "file": "preview_frames/all_scenes/scene_41_64.87-68.80.jpg"
+  },
+  {
+    "scene_idx": 42,
+    "start": 68.8,
+    "end": 72.733333,
+    "mid": 70.767,
+    "file": "preview_frames/all_scenes/scene_42_68.80-72.73.jpg"
+  },
+  {
+    "scene_idx": 43,
+    "start": 72.733333,
+    "end": 75.133333,
+    "mid": 73.933,
+    "file": "preview_frames/all_scenes/scene_43_72.73-75.13.jpg"
+  },
+  {
+    "scene_idx": 44,
+    "start": 75.133333,
+    "end": 77.066667,
+    "mid": 76.1,
+    "file": "preview_frames/all_scenes/scene_44_75.13-77.07.jpg"
+  },
+  {
+    "scene_idx": 45,
+    "start": 77.066667,
+    "end": 78.6,
+    "mid": 77.833,
+    "file": "preview_frames/all_scenes/scene_45_77.07-78.60.jpg"
+  },
+  {
+    "scene_idx": 46,
+    "start": 78.6,
+    "end": 82.133333,
+    "mid": 80.367,
+    "file": "preview_frames/all_scenes/scene_46_78.60-82.13.jpg"
+  },
+  {
+    "scene_idx": 47,
+    "start": 82.133333,
+    "end": 85.666667,
+    "mid": 83.9,
+    "file": "preview_frames/all_scenes/scene_47_82.13-85.67.jpg"
+  },
+  {
+    "scene_idx": 48,
+    "start": 85.666667,
+    "end": 92.133333,
+    "mid": 88.9,
+    "file": "preview_frames/all_scenes/scene_48_85.67-92.13.jpg"
+  },
+  {
+    "scene_idx": 49,
+    "start": 92.133333,
+    "end": 93.766667,
+    "mid": 92.95,
+    "file": "preview_frames/all_scenes/scene_49_92.13-93.77.jpg"
+  },
+  {
+    "scene_idx": 50,
+    "start": 93.766667,
+    "end": 96.466667,
+    "mid": 95.117,
+    "file": "preview_frames/all_scenes/scene_50_93.77-96.47.jpg"
+  },
+  {
+    "scene_idx": 51,
+    "start": 96.466667,
+    "end": 97.766667,
+    "mid": 97.117,
+    "file": "preview_frames/all_scenes/scene_51_96.47-97.77.jpg"
+  },
+  {
+    "scene_idx": 52,
+    "start": 97.766667,
+    "end": 99.133333,
+    "mid": 98.45,
+    "file": "preview_frames/all_scenes/scene_52_97.77-99.13.jpg"
+  },
+  {
+    "scene_idx": 53,
+    "start": 99.133333,
+    "end": 100.4,
+    "mid": 99.767,
+    "file": "preview_frames/all_scenes/scene_53_99.13-100.40.jpg"
+  },
+  {
+    "scene_idx": 54,
+    "start": 100.4,
+    "end": 102.6,
+    "mid": 101.5,
+    "file": "preview_frames/all_scenes/scene_54_100.40-102.60.jpg"
+  },
+  {
+    "scene_idx": 55,
+    "start": 102.6,
+    "end": 107.266667,
+    "mid": 104.933,
+    "file": "preview_frames/all_scenes/scene_55_102.60-107.27.jpg"
+  },
+  {
+    "scene_idx": 56,
+    "start": 107.266667,
+    "end": 108.6,
+    "mid": 107.933,
+    "file": "preview_frames/all_scenes/scene_56_107.27-108.60.jpg"
+  },
+  {
+    "scene_idx": 57,
+    "start": 108.6,
+    "end": 110.433333,
+    "mid": 109.517,
+    "file": "preview_frames/all_scenes/scene_57_108.60-110.43.jpg"
+  },
+  {
+    "scene_idx": 58,
+    "start": 110.433333,
+    "end": 111.7,
+    "mid": 111.067,
+    "file": "preview_frames/all_scenes/scene_58_110.43-111.70.jpg"
+  },
+  {
+    "scene_idx": 59,
+    "start": 111.7,
+    "end": 113.133333,
+    "mid": 112.417,
+    "file": "preview_frames/all_scenes/scene_59_111.70-113.13.jpg"
+  },
+  {
+    "scene_idx": 60,
+    "start": 113.133333,
+    "end": 114.4,
+    "mid": 113.767,
+    "file": "preview_frames/all_scenes/scene_60_113.13-114.40.jpg"
+  },
+  {
+    "scene_idx": 61,
+    "start": 114.4,
+    "end": 115.733333,
+    "mid": 115.067,
+    "file": "preview_frames/all_scenes/scene_61_114.40-115.73.jpg"
+  },
+  {
+    "scene_idx": 62,
+    "start": 115.733333,
+    "end": 116.966667,
+    "mid": 116.35,
+    "file": "preview_frames/all_scenes/scene_62_115.73-116.97.jpg"
+  },
+  {
+    "scene_idx": 63,
+    "start": 116.966667,
+    "end": 120.7,
+    "mid": 118.833,
+    "file": "preview_frames/all_scenes/scene_63_116.97-120.70.jpg"
+  },
+  {
+    "scene_idx": 64,
+    "start": 120.7,
+    "end": 124.133333,
+    "mid": 122.417,
+    "file": "preview_frames/all_scenes/scene_64_120.70-124.13.jpg"
+  },
+  {
+    "scene_idx": 65,
+    "start": 124.133333,
+    "end": 128.1,
+    "mid": 126.117,
+    "file": "preview_frames/all_scenes/scene_65_124.13-128.10.jpg"
+  },
+  {
+    "scene_idx": 66,
+    "start": 128.1,
+    "end": 134.666667,
+    "mid": 131.383,
+    "file": "preview_frames/all_scenes/scene_66_128.10-134.67.jpg"
+  },
+  {
+    "scene_idx": 67,
+    "start": 134.666667,
+    "end": 136.333333,
+    "mid": 135.5,
+    "file": "preview_frames/all_scenes/scene_67_134.67-136.33.jpg"
+  },
+  {
+    "scene_idx": 68,
+    "start": 136.333333,
+    "end": 140.566667,
+    "mid": 138.45,
+    "file": "preview_frames/all_scenes/scene_68_136.33-140.57.jpg"
+  },
+  {
+    "scene_idx": 69,
+    "start": 140.566667,
+    "end": 142.3,
+    "mid": 141.433,
+    "file": "preview_frames/all_scenes/scene_69_140.57-142.30.jpg"
+  },
+  {
+    "scene_idx": 70,
+    "start": 142.3,
+    "end": 144.6,
+    "mid": 143.45,
+    "file": "preview_frames/all_scenes/scene_70_142.30-144.60.jpg"
+  },
+  {
+    "scene_idx": 71,
+    "start": 144.6,
+    "end": 148.7,
+    "mid": 146.65,
+    "file": "preview_frames/all_scenes/scene_71_144.60-148.70.jpg"
+  },
+  {
+    "scene_idx": 72,
+    "start": 148.7,
+    "end": 152.066667,
+    "mid": 150.383,
+    "file": "preview_frames/all_scenes/scene_72_148.70-152.07.jpg"
+  },
+  {
+    "scene_idx": 73,
+    "start": 152.066667,
+    "end": 156.9,
+    "mid": 154.483,
+    "file": "preview_frames/all_scenes/scene_73_152.07-156.90.jpg"
+  },
+  {
+    "scene_idx": 74,
+    "start": 156.9,
+    "end": 157.9,
+    "mid": 157.4,
+    "file": "preview_frames/all_scenes/scene_74_156.90-157.90.jpg"
+  },
+  {
+    "scene_idx": 75,
+    "start": 157.9,
+    "end": 158.6,
+    "mid": 158.25,
+    "file": "preview_frames/all_scenes/scene_75_157.90-158.60.jpg"
+  },
+  {
+    "scene_idx": 76,
+    "start": 158.6,
+    "end": 162.266667,
+    "mid": 160.433,
+    "file": "preview_frames/all_scenes/scene_76_158.60-162.27.jpg"
+  },
+  {
+    "scene_idx": 77,
+    "start": 162.266667,
+    "end": 165.533333,
+    "mid": 163.9,
+    "file": "preview_frames/all_scenes/scene_77_162.27-165.53.jpg"
+  },
+  {
+    "scene_idx": 78,
+    "start": 165.533333,
+    "end": 169.97,
+    "mid": 167.752,
+    "file": "preview_frames/all_scenes/scene_78_165.53-169.97.jpg"
+  }
+]
