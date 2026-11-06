@@ -130,33 +130,44 @@ Automated dead air detection and trimming creates tight, dynamic, fast-paced UGC
 
 ---
 
-### Capability 2: Accurate Captions & Kinetic Text with Context PinPoint Emphasis
+### Capability 2: Dual-Layer Kinetic Captions & Tier-1 Headline Labels (Face-Safe)
 
-Generates word-level synchronized animated subtitles designed specifically for high-retention short-form videos (Hormozi / TikTok / Reels style).
+Generates word-level synchronized animated subtitles designed specifically for high-retention short-form videos and paid Meta ads (TikTok / Reels / YouTube Shorts style).
 
 #### Highlights:
-1. **Accurate Word-Level Synchronization**: Powered by `faster-whisper`, providing microsecond timestamps for every spoken word.
-2. **Short UGC Chunking**: Words are grouped into bite-sized 1–3 word phrases on screen to maintain high visual momentum.
-3. **Kinetic Pop & Highlight**: The currently spoken word dynamically pops in scale (`115%` bounce) and switches to a bright highlight color while inactive words remain readable with high-contrast outlines and drop shadows.
-4. **Context PinPoint Emphasis**:
-   - High-impact context words (e.g. `MONEY`, `SECRET`, `STOP`, `RESULTS`, numbers `$100`, `3`, etc.) receive immediate emphasis.
-   - PinPoint words scale larger (`125%` pop) and illuminate in a dedicated pinpoint accent color (e.g., Neon Green or Flame Red).
-   - Custom pinpoint keywords can be supplied on the fly via `--pinpoints`.
+1. **Dual-Layer Architecture**:
+   - **Layer 1: Continuous Lower-Third Subtitles**: Microsecond-accurate spoken dialogue in the lower safe zone (`MarginV: 420` / `Y ≈ 1500`), with word-by-word kinetic pop and active highlight.
+   - **Layer 2: Curated Tier-1 Headline Labels**: High-impact headline banners (bold Archivo Black) with juicy elastic spring-physics animation (`\fscx112 -> \fscx96 -> \fscx100`) and smooth fade-out.
+2. **Face-Safe Zone Placement (`--headline-pos`)**:
+   - **`top` (Default, Y = 340)**: Positioned in the upper safe zone, comfortably above the speaker's forehead/hair and below native platform search bars.
+   - **`chest` (Y = 1260)**: Positioned on the upper chest, comfortably below the chin and floating above the lower subtitles.
+   - **Zero Face Collisions**: Never placed at dead-center (`Y = 960`), preventing awkward text overlays across the speaker's mouth or eyes.
+3. **Strict Frequency & Cooldown Rules (Never Overwhelms)**:
+   - **Max 3–4 Headlines Per Video**: `--max-headlines 4` strictly limits banners to the highest-impact moments only.
+   - **9-Second Minimum Cooldown**: `--cooldown 9.0` enforces breathing room so headlines feel like dramatic, exciting events.
+   - **Tier-1 Quality Filter**: Automatically triggers on somatic/physical symptoms (`clenched jaws`, `floor`, `burnout`, `panic`), shocking durations/numbers (`30 minutes on the floor`, `10 years`, `100%`), and opening hook reveals (`0.0s - 3.5s`), while banning trivial filler words.
+   - **Custom Pinpoints**: Supply exact keywords via `--pinpoints "jaws, 30 minutes on the floor"`.
+4. **Broadcast Audio Preservation**:
+   - Encodes video with `-c:v libx264 -pix_fmt yuv420p` while copying audio bit-for-bit with `-c:a copy` to preserve pristine sound quality.
 
 #### How to Execute:
 ```powershell
-.\.venv\Scripts\python.exe skills/ugc-editor/scripts/add_kinetic_captions.py -i "Output/<video_file>_trimmed.mp4" -o "Output/<video_file>_captioned.mp4" --style hormozi --pinpoints "secret,money,hack"
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/add_kinetic_captions.py -i "Input/<video_file>.mp4" -o "Output/<video_file>_captioned.mp4" --style brand_gold --headline-pos top --pinpoints "jaws, 30 minutes on the floor"
 ```
 
 #### CLI Parameters:
 - `-i, --input <PATH>`: Input video (from `Input/` or `Output/`) (Required).
-- `-o, --output <PATH>`: Destination video path (Defaults to `Output/<name>_captioned.mp4`).
-- `-p, --pinpoints <STR>`: Comma-separated context emphasis keywords (e.g., `--pinpoints "ai,freedom,proven,secret"`).
+- `-o, --output <PATH>`: Destination video path (Defaults to `Output/<name>_kinetic_captioned.mp4`).
+- `-p, --pinpoints <STR>`: Explicit keywords to feature in headline labels (e.g. `--pinpoints "jaws, 30 minutes on the floor"`).
+- `--max-headlines <INT>`: Maximum number of headline labels allowed across the video (Default: `4`, recommended `3-4`).
+- `--cooldown <FLOAT>`: Minimum seconds of clean breathing room between headline labels (Default: `9.0`s).
+- `--headline-pos <STR>`: Face-safe headline placement: `top` (Y=340, above forehead) or `chest` (Y=1260, below chin) (Default: `top`).
+- `--headline-y <INT>`: Exact custom Y coordinate override for headline banner.
 - `-s, --style <STR>`: Visual theme:
-  - `hormozi`: Bright yellow active highlight, neon green pinpoint emphasis, thick black stroke.
-  - `neon_green`: Neon green active highlight, electric yellow pinpoint emphasis.
+  - `brand_gold`: Gold `#D6AB4C` headline & highlight, Cream `#F4F0E8` dialogue, Dark Brown & Black stroke.
+  - `hormozi`: Bright yellow active highlight, neon green headline, thick black stroke.
   - `clean_white`: Crisp white typography with hot red/yellow pinpoint pop.
-  - `biochroma`: Client BioChroma static non-kinetic standard (78pt Roboto-Bold, #FFFFFF with 4.0pt dark outline, MarginV 520 / 27% lower-middle safe zone, WrapStyle 2 single-row, verbatim DP alignment, -c:a copy). See `skills/biochroma-captions/SKILL.md` for dedicated engine.
+  - `neon_cyan`: Electric cyan highlight, neon magenta headline pop.
 - `-w, --max-words <INT>`: Max words per subtitle line (Default: `3`).
 - `-m, --model <STR>`: Whisper model size: `tiny`, `base` (default), or `small`.
 - `--burn / --no-burn`: Whether to burn subtitles directly into the video stream (Default: `--burn`).
@@ -165,30 +176,45 @@ Generates word-level synchronized animated subtitles designed specifically for h
 
 ### Capability 3: Dynamic Morphing Shapes & Visual Engagement Graphics
 
-Applies animated motion graphic overlays (bar graphs, circular progress motions, morphing rounded rectangles, focus target rings, viral badge callouts, and retention progress bars) to maximize viewer engagement during key explanations or data claims.
+Applies animated motion graphic overlays (prohibition Red X warnings, bouncing CTA arrows, social media badges, rising bar graphs, circular progress motions, morphing rounded rectangles, focus target rings, and retention progress bars) to maximize viewer engagement.
 
-#### Available Shapes:
+#### Available Shapes & Visual Triggers:
+- **`red_x` / `warning_x`**: Medium-sized bold Red X warning badge with heavy slam pop (`1.35x -> 1.0x`), smooth dark-red radial edge vignette, and synchronized Error SFX (`SFX/Nope .mp3` / `Buzz - Whoosh.wav`). Ideal for `"DO NOT"`, `"MUST NOT"`, `"DON'T"`, `"NEVER"`, `"MISTAKE"`.
+- **`arrow_down` / `cta_arrow`**: Dynamic bouncing CTA pointer arrow with customizable text pill (e.g. `LINK IN BIO`, `CHECK COMMENTS`, `TAP BELOW`). Bobs smoothly up and down in the lower third to drive click-throughs.
+- **`facebook` / `social_fb`**: Official blue Facebook squircle icon pop with bold white `f` and optional handle pill.
+- **`instagram` / `social_ig`**: Official Instagram berry/sunset gradient camera icon pop with optional handle pill (e.g. `@BRAND`).
+- **`tiktok` / `social_tiktok`**: TikTok dark musical note badge with cyan/magenta accent.
+- **`youtube` / `social_yt`**: YouTube red play button card.
 - **`bargraph`**: Rising multi-bar growth chart with kinetic ease-out bounce, glassmorphism container, and metric header (ideal for growth, revenue, comparison claims).
 - **`circular_motion`**: Dynamic 360° circular progress ring with radial arc draw, center metric readout (e.g. `98%`, `10x`), and expanding radar pulses.
 - **`rectangle`**: Morphing pop-in callout badge card with glowing border and accent pill (ideal for tips, warnings, alerts, step labels).
 - **`focus_ring`**: Pulsating circular reticle with target crosshairs to draw the viewer's eye to a product or on-screen detail.
-- **`badge_callout`**: Attention-grabbing pill badge with glowing double border and icon pop (ideal for `🔥 GAME CHANGER`, `🚀 10X LEAP`, `⚠️ WARNING`, `💡 SECRET HACK`).
+- **`badge_callout`**: Attention-grabbing pill badge with glowing double border and icon pop (ideal for `🔥 GAME CHANGER`, `🚀 10X LEAP`, `💡 SECRET HACK`).
 - **`progress_bar`**: Sleek animated retention progress bar moving along the bottom of the video with glowing tip to prevent drop-off.
 
 #### How to Execute:
 ```powershell
-.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_morphing_shapes.py -i "Output/<video_file>.mp4" -o "Output/<video_file>_with_shape.mp4" --shape bargraph --start 2.5 --duration 3.0 --label "+350% GROWTH" --color cyan --position center
+# 1. Prohibition Warning Red X with Vignette & Error SFX:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_morphing_shapes.py -i "Input/<video>.mp4" -o "Output/<video>_warn.mp4" --shape red_x --start 4.0 --duration 2.5 --label "DO NOT DO THIS" --vignette --sfx
+
+# 2. Bouncing CTA Arrow Pointing Below:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_morphing_shapes.py -i "Input/<video>.mp4" -o "Output/<video>_cta.mp4" --shape arrow_down --start 50.0 --duration 4.0 --label "LINK IN COMMENTS"
+
+# 3. Instagram / Facebook Social Badge Pop:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_morphing_shapes.py -i "Input/<video>.mp4" -o "Output/<video>_ig.mp4" --shape instagram --start 15.0 --duration 2.5 --label "@MYBRAND"
 ```
 
 #### CLI Parameters:
 - `-i, --input <PATH>`: Source video path (Required).
 - `-o, --output <PATH>`: Output video path.
-- `-s, --shape <STR>`: Shape type (`bargraph`, `circular_motion`, `rectangle`, `focus_ring`, `badge_callout`, `progress_bar`).
+- `-s, --shape <STR>`: Shape type (`red_x`, `arrow_down`, `facebook`, `instagram`, `tiktok`, `youtube`, `bargraph`, `circular_motion`, `rectangle`, `focus_ring`, `badge_callout`, `progress_bar`).
 - `-t, --start <FLOAT>`: Timestamp in seconds when shape animation begins (e.g. `2.5`).
-- `-d, --duration <FLOAT>`: How many seconds the graphic stays active (Default: `3.0`s).
-- `-l, --label <STR>`: Text label, statistic, or message inside the shape graphic.
-- `-c, --color <STR>`: Color palette: `cyan`, `yellow`, `green`, `orange`, `purple`.
+- `-d, --duration <FLOAT>`: How many seconds the graphic stays active (Default: `2.5`s).
+- `-l, --label <STR>`: Text label, handle, or message inside the shape graphic.
+- `-c, --color <STR>`: Color palette: `red`, `gold`, `cyan`, `yellow`, `green`, `orange`, `purple`.
 - `-pos, --position <STR>`: Screen position: `center`, `top_center`, `bottom_center`.
+- `--vignette / --no-vignette`: Include radial dark-red warning vignette for `red_x` (Default: `--vignette`).
+- `--sfx / --no-sfx`: Mix synchronized error/punch sound effect from `SFX/` (Default: `--sfx`).
 
 ---
 
@@ -557,6 +583,51 @@ Provides desktop-grade manual timeline editing and responsive styling following 
   - **Color Palette**: Electric Blue `#1683DF` (Primary Accent), Soft Sky Blue `#93CCE9`, Clean White `#FFFFFF`, Dark Slate `#0B0F17`.
   - **Typography**: `Poppins` for headings/branding, `Inter` for UI body.
   - **Light Mode as Default**: High-contrast, clean minimalist workspace with 1-click Sun/Moon dark mode toggle.
+
+---
+
+### Capability 18: Master Video IN & OUT Animations (Hook Impact Shake & CTA Outro Polish)
+
+Applies trending opening IN animations (Hook Pattern Interrupts) and closing OUT animations (CTA Outro Resolution) to give finished videos broadcast-grade momentum:
+
+#### Available IN Animations (The Opening 0.5s–1.0s Hook):
+- **`shake` (Default)**: High-energy camera impact shake with decaying sine/cosine oscillation (`1.08x` scale). Breaks the viewer's scrolling trance on frame 1. Pairs with subtle whoosh/impact SFX from `SFX/`.
+- **`whip_zoom`**: Rapid elastic zoom snap from `1.25x` down to `1.0x`.
+- **`white_flash`**: 4-frame exposure white flash pop that dissolves into full color.
+- **`none`**: Bypasses opening animation.
+
+#### Available OUT Animations (The Closing 1.0s–2.0s CTA):
+- **`fade_black` (Default)**: Smooth cinematic fade to black.
+- **`fade_white`**: Clean fade to pure white (popular in skincare, beauty, and tech ads).
+- **`zoom_fade`**: Slow camera push into speaker + fade to black.
+- **`none`**: Bypasses closing animation.
+
+#### Broadcast Audio Tail Protection:
+- Automatically applies smooth closing audio fade-out (`--audio-fade 1.5`s) to dialogue and background music so the ad never clips or cuts off abruptly.
+
+#### CLI Execution:
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_in_out_animation.py `
+  -i "Output/<finished_video>.mp4" `
+  -o "Output/<finished_video>_master.mp4" `
+  --in-anim shake `
+  --out-anim fade_black `
+  --in-duration 0.65 `
+  --out-duration 1.5 `
+  --audio-fade 1.5 `
+  --in-sfx
+```
+
+#### CLI Parameters:
+- `-i, --input <PATH>`: Source video path (Required).
+- `-o, --output <PATH>`: Output video path (Defaults to `Output/<name>_animated.mp4`).
+- `--in-anim <STR>`: Opening hook animation: `shake`, `whip_zoom`, `white_flash`, `none` (Default: `shake`).
+- `--out-anim <STR>`: Closing CTA animation: `fade_black`, `fade_white`, `zoom_fade`, `none` (Default: `fade_black`).
+- `--in-duration <FLOAT>`: Duration of the IN animation (Default: `0.65`s).
+- `--out-duration <FLOAT>`: Duration of the OUT animation (Default: `1.5`s).
+- `--audio-fade <FLOAT>`: Duration of the closing audio fade-out (Default: `1.5`s).
+- `--in-sfx / --no-in-sfx`: Mix synchronized whoosh/impact sound effect at frame 1 (Default: `--in-sfx`).
+
 
 
 
