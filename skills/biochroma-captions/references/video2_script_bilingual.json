@@ -1,0 +1,584 @@
+[
+  {
+    "it": "Siamo entrati in casa,",
+    "en": "We walked into the house,",
+    "type": "broll",
+    "prompt": "Couple walking into modern house doorway, looking around"
+  },
+  {
+    "it": "i suoi occhi sono andati",
+    "en": "and his eyes went",
+    "type": "broll",
+    "prompt": "Husband turning his gaze directly toward realtor"
+  },
+  {
+    "it": "dritti a lei.",
+    "en": "straight to her.",
+    "type": "broll",
+    "prompt": "Attractive young female realtor smiling warmly in foyer"
+  },
+  {
+    "it": "Lo stesso sguardo",
+    "en": "Same look",
+    "type": "broll",
+    "prompt": "Close-up of husband smiling admiringly at younger woman"
+  },
+  {
+    "it": "che aveva per me",
+    "en": "he used to give me",
+    "type": "broll",
+    "prompt": "Presenter watching husband with subtle expression of hurt"
+  },
+  {
+    "it": "quando avevo la metà dei miei anni.",
+    "en": "when I was half my age.",
+    "type": "broll",
+    "prompt": "Presenter feeling self-conscious about her facial aging"
+  },
+  {
+    "it": "L'ho odiata a prima vista,",
+    "en": "I hated her on sight,",
+    "type": "broll",
+    "prompt": "Presenter crossing arms, looking skeptical and cold"
+  },
+  {
+    "it": "ho pensato: ovvio,",
+    "en": "thought: of course,",
+    "type": "broll",
+    "prompt": "Presenter tilting head with ironic sigh"
+  },
+  {
+    "it": "è fatta così.",
+    "en": "she's like that.",
+    "type": "broll",
+    "prompt": "Realtor standing elegantly in living room"
+  },
+  {
+    "it": "Poi ha sorriso,",
+    "en": "Then she smiled,",
+    "type": "broll",
+    "prompt": "Realtor smiling sweetly with glowing flawless skin"
+  },
+  {
+    "it": "era dolce,",
+    "en": "she was sweet,",
+    "type": "broll",
+    "prompt": "Realtor speaking politely with cheerful warmth"
+  },
+  {
+    "it": "ma in qualche modo è stato peggio.",
+    "en": "but somehow made it worse.",
+    "type": "broll",
+    "prompt": "Presenter grimacing slightly, feeling irritated"
+  },
+  {
+    "it": "Ha posato la borsa accanto a me",
+    "en": "She set her purse beside me",
+    "type": "broll",
+    "prompt": "Realtor placing brown leather designer purse on sofa"
+  },
+  {
+    "it": "ed è scesa di sotto con lui.",
+    "en": "and went downstairs with him.",
+    "type": "broll",
+    "prompt": "Husband and realtor walking downstairs together"
+  },
+  {
+    "it": "Ho alzato gli occhi al cielo,",
+    "en": "I rolled my eyes,",
+    "type": "broll",
+    "prompt": "Presenter rolling eyes with dramatic disbelief"
+  },
+  {
+    "it": "ho guardato altrove...",
+    "en": "looked away...",
+    "type": "broll",
+    "prompt": "Presenter turning head looking away from staircase"
+  },
+  {
+    "it": "...e ho visto qualcosa.",
+    "en": "...and saw something.",
+    "type": "broll",
+    "prompt": "Presenter glancing down toward the open purse on couch"
+  },
+  {
+    "it": "Una piccola fiala",
+    "en": "A little vial",
+    "type": "product",
+    "prompt": "Luxury BioChroma glass vial with gold peptide serum in handbag"
+  },
+  {
+    "it": "con le etichette dorate",
+    "en": "with golden labels",
+    "type": "product",
+    "prompt": "Macro close-up of BioChroma gold label shining inside bag"
+  },
+  {
+    "it": "che spuntava dalla borsa.",
+    "en": "sticking from her purse.",
+    "type": "product",
+    "prompt": "BioChroma serum vial poking out from open designer bag"
+  },
+  {
+    "it": "E all'improvviso,",
+    "en": "And suddenly,",
+    "type": "broll",
+    "prompt": "Presenter staring intently at the luxury skincare vial"
+  },
+  {
+    "it": "mi sono chiesta",
+    "en": "I wondered",
+    "type": "broll",
+    "prompt": "Presenter touching cheek thoughtfully, questioning look"
+  },
+  {
+    "it": "se fosse tutto qui.",
+    "en": "if that was all it was.",
+    "type": "broll",
+    "prompt": "Presenter leaning closer toward sofa with curiosity"
+  },
+  {
+    "it": "Forse non era botox,",
+    "en": "Maybe it wasn't Botox,",
+    "type": "broll",
+    "prompt": "Presenter examining her own forehead expression lines"
+  },
+  {
+    "it": "forse non era l'età.",
+    "en": "maybe it wasn't her age.",
+    "type": "broll",
+    "prompt": "Presenter realizing the secret is skincare, not age"
+  },
+  {
+    "it": "Forse il motivo",
+    "en": "Maybe the reason",
+    "type": "broll",
+    "prompt": "Presenter looking downstairs toward husband"
+  },
+  {
+    "it": "per cui lui continuava a guardarla",
+    "en": "he kept looking at her",
+    "type": "broll",
+    "prompt": "Flash of husband's admiring gaze"
+  },
+  {
+    "it": "era lì in quella borsa.",
+    "en": "was sitting right there in that bag.",
+    "type": "broll",
+    "prompt": "Presenter looking back at the purse with determination"
+  },
+  {
+    "it": "Ne ho presa una per me.",
+    "en": "I took one for myself.",
+    "type": "product",
+    "prompt": "Hand reaching into handbag taking BioChroma gold serum vial"
+  },
+  {
+    "it": "L'ho messa quella sera...",
+    "en": "I applied it that night...",
+    "type": "texture",
+    "prompt": "Dropping golden BioChroma silk peptide serum onto fingertip"
+  },
+  {
+    "it": "...e il mattino dopo,",
+    "en": "...and the next morning,",
+    "type": "broll",
+    "prompt": "Morning sunlight hitting woman waking up refreshed in bed"
+  },
+  {
+    "it": "quasi non mi riconoscevo.",
+    "en": "I barely recognized myself.",
+    "type": "broll",
+    "prompt": "Woman touching radiant, plump, smooth cheek in bathroom mirror"
+  },
+  {
+    "it": "Lui è sceso dalle scale,",
+    "en": "He came downstairs,",
+    "type": "broll",
+    "prompt": "Husband walking down wooden staircase in morning robe"
+  },
+  {
+    "it": "i suoi occhi sono andati",
+    "en": "his eyes went",
+    "type": "broll",
+    "prompt": "Husband stopping on stairs, mouth slightly open in awe"
+  },
+  {
+    "it": "dritti su di me.",
+    "en": "straight to me.",
+    "type": "broll",
+    "prompt": "Husband staring directly at wife with renewed attraction"
+  },
+  {
+    "it": "Strano come il giorno prima",
+    "en": "Strange how just the day before",
+    "type": "broll",
+    "prompt": "Wife watching husband with confident, knowing smile"
+  },
+  {
+    "it": "avessi dato tutta la colpa a lei.",
+    "en": "I blamed her completely.",
+    "type": "broll",
+    "prompt": "Presenter smiling smugly into mirror"
+  },
+  {
+    "it": "Ho detto: Non è niente amore,",
+    "en": "I said: It's nothing honey,",
+    "type": "broll",
+    "prompt": "Wife turning around smiling playfully at husband"
+  },
+  {
+    "it": "ho solo dormito bene.",
+    "en": "I just slept well.",
+    "type": "broll",
+    "prompt": "Wife winking playfully while sipping morning coffee"
+  },
+  {
+    "it": "BioChroma,",
+    "en": "BioChroma,",
+    "type": "product",
+    "prompt": "Hero shot of BioChroma Silk Peptides bottle glowing in morning light"
+  },
+  {
+    "it": "il nostro piccolo segreto.",
+    "en": "our little secret.",
+    "type": "product",
+    "prompt": "BioChroma luxury serum vial with gold serum droplets"
+  },
+  {
+    "it": "In macchina andando al lavoro",
+    "en": "In the car driving to work",
+    "type": "broll",
+    "prompt": "Woman driving modern car on sunny morning highway"
+  },
+  {
+    "it": "ho chiamato mia sorella.",
+    "en": "I called my sister.",
+    "type": "broll",
+    "prompt": "Woman speaking via car Bluetooth hands-free"
+  },
+  {
+    "it": "Ho detto: Non crederai",
+    "en": "I said: You won't believe",
+    "type": "broll",
+    "prompt": "Woman laughing animatedly behind steering wheel"
+  },
+  {
+    "it": "a cosa ho fatto:",
+    "en": "what I did:",
+    "type": "broll",
+    "prompt": "Presenter raising eyebrows sharing scandalous secret"
+  },
+  {
+    "it": "Ho rubato una fiala",
+    "en": "I stole a vial",
+    "type": "broll",
+    "prompt": "Woman smiling mischievously while waiting in car"
+  },
+  {
+    "it": "a quella agente immobiliare!",
+    "en": "from that real estate agent!",
+    "type": "broll",
+    "prompt": "Woman gesturing with hand while talking on phone"
+  },
+  {
+    "it": "All'improvviso mi ha guardata",
+    "en": "Suddenly he looked at me",
+    "type": "broll",
+    "prompt": "Woman touching glowing cheek in car rearview mirror"
+  },
+  {
+    "it": "come se non esistesse nessun'altra donna!",
+    "en": "like no other woman exists!",
+    "type": "broll",
+    "prompt": "Radiant mature woman smiling happily at her reflection"
+  },
+  {
+    "it": "Lei ha riso:",
+    "en": "She laughed:",
+    "type": "broll",
+    "prompt": "Sister laughing over phone audio speaker"
+  },
+  {
+    "it": "Sei un'idiota di sorella!",
+    "en": "You idiot sister!",
+    "type": "broll",
+    "prompt": "Presenter laughing along with sister"
+  },
+  {
+    "it": "È un siero ai peptidi di seta!",
+    "en": "That's a silk peptide serum!",
+    "type": "product",
+    "prompt": "BioChroma Silk Peptide serum luxury vial rotating elegant background"
+  },
+  {
+    "it": "I Peptidi Dorati vengono",
+    "en": "The Golden Peptides come",
+    "type": "texture",
+    "prompt": "Golden silk cocoons unraveling into glowing golden peptide threads"
+  },
+  {
+    "it": "dalla seta grezza",
+    "en": "from raw silk",
+    "type": "texture",
+    "prompt": "Pure Korean raw silk fibers shimmering with golden particles"
+  },
+  {
+    "it": "del baco da seta coreano,",
+    "en": "of the Korean silkworm,",
+    "type": "texture",
+    "prompt": "Microscopic zoom into Korean Bombyx mori golden silk proteins"
+  },
+  {
+    "it": "usata da secoli",
+    "en": "used for centuries",
+    "type": "texture",
+    "prompt": "Traditional Korean botanical medicine heritage illustration"
+  },
+  {
+    "it": "nella medicina tradizionale coreana,",
+    "en": "in traditional Korean medicine,",
+    "type": "texture",
+    "prompt": "Heritage Korean beauty apothecary herbs and silk extracts"
+  },
+  {
+    "it": "e collagene a basso peso molecolare",
+    "en": "and low-molecular collagen",
+    "type": "texture",
+    "prompt": "Low molecular weight collagen micro-spheres penetrating skin barrier"
+  },
+  {
+    "it": "che penetra attraverso lo strato corneo,",
+    "en": "penetrating the stratum corneum,",
+    "type": "texture",
+    "prompt": "Cellular cross-section of skin cells absorbing golden peptide nutrients"
+  },
+  {
+    "it": "abbastanza piccoli",
+    "en": "small enough",
+    "type": "texture",
+    "prompt": "Comparison graphic of large collagen vs BioChroma micro-peptides"
+  },
+  {
+    "it": "da entrare davvero nella pelle!",
+    "en": "to genuinely enter the skin!",
+    "type": "texture",
+    "prompt": "Deep dermal hydration and elastin fibroblasts activating"
+  },
+  {
+    "it": "Ho detto: Quindi non ci stava provando?",
+    "en": "I said: So she wasn't flirting?",
+    "type": "broll",
+    "prompt": "Presenter speaking into car phone with expression of sudden relief"
+  },
+  {
+    "it": "Ha detto: Ma va,",
+    "en": "She said: Come on,",
+    "type": "broll",
+    "prompt": "Woman shaking head smiling at her own jealousy"
+  },
+  {
+    "it": "era solo gentile!",
+    "en": "she was just being nice!",
+    "type": "broll",
+    "prompt": "Woman chuckling behind car wheel"
+  },
+  {
+    "it": "A quanto pare ho odiato quella poverina",
+    "en": "Turns out I hated that poor girl",
+    "type": "broll",
+    "prompt": "Woman smiling sheepishly while driving"
+  },
+  {
+    "it": "per un siero che lavora mentre dormi.",
+    "en": "over a serum that works while you sleep.",
+    "type": "broll",
+    "prompt": "Woman shaking head amused at herself"
+  },
+  {
+    "it": "Ho detto: Ma è quello buono?",
+    "en": "I said: Is it the good one?",
+    "type": "broll",
+    "prompt": "Woman leaning forward eagerly listening to sister"
+  },
+  {
+    "it": "Ho detto: Mandami il link!",
+    "en": "I said: Send me the link!",
+    "type": "broll",
+    "prompt": "Woman picking up smartphone at red light"
+  },
+  {
+    "it": "Ne ho comprate due",
+    "en": "I bought two",
+    "type": "broll",
+    "prompt": "Tapping order button on BioChroma official online store"
+  },
+  {
+    "it": "prima che scattasse il verde.",
+    "en": "before the light turned green.",
+    "type": "broll",
+    "prompt": "Traffic light turning green, woman putting phone away smoothly"
+  },
+  {
+    "it": "Non ho nemmeno dovuto pensarci.",
+    "en": "Didn't even have to think.",
+    "type": "broll",
+    "prompt": "Woman driving off with satisfied, confident smile"
+  },
+  {
+    "it": "L'ho messo la sera...",
+    "en": "I applied it that night...",
+    "type": "texture",
+    "prompt": "Dropping 3 drops of golden BioChroma serum onto clean evening skin"
+  },
+  {
+    "it": "ho sentito subito un tiraggio",
+    "en": "felt an immediate tightening",
+    "type": "texture",
+    "prompt": "Close-up of cheek skin immediately firming and smoothing out fine lines"
+  },
+  {
+    "it": "come se la pelle",
+    "en": "as if my skin",
+    "type": "texture",
+    "prompt": "Visible micro-lifting effect across mature jawline and nasolabial folds"
+  },
+  {
+    "it": "si sollevasse dall'interno.",
+    "en": "were lifting from within.",
+    "type": "texture",
+    "prompt": "Radiant inner collagen mesh lifting and firming facial contours"
+  },
+  {
+    "it": "La mattina dopo,",
+    "en": "The next morning,",
+    "type": "broll",
+    "prompt": "Morning sunlight on woman waking up with luminous radiant skin"
+  },
+  {
+    "it": "quasi non mi riconoscevo.",
+    "en": "I barely recognized myself.",
+    "type": "broll",
+    "prompt": "Woman touching smooth glass-like skin in mirror with sheer joy"
+  },
+  {
+    "it": "Quasi non mi riconoscevo.",
+    "en": "Barely recognized myself.",
+    "type": "broll",
+    "prompt": "Close-up of firm, bright, youthful facial glow in bathroom mirror"
+  },
+  {
+    "it": "Lui è sceso dalle scale,",
+    "en": "He came downstairs,",
+    "type": "broll",
+    "prompt": "Husband walking down stairs into kitchen, eyes locking onto her"
+  },
+  {
+    "it": "i suoi occhi sono andati dritti a me.",
+    "en": "his eyes went straight to me.",
+    "type": "broll",
+    "prompt": "Husband smiling tenderly with genuine awe at her beauty"
+  },
+  {
+    "it": "Strano come il giorno prima",
+    "en": "Strange how just the day before",
+    "type": "broll",
+    "prompt": "Wife leaning against counter meeting his gaze with playful confidence"
+  },
+  {
+    "it": "avessi dato tutta la colpa a lei.",
+    "en": "I blamed her completely.",
+    "type": "broll",
+    "prompt": "Woman reminiscing with amused, self-assured smirk"
+  },
+  {
+    "it": "Gli ho detto: Non è niente amore,",
+    "en": "I told him: It's nothing honey,",
+    "type": "broll",
+    "prompt": "Wife whispering softly as husband approaches"
+  },
+  {
+    "it": "ho solo dormito bene.",
+    "en": "I just slept well.",
+    "type": "broll",
+    "prompt": "Wife laughing softly touching husband's arm"
+  },
+  {
+    "it": "BioChroma,",
+    "en": "BioChroma,",
+    "type": "product",
+    "prompt": "BioChroma luxury amber vial with gold silk peptide particles sparkling"
+  },
+  {
+    "it": "il nostro piccolo segreto.",
+    "en": "our little secret.",
+    "type": "product",
+    "prompt": "BioChroma elegant vial beside white silk flowers"
+  },
+  {
+    "it": "Mi ha detto: Stai benissimo!",
+    "en": "He told me: You look amazing!",
+    "type": "broll",
+    "prompt": "Husband leaning in kissing her cheek admiring her radiant skin"
+  },
+  {
+    "it": "Cosa ti sei messa?",
+    "en": "What did you put on?",
+    "type": "broll",
+    "prompt": "Husband gently stroking her smooth cheek with adoration"
+  },
+  {
+    "it": "L'ho guardato e ho sorriso",
+    "en": "I looked at him and smiled",
+    "type": "broll",
+    "prompt": "Wife looking into camera with mysterious, enchanting smile"
+  },
+  {
+    "it": "come se non fosse successo niente.",
+    "en": "like nothing had happened.",
+    "type": "broll",
+    "prompt": "Wife winking playfully at the viewer"
+  },
+  {
+    "it": "Da qualche parte quella poverina",
+    "en": "Somewhere that poor girl",
+    "type": "broll",
+    "prompt": "Realtor smiling innocently unaware in real estate office"
+  },
+  {
+    "it": "pensa ancora che io sia dolce...",
+    "en": "still thinks I'm sweet...",
+    "type": "broll",
+    "prompt": "Presenter laughing quietly at the private memory"
+  },
+  {
+    "it": "mentre il suo siero",
+    "en": "while her serum",
+    "type": "product",
+    "prompt": "BioChroma luxury vial hero rotation with golden lighting"
+  },
+  {
+    "it": "ha quasi scatenato",
+    "en": "nearly started",
+    "type": "broll",
+    "prompt": "Presenter smiling triumphantly into camera"
+  },
+  {
+    "it": "la Terza Guerra Mondiale.",
+    "en": "World War Three.",
+    "type": "broll",
+    "prompt": "Presenter laughing out loud with charismatic confidence"
+  },
+  {
+    "it": "BioChroma,",
+    "en": "BioChroma,",
+    "type": "product",
+    "prompt": "Final BioChroma luxury brand hero display on velvet pedestal"
+  },
+  {
+    "it": "il nostro piccolo segreto.",
+    "en": "our little secret.",
+    "type": "product",
+    "prompt": "BioChroma official product hero shot with guarantee seal and website link"
+  }
+]

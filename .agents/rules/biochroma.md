@@ -23,4 +23,7 @@ When processing video ads for client **BioChroma** (e.g. "put a caption for bioc
    * Single-Line Row: `WrapStyle: 2` (Zero line wrapping)
    * Script Alignment: Verbatim Italian dialogue via Needleman-Wunsch DP alignment
    * Audio: Copied bit-exact (`-c:a copy`)
+4. **Visual Semantic Alignment Standards**:
+   * **"Our Little Secret" Punchline**: Whenever the spoken line is *"BioChroma, il nostro piccolo segreto"* (*"BioChroma, our little secret"*), the visual MUST show the iconic character close-up winking/smiling at the camera (`68.57s – 71.40s` for Row 16, `141.70s – 143.50s` for Row 35). NEVER replace these shots with placeholder slates—they are clean lifestyle character acting with zero competitor branding.
+   * **"Send Me The Link" Product Action**: Whenever the spoken line is *"Ho detto: “Mandami il link.”"* (*"I said: “Send me the link.”"*), the visual MUST show the smartphone screen with the product link being tapped (`109.30s – 111.30s`).
 
