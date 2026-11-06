@@ -156,6 +156,7 @@ Generates word-level synchronized animated subtitles designed specifically for h
   - `hormozi`: Bright yellow active highlight, neon green pinpoint emphasis, thick black stroke.
   - `neon_green`: Neon green active highlight, electric yellow pinpoint emphasis.
   - `clean_white`: Crisp white typography with hot red/yellow pinpoint pop.
+  - `biochroma`: Client BioChroma static non-kinetic standard (78pt Roboto-Bold, #FFFFFF with 4.0pt dark outline, MarginV 520 / 27% lower-middle safe zone, WrapStyle 2 single-row, verbatim DP alignment, -c:a copy). See `skills/biochroma-captions/SKILL.md` for dedicated engine.
 - `-w, --max-words <INT>`: Max words per subtitle line (Default: `3`).
 - `-m, --model <STR>`: Whisper model size: `tiny`, `base` (default), or `small`.
 - `--burn / --no-burn`: Whether to burn subtitles directly into the video stream (Default: `--burn`).
