@@ -34,12 +34,21 @@ TRANSITION_MAP = {
     "circle_crop": "circlecrop",
     "fade_black": "fadeblack",
     "fade_white": "fadewhite",
+    "strobe_flash": "custom",
+    "negative_invert": "custom",
     "pixelize": "pixelize",
     "wipe_left": "wipeleft",
     "dissolve": "dissolve",
 }
 
-UGC_RECOMMENDED_TRANSITIONS = ["slideleft", "slideright", "smoothleft", "zoomin", "circlecrop", "fadewhite"]
+CUSTOM_TRANSITION_EXPRS = {
+    # High-fashion / Lookbook double strobe white flash
+    "strobe_flash": "if(lte(P,0.5),if(between(P,0.15,0.45),A+(1-A)*sin((P-0.15)/0.30*PI),A),if(between(P,0.50,0.85),B+(1-B)*sin((P-0.50)/0.35*PI),B))",
+    # Solarized negative color inversion flash (Study 1 VÉRONA)
+    "negative_invert": "if(lte(P,0.5),if(gte(P,0.22),1-A,A),if(lte(P,0.78),1-B,B))",
+}
+
+UGC_RECOMMENDED_TRANSITIONS = ["slideleft", "slideright", "smoothleft", "zoomin", "circlecrop", "fadewhite", "strobe_flash", "negative_invert"]
 
 def get_ffmpeg_paths() -> Tuple[str, str]:
     venv_scripts = Path(sys.prefix) / "Scripts"
@@ -133,6 +142,8 @@ def list_transitions():
         "zoom_in": "High-energy snap zoom punch into next scene",
         "circle_crop": "Retro iris reveal (playful, focuses on subject center)",
         "fade_white": "Dramatic flash-to-white scene transition",
+        "strobe_flash": "Paparazzi multi-pulse white strobe flash (high-fashion / streetwear reel look)",
+        "negative_invert": "Solarized negative color inversion flash on cut point (Study 1 VÉRONA)",
         "fade_black": "Classic theatrical dip to black",
         "pixelize": "Digital glitch wipe (tech / gaming / crypto)",
         "random": "Alternates dynamic transitions across all cuts automatically",
@@ -147,7 +158,7 @@ def list_transitions():
 def apply_transitions(
     input_dir: Path = typer.Option(Path("Input"), "--input-dir", "-i", help="Directory containing source clips"),
     output_file: Optional[Path] = typer.Option(None, "--output", "-o", help="Target output video path"),
-    transition: str = typer.Option("slide_left", "--transition", "-t", help="Transition: slide_left, slide_up, smooth_left, zoom_in, circle_crop, fade_white, pixelize, random"),
+    transition: str = typer.Option("slide_left", "--transition", "-t", help="Transition: slide_left, slide_up, smooth_left, zoom_in, circle_crop, fade_white, strobe_flash, negative_invert, pixelize, random"),
     duration: float = typer.Option(0.22, "--duration", "-d", help="Transition duration in seconds (0.18s - 0.35s)"),
     auto_sfx: bool = typer.Option(True, "--auto-sfx/--no-sfx", help="Auto-sync whoosh sound effects on transitions"),
     target_res: str = typer.Option("1080x1920", "--res", "-r", help="Target output resolution (default: 1080x1920 vertical)"),
@@ -207,15 +218,20 @@ def apply_transitions(
         offset = accumulated_dur - duration
         transition_times.append(offset)
         
-        if transition.lower() == "random":
-            xfade_type = random.choice(UGC_RECOMMENDED_TRANSITIONS)
-        else:
-            xfade_type = TRANSITION_MAP.get(transition.lower(), "slideleft")
+        chosen_trans = transition.lower()
+        if chosen_trans == "random":
+            chosen_trans = random.choice(UGC_RECOMMENDED_TRANSITIONS)
             
         next_vid_label = f"xfv{i}"
         next_aud_label = f"xfa{i}"
         
-        v_xfade = f"[{cur_vid_label}][v{i}]xfade=transition={xfade_type}:duration={duration:.3f}:offset={offset:.3f}[{next_vid_label}]"
+        if chosen_trans in CUSTOM_TRANSITION_EXPRS:
+            custom_expr = CUSTOM_TRANSITION_EXPRS[chosen_trans]
+            v_xfade = f"[{cur_vid_label}][v{i}]xfade=transition=custom:expr='{custom_expr}':duration={duration:.3f}:offset={offset:.3f}[{next_vid_label}]"
+        else:
+            xfade_type = TRANSITION_MAP.get(chosen_trans, "slideleft")
+            v_xfade = f"[{cur_vid_label}][v{i}]xfade=transition={xfade_type}:duration={duration:.3f}:offset={offset:.3f}[{next_vid_label}]"
+            
         filter_parts.append(v_xfade)
         
         # Exponential audio curve prevents voice blurring and mumble across sentence boundaries

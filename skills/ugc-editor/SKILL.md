@@ -164,11 +164,16 @@ Generates word-level synchronized animated subtitles designed specifically for h
 - `--headline-pos <STR>`: Face-safe headline placement: `top` (Y=340, above forehead) or `chest` (Y=1260, below chin) (Default: `top`).
 - `--headline-y <INT>`: Exact custom Y coordinate override for headline banner.
 - `-s, --style <STR>`: Visual theme:
+  - `single_pop`: Rapid 1-word-at-a-time center pop (`MarginV: 860` / upper chest, default `--max-words 1`), bouncy spring scale pop (`112% -> 100%`). Signature high-retention direct-response paid ad style (Study 2 & 4).
   - `brand_gold`: Gold `#D6AB4C` headline & highlight, Cream `#F4F0E8` dialogue, Dark Brown & Black stroke.
   - `hormozi`: Bright yellow active highlight, neon green headline, thick black stroke.
   - `clean_white`: Crisp white typography with hot red/yellow pinpoint pop.
   - `neon_cyan`: Electric cyan highlight, neon magenta headline pop.
-- `-w, --max-words <INT>`: Max words per subtitle line (Default: `3`).
+- `-w, --max-words <INT>`: Max words per subtitle line (Default: `1` for `single_pop`, `3` for other styles).
+- `--suppress-cues <STR>`: Comma-separated time intervals in seconds to mute captions over screencasts or UI (e.g. `--suppress-cues "41.8-43.5, 50.0-52.0"`).
+- `--pill-bg`: Wrap subtitles in a dark rounded pill container box (`BorderStyle: 3`, `Outline: 14.0`) to preserve pristine legibility over bright web screencasts or busy backgrounds.
+- `--angle <FLOAT>`: Tilt angle in degrees for slanted/tilted text banners (e.g. `--angle -6.0` or `--angle -4.0`).
+- `--all-caps / --no-all-caps`: Force text to ALL-CAPS (Default: `--all-caps`). Pass `--no-all-caps` for natural lowercase/sentence-case.
 - `-m, --model <STR>`: Whisper model size: `tiny`, `base` (default), or `small`.
 - `--burn / --no-burn`: Whether to burn subtitles directly into the video stream (Default: `--burn`).
 
@@ -372,6 +377,8 @@ Detects multiple video clips uploaded into `Input/` (e.g. `clip 1.mp4`, `clip 2.
 Stitches multiple raw clips in `Input/` using dynamic visual transitions (swipes, snap zooms, iris reveals, and flashes) while automatically syncing punchy whoosh SFX at every transition cut.
 
 #### Supported Transitions:
+- **`strobe_flash`**: 3-frame high-exposure paparazzi strobe white flash on cuts (signature luxury/fashion montage transition from Study 1).
+- **`negative_invert`**: Paparazzi strobe flash with 1-frame solarized negative color inversion (edgy high-fashion look from Study 1).
 - **`slide_left` / `slide_right`**: Fast horizontal swipe (signature TikTok/Reels feed swipe).
 - **`slide_up`**: Vertical card scroll transition.
 - **`smooth_left`**: Eased directional motion blur wipe.
@@ -404,7 +411,7 @@ Stitches multiple raw clips in `Input/` using dynamic visual transitions (swipes
 #### CLI Parameters:
 - `-i, --input-dir <PATH>`: Directory containing source clips (Default: `Input/`).
 - `-o, --output <PATH>`: Target output video path.
-- `-t, --transition <STR>`: Transition style (`slide_left`, `slide_up`, `smooth_left`, `zoom_in`, `circle_crop`, `fade_white`, `pixelize`, `random`).
+- `-t, --transition <STR>`: Transition style (`strobe_flash`, `negative_invert`, `slide_left`, `slide_up`, `smooth_left`, `zoom_in`, `circle_crop`, `fade_white`, `pixelize`, `random`).
 - `-d, --duration <FLOAT>`: Transition length in seconds (Default: `0.22`s).
 - `--auto-sfx / --no-sfx`: Whether to auto-sync whoosh audio effects (Default: `--auto-sfx`).
 - `-r, --res <STR>`: Output canvas resolution (Default: `1080x1920`).
@@ -627,6 +634,91 @@ Applies trending opening IN animations (Hook Pattern Interrupts) and closing OUT
 - `--out-duration <FLOAT>`: Duration of the OUT animation (Default: `1.5`s).
 - `--audio-fade <FLOAT>`: Duration of the closing audio fade-out (Default: `1.5`s).
 - `--in-sfx / --no-in-sfx`: Mix synchronized whoosh/impact sound effect at frame 1 (Default: `--in-sfx`).
+
+---
+
+### Capability 19: Glowing Neon Versus & Price Comparison Badges
+
+Renders viral glowing neon price comparison and versus badges (inspired by MrBeast `$1` vs `$10,000` challenges and high-converting direct-response comparison ads):
+- **Vibrant Neon Styling**: Multi-layer outer neon glow aura (`red`, `green`, `gold`, `cyan`, `yellow`, `purple`, `white`), high-contrast dark pill backplate, and crisp dual-stroke outlines.
+- **Spring Bounce Entrance Physics**: Elastic overshoot entrance animation (`ease_out_back`) with subtle breathing glow pulse while on screen.
+- **Dual Versus or Single Price Tag Mode**:
+  - `versus`: Left badge, right badge, and optional center metallic `VS` token.
+  - `single`: Standalone glowing price callout (e.g. `$10,000` or `$1`).
+- **Placement Presets**: `top` (Y=18%), `chest` (Y=62%), `bottom` (Y=82%), `center`, or exact `--y <INT>`.
+- **Synchronized SFX**: Automatically mixes reveal sound effect (`Power Up.mp3`, `Scene Change.mp3`, `UI Beep 5.wav`) at start timestamp.
+
+#### CLI Execution:
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_versus_badge.py `
+  -i "Input/raw.mp4" `
+  -o "Output/comparison_tagged.mp4" `
+  --left-label "$1" --left-color red `
+  --right-label "$10k" --right-color green `
+  --pos top `
+  --start 0.5 --duration 4.0 `
+  --sfx
+```
+
+---
+
+### Capability 20: Guarantee & Risk-Reversal Trust Seals
+
+Renders high-converting animated trust seals, 90-Day Money-Back Guarantee rosettes, and certified badges (inspired by Study 2 Pavra Red Light Therapy and top-performing e-commerce UGC):
+- **Detailed Rosette Medallion**: Scalloped teeth outer ring, concentric gold borders, dark charcoal/wine core, 5 gold stars, and hanging crimson/gold ribbon tails.
+- **Specular Light Sweep (`--animate sheen`)**: Periodic diagonal highlight beam sweeping across the badge face every 2.5 seconds to catch viewers' attention.
+- **Hypnotic Slow Rotation (`--animate rotate`)**: Continuous 72°/sec rotation of the outer rosette teeth while keeping center text upright.
+- **Themes**: `gold_luxury`, `medical_clean`, `emerald_trust`, `crimson_seal`.
+- **Placements**: `bottom_right` (signature e-commerce placement), `bottom_left`, `top_right`, `top_left`, `center`.
+
+#### CLI Execution:
+```powershell
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_trust_seal.py `
+  -i "Input/raw.mp4" `
+  -o "Output/guarantee_sealed.mp4" `
+  --text "90 DAYS" `
+  --subtext "RISK FREE" `
+  --arc-text "MONEY BACK GUARANTEE" `
+  --theme gold_luxury `
+  --animate sheen `
+  --pos bottom_right `
+  --start 1.0 --duration 5.0
+```
+
+---
+
+### Capability 21: Listicle Section Title Interstitials
+
+Generates high-energy 1.2s–1.5s full-screen chapter title cards for listicles and tip reels ("TIP #1: THE 3-SECOND HOOK", "MISTAKE #2: SLOW PACING") (inspired by Study 3 CapCut Viral Editing Tips):
+- **Slam Zoom Impact Motion**: Overshoot impact bounce (`1.35x -> 0.95x -> 1.0x`) with tilted listicle angle (`--angle -4.0°` to `-6.0°`).
+- **Visual Texture**: Angled caution/tech hazard stripes, dark vertical gradient, radial vignette, pill badge header, multi-line bold impact headline, and bottom step counter (`[STEP 1 OF 3]`).
+- **Two Flexible Operating Modes**:
+  1. **`generate`**: Creates a standalone 1.4s `.mp4` title card with synchronized impact SFX (`SLAP SFX.mp3`, `Buzz - Whoosh.wav`).
+  2. **`insert`**: Automatically slices an existing video at `--at <SECONDS>` and splices the full-screen interstitial in place with seamless audio/video concatenation.
+
+#### CLI Execution:
+```powershell
+# 1. Generate standalone title card:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/create_interstitial.py generate `
+  -o "Output/tip1_interstitial.mp4" `
+  --tag "TIP #1" `
+  --headline "THE 3-SECOND HOOK" `
+  --sub "Never let the viewer look away" `
+  --step "STEP 1 OF 3" `
+  --theme yellow_punch `
+  --duration 1.4
+
+# 2. Slice and splice directly into existing video at 14.5s:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/create_interstitial.py insert `
+  -i "Input/full_reel.mp4" `
+  -o "Output/full_reel_with_tip1.mp4" `
+  --at 14.5 `
+  --tag "TIP #1" `
+  --headline "THE 3-SECOND HOOK" `
+  --sub "Never let the viewer look away" `
+  --theme yellow_punch
+```
+
 
 
 

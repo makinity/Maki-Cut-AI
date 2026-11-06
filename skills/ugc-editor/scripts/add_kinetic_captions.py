@@ -231,44 +231,95 @@ def detect_tier1_headlines(
         
     return selected_headlines
 
+def parse_suppress_cues(cues_str: Optional[str]) -> List[Tuple[float, float]]:
+    """Parse comma-separated suppression time ranges, e.g. '41.8-43.5, 50.0-52.0'."""
+    if not cues_str:
+        return []
+    intervals = []
+    for part in cues_str.split(","):
+        part = part.strip()
+        if "-" in part:
+            parts = part.split("-", 1)
+            try:
+                s_val = float(parts[0].strip())
+                e_val = float(parts[1].strip())
+                if e_val > s_val:
+                    intervals.append((s_val, e_val))
+            except ValueError:
+                pass
+    return intervals
+
+def is_time_suppressed(t_start: float, t_end: float, intervals: List[Tuple[float, float]]) -> bool:
+    """Check if a time window overlaps with any suppression interval."""
+    for s_sup, e_sup in intervals:
+        if max(t_start, s_sup) < min(t_end, e_sup):
+            return True
+    return False
+
 def build_dual_layer_ass(
     chunks: List[List[Dict[str, Any]]],
     headlines: List[Dict[str, Any]],
     output_ass_path: Path,
     style_name: str = "brand_gold",
     headline_pos: str = "top",
-    custom_headline_y: Optional[int] = None
+    custom_headline_y: Optional[int] = None,
+    suppress_intervals: Optional[List[Tuple[float, float]]] = None,
+    pill_bg: bool = False,
+    angle: float = 0.0,
+    all_caps: bool = True
 ):
     """
     Constructs an ASS subtitle file with two independent visual layers:
-      1. LowerThird: Continuous spoken dialogue with word pop & active highlight.
+      1. LowerThird/Chest: Spoken dialogue with kinetic word pop or single-word pop.
       2. Headline: Bold Archivo Black kinetic labels with elastic spring-physics
                    positioned safely (Top Safe Zone Y=340 or Chest Y=1260).
     """
+    suppress_intervals = suppress_intervals or []
+
     # Color mapping: ASS format &HAABBGGRR&
-    if style_name == "hormozi":
+    font_name = "Roboto Mono"
+    font_size = 68
+    margin_v = 420
+    border_style = 3 if pill_bg else 1
+    outline_size = 12.0 if pill_bg else 5.0
+    shadow_size = 0.0 if pill_bg else 2.0
+
+    if style_name == "single_pop":
+        # Winning Direct-Response UGC Standard (Pavra Red Light / online.jobs)
+        # Clean, extra-bold off-white cream font centered on upper chest
+        font_name = "Montserrat"
+        font_size = 84
+        accent_color = "&H00F0F8F8&"   # Cream / Off-White
+        text_color = "&H00F0F8F8&"     # Off-White
+        headline_color = "&H0014FF39&" # Neon Green
+        outline_color = "&H99000000&" if pill_bg else "&H000C0C0C&"
+        shadow_color = "&H70000000&"
+        margin_v = 860                 # Chest safe zone (Y ≈ 1060)
+        outline_size = 14.0 if pill_bg else 6.5
+        shadow_size = 0.0 if pill_bg else 3.0
+    elif style_name == "hormozi":
         accent_color = "&H0000FFFF&"   # Bright Yellow
         text_color = "&H00FFFFFF&"     # White
         headline_color = "&H0014FF39&" # Neon Green
-        outline_color = "&H00000000&"  # Pure Black
+        outline_color = "&H99000000&" if pill_bg else "&H00000000&"  # Pure Black
         shadow_color = "&H80000000&"
     elif style_name == "clean_white":
         accent_color = "&H001050FF&"   # Hot Red
         text_color = "&H00FFFFFF&"
         headline_color = "&H0000E5FF&" # Electric Yellow
-        outline_color = "&H00070707&"
+        outline_color = "&H99070707&" if pill_bg else "&H00070707&"
         shadow_color = "&H80070707&"
     elif style_name == "neon_cyan":
         accent_color = "&H00FFFF00&"   # Electric Cyan
         text_color = "&H00FFFFFF&"
         headline_color = "&H00FF3399&" # Neon Magenta
-        outline_color = "&H00070707&"
+        outline_color = "&H99070707&" if pill_bg else "&H00070707&"
         shadow_color = "&H80070707&"
     else:  # "brand_gold" (Default premium UGC)
         accent_color = "&H004CABD6&"   # Gold #D6AB4C
         text_color = "&H00E8F0F4&"     # Cream #F4F0E8
         headline_color = "&H004CABD6&" # Gold #D6AB4C
-        outline_color = "&H00070707&"  # Black #070707
+        outline_color = "&H99070707&" if pill_bg else "&H00070707&"
         shadow_color = "&H9024333D&"   # Dark Brown #3D3324
 
     # Determine Safe Headline Y Position (Canvas 1080x1920)
@@ -282,8 +333,9 @@ def build_dual_layer_ass(
 
     # Elastic spring pop animation for headlines (Overshoot 112% -> 96% -> 100%)
     # Clamped with smooth 180ms fade-out
+    rot_tag = f"\\frz{angle:.1f}" if angle != 0.0 else ""
     headline_anim = (
-        f"{{\\pos(540,{headline_y})"
+        f"{{\\pos(540,{headline_y}){rot_tag}"
         r"\fscx75\fscy75"
         r"\t(0,80,\fscx112\fscy112)"
         r"\t(80,150,\fscx96\fscy96)"
@@ -301,20 +353,25 @@ WrapStyle: 2
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: LowerThird,Roboto Mono,68,{text_color},&H000000FF,{outline_color},{shadow_color},-1,0,0,0,100,100,0,0,1,5.0,2.0,2,30,30,420,1
-Style: Headline,Archivo Black,110,{headline_color},&H000000FF,{outline_color},{shadow_color},-1,0,0,0,86,100,2,0,1,8.0,6.0,5,40,40,0,1
+Style: LowerThird,{font_name},{font_size},{text_color},&H000000FF,{outline_color},{shadow_color},-1,0,0,0,100,100,0,{angle:.1f},{border_style},{outline_size:.1f},{shadow_size:.1f},2,30,30,{margin_v},1
+Style: Headline,Archivo Black,110,{headline_color},&H000000FF,{outline_color},{shadow_color},-1,0,0,0,86,100,2,{angle:.1f},1,8.0,6.0,5,40,40,0,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
     events = []
 
-    # 1. Render Layer 0: Continuous Lower-Third Captions
+    # 1. Render Layer 0: Continuous Lower-Third / Chest Captions
     for chunk in chunks:
         if not chunk:
             continue
+        chunk_start = chunk[0]["start"]
         chunk_end = chunk[-1]["end"]
         
+        # Check suppression exclusion zones (e.g. over screencasts or detailed UI)
+        if is_time_suppressed(chunk_start, chunk_end, suppress_intervals):
+            continue
+
         for active_idx, active_word in enumerate(chunk):
             w_start = active_word["start"]
             w_end = chunk[active_idx + 1]["start"] if active_idx + 1 < len(chunk) else chunk_end
@@ -323,9 +380,12 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 
             line_parts = []
             for idx, word_obj in enumerate(chunk):
-                raw = word_obj["word"].upper()
-                if idx == active_idx:
-                    # Active spoken word: Pop scale (115% -> 100%) + Accent Color
+                raw = word_obj["word"].upper() if all_caps else word_obj["word"]
+                if style_name == "single_pop":
+                    # Rapid single-word burst with snappy scale pop (112% -> 100%)
+                    word_str = f"{{\\c{text_color}\\t(0,75,\\fscx112\\fscy112)\\t(75,130,\\fscx100\\fscy100)}}{raw}{{\\r}}"
+                elif idx == active_idx:
+                    # Active spoken word in multi-word line: Pop scale (114% -> 100%) + Accent Color
                     word_str = f"{{\\c{accent_color}\\t(0,90,\\fscx114\\fscy114)}}{raw}{{\\r}}"
                 else:
                     word_str = f"{{\\c{text_color}}}{raw}{{\\r}}"
@@ -336,6 +396,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 
     # 2. Render Layer 1: High-Impact Tier-1 Headline Labels (Only 3-4 Curated Moments)
     for hl in headlines:
+        # Check suppression for headline
+        if is_time_suppressed(hl["start"], hl["end"], suppress_intervals):
+            continue
         h_start = format_ass_time(hl["start"])
         h_end = format_ass_time(hl["end"])
         text = f"{headline_anim}{hl['text']}"
@@ -358,8 +421,12 @@ def generate_captions(
     cooldown: float = typer.Option(9.0, "--cooldown", help="Minimum cooldown seconds between headline labels (default: 9.0s)"),
     headline_pos: str = typer.Option("top", "--headline-pos", help="Face-safe headline position: 'top' (Y=340, above forehead) or 'chest' (Y=1260, below chin)"),
     headline_y: Optional[int] = typer.Option(None, "--headline-y", help="Exact custom Y coordinate for headline (e.g. 340, 1260)"),
-    style: str = typer.Option("brand_gold", "--style", "-s", help="Visual style: 'brand_gold', 'hormozi', 'clean_white', 'neon_cyan'"),
-    words_per_line: int = typer.Option(3, "--max-words", "-w", help="Words displayed per lower-third chunk (1-4)"),
+    style: str = typer.Option("brand_gold", "--style", "-s", help="Visual style: 'brand_gold', 'hormozi', 'clean_white', 'neon_cyan', 'single_pop'"),
+    words_per_line: Optional[int] = typer.Option(None, "--max-words", "-w", help="Words displayed per chunk (default: 1 for single_pop, 3 for other styles)"),
+    suppress_cues: Optional[str] = typer.Option(None, "--suppress-cues", help="Comma-separated time ranges to mute captions over screencasts (e.g. '41.8-43.5, 50.0-52.0')"),
+    pill_bg: bool = typer.Option(False, "--pill-bg", help="Wrap captions in a dark rounded pill container for contrast over bright web screencasts"),
+    angle: float = typer.Option(0.0, "--angle", help="Tilt angle in degrees for slanted/tilted text (e.g. -6.0)"),
+    all_caps: bool = typer.Option(True, "--all-caps/--no-all-caps", help="Convert text to ALL-CAPS (use --no-all-caps for natural lowercase/sentence-case)"),
     model_size: str = typer.Option("base", "--model", "-m", help="Whisper model: tiny, base, small"),
     burn_in: bool = typer.Option(True, "--burn/--no-burn", help="Burn captions directly into video")
 ):
@@ -381,9 +448,17 @@ def generate_captions(
         output_file.parent.mkdir(parents=True, exist_ok=True)
         
     ass_path = output_dir / f"{input_file.stem}_captions.ass"
+
+    # Default word burst length
+    effective_words_per_line = words_per_line if words_per_line is not None else (1 if style == "single_pop" else 3)
     
     # 1. Parse user pinpoints if provided
     user_pinpoints_list = [p.strip() for p in pinpoints.split(",")] if pinpoints else None
+
+    # Parse suppression intervals
+    suppress_intervals = parse_suppress_cues(suppress_cues)
+    if suppress_intervals:
+        console.print(f"[yellow]Muting captions across {len(suppress_intervals)} suppression intervals (UI-safe): {suppress_intervals}[/yellow]")
 
     # 2. Transcribe speech with microsecond timestamps
     words = transcribe_audio(input_file, model_size=model_size)
@@ -391,9 +466,9 @@ def generate_captions(
         console.print("[yellow]Warning: No speech detected in video audio stream.[/yellow]")
         return
         
-    # 3. Chunk words into short Lower-Third UGC phrases
-    chunks = chunk_words(words, max_words=words_per_line)
-    console.print(f"[cyan]Created {len(chunks)} Lower-Third subtitle phrases ({words_per_line} words/line).[/cyan]")
+    # 3. Chunk words into short Lower-Third / Chest UGC phrases
+    chunks = chunk_words(words, max_words=effective_words_per_line)
+    console.print(f"[cyan]Created {len(chunks)} subtitle phrases ({effective_words_per_line} word(s)/line).[/cyan]")
 
     # 4. Detect and filter Tier-1 Headline Labels with strict spacing & cooldown
     headlines = detect_tier1_headlines(
@@ -410,17 +485,24 @@ def generate_captions(
         output_ass_path=ass_path,
         style_name=style,
         headline_pos=headline_pos,
-        custom_headline_y=headline_y
+        custom_headline_y=headline_y,
+        suppress_intervals=suppress_intervals,
+        pill_bg=pill_bg,
+        angle=angle,
+        all_caps=all_caps
     )
 
     # 6. Burn-in via FFmpeg with Bit-Exact Audio Copy (-c:a copy)
     if burn_in:
         console.print("[cyan]Burning dual-layer kinetic captions into video via FFmpeg...[/cyan]")
-        rel_ass = str(ass_path.as_posix())
-        
-        # Check fonts directory
-        fonts_param = "fontsdir=fonts:" if Path("fonts").exists() else ""
-        vf_filter = f"{fonts_param}ass='{rel_ass}'"
+        try:
+            rel_ass = ass_path.relative_to(Path.cwd()).as_posix()
+        except ValueError:
+            rel_ass = str(ass_path).replace("\\", "/").replace(":", "\\:")
+            
+        fonts_dir = Path("fonts")
+        fonts_param = f":fontsdir='{fonts_dir.as_posix()}'" if fonts_dir.exists() else ""
+        vf_filter = f"ass=filename='{rel_ass}'{fonts_param}"
         
         cmd = [
             ffmpeg_exe,
@@ -440,7 +522,8 @@ def generate_captions(
             console.print(f"\n[bold green]Success![/bold green] Video saved to: [bold]{output_file}[/bold]")
         except subprocess.CalledProcessError as e:
             console.print(f"[yellow]FFmpeg 'ass' filter fallback to 'subtitles'...[/yellow]")
-            cmd[4] = f"{fonts_param}subtitles='{rel_ass}'"
+            vf_index = cmd.index("-vf") + 1
+            cmd[vf_index] = f"subtitles=filename='{rel_ass}'{fonts_param}"
             subprocess.run(cmd, check=True)
             console.print(f"\n[bold green]Success![/bold green] Saved to: [bold]{output_file}[/bold]")
 
