@@ -21,6 +21,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from ui.agent_bridge import detect_available_agents, dispatch_agent_prompt
+import ui.db as db
 
 
 # Ensure utf-8
@@ -32,6 +33,14 @@ if sys.platform == "win32":
         pass
 
 app = FastAPI(title="UGC Editor AI Dashboard")
+
+@app.on_event("startup")
+def on_startup():
+    db.init_db()
+
+@app.get("/api/db/health")
+def db_health_check():
+    return db.get_db_health()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 INPUT_DIR = BASE_DIR / "Input"
@@ -433,157 +442,89 @@ class RenameProjectPayload(BaseModel):
 
 @app.get("/api/projects")
 def list_projects():
-    ensure_default_projects()
-    projects = []
-    for f in PROJECTS_DIR.glob("*.json"):
-        try:
-            with open(f, "r", encoding="utf-8") as pf:
-                data = json.load(pf)
-                projects.append(data)
-        except Exception as e:
-            print(f"Error reading project {f}: {e}")
-    projects.sort(key=lambda p: p.get("updated_at", ""), reverse=True)
+    projects = db.get_all_projects()
     return {"status": "ok", "projects": projects}
 
 @app.post("/api/projects/new")
 def create_project(payload: CreateProjectPayload):
-    proj_id = f"proj_{int(datetime.now(timezone.utc).timestamp())}"
-    now_iso = datetime.now(timezone.utc).isoformat()
-    name = payload.name.strip()
-    if not name:
-        name = "Untitled Project"
-    if not name.endswith(".capcut"):
-        name += ".capcut"
-    
-    preset = payload.preset or "viral_hook"
-    caption_style = "biochroma" if preset == "biochroma" else ("tiktok_bold" if preset == "tiktok_bold" else "hormozi")
-    
-    gradient_options = [
-        "from-blue-600 via-indigo-700 to-slate-900",
-        "from-emerald-600 via-teal-700 to-slate-900",
-        "from-amber-500 via-rose-700 to-slate-900",
-        "from-purple-600 via-fuchsia-700 to-slate-900"
-    ]
-    existing_count = len(list(PROJECTS_DIR.glob("*.json")))
-    grad = gradient_options[existing_count % len(gradient_options)]
-
-    new_proj = {
-        "id": proj_id,
-        "name": name,
-        "aspect_ratio": payload.aspect_ratio or "9:16",
-        "updated_at": now_iso,
-        "duration": 0.0,
-        "clips_count": 0,
-        "resolution": "1080x1920" if payload.aspect_ratio == "9:16" else ("1920x1080" if payload.aspect_ratio == "16:9" else "1080x1080"),
-        "thumbnail_gradient": grad,
-        "category": "biochroma" if "biochroma" in name.lower() or preset == "biochroma" else "ugc",
-        "settings": {
-            "preset": preset,
-            "caption_style": caption_style,
-            "caption_font": "Roboto-Bold" if caption_style == "biochroma" else "Inter-Bold",
-            "caption_size": 78 if caption_style == "biochroma" else 44,
-            "caption_color": "#FFFFFF",
-            "caption_stroke": "#181818",
-            "caption_stroke_width": 4.0 if caption_style == "biochroma" else 2.0,
-            "caption_margin_v": 520 if caption_style == "biochroma" else 200,
-            "caption_wrap_style": 2 if caption_style == "biochroma" else 0,
-            "grade": "vibrant_pop",
-            "bgm_track": "",
-            "bgm_volume": 0.18
-        },
-        "clips": [],
-        "timelineTexts": [
-            {"id": f"txt_{proj_id}_1", "content": "NEW PROJECT HEADING", "start": 0.0, "duration": 4.0, "style": caption_style}
-        ],
-        "timelineEffects": [],
-        "timelineSfx": []
-    }
-
-    proj_file = PROJECTS_DIR / f"{proj_id}.json"
-    with open(proj_file, "w", encoding="utf-8") as f:
-        json.dump(new_proj, f, indent=2)
-
-    current_settings["current_project_id"] = proj_id
-    current_settings["current_project_name"] = name
-    current_settings["timeline_clips"] = []
+    new_proj = db.create_project(payload.name, payload.aspect_ratio or "9:16", payload.preset or "viral_hook")
+    current_settings["current_project_id"] = new_proj["id"]
+    current_settings["current_project_name"] = new_proj["name"]
+    current_settings["timeline_clips"] = new_proj.get("clips", [])
     if "settings" in new_proj:
         current_settings.update(new_proj["settings"])
-
     return {"status": "ok", "project": new_proj}
 
 @app.post("/api/projects/open")
 def open_project(payload: ProjectIdPayload):
-    proj_file = PROJECTS_DIR / f"{payload.id}.json"
-    if not proj_file.exists():
-        raise HTTPException(status_code=404, detail="Project not found")
-    
-    with open(proj_file, "r", encoding="utf-8") as f:
-        proj = json.load(f)
-    
-    proj["updated_at"] = datetime.now(timezone.utc).isoformat()
-    with open(proj_file, "w", encoding="utf-8") as f:
-        json.dump(proj, f, indent=2)
-
+    proj = db.open_project(payload.id)
+    if not proj:
+        raise HTTPException(status_code=404, detail="Project not found in MySQL")
     current_settings["current_project_id"] = proj["id"]
     current_settings["current_project_name"] = proj["name"]
     current_settings["timeline_clips"] = proj.get("clips", [])
     if "settings" in proj:
         current_settings.update(proj["settings"])
-
     return {"status": "ok", "project": proj}
 
 @app.post("/api/projects/duplicate")
 def duplicate_project(payload: ProjectIdPayload):
-    src_file = PROJECTS_DIR / f"{payload.id}.json"
-    if not src_file.exists():
-        raise HTTPException(status_code=404, detail="Source project not found")
-    
-    with open(src_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    
-    new_id = f"proj_{int(datetime.now(timezone.utc).timestamp())}"
-    now_iso = datetime.now(timezone.utc).isoformat()
-    data["id"] = new_id
-    data["name"] = f"Copy of {data.get('name', 'Project')}"
-    data["updated_at"] = now_iso
-
-    dst_file = PROJECTS_DIR / f"{new_id}.json"
-    with open(dst_file, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
-    return {"status": "ok", "project": data}
+    cloned = db.duplicate_project(payload.id)
+    if not cloned:
+        raise HTTPException(status_code=404, detail="Source project not found in MySQL")
+    return {"status": "ok", "project": cloned}
 
 @app.post("/api/projects/rename")
 def rename_project(payload: RenameProjectPayload):
-    proj_file = PROJECTS_DIR / f"{payload.id}.json"
-    if not proj_file.exists():
-        raise HTTPException(status_code=404, detail="Project not found")
-    
-    with open(proj_file, "r", encoding="utf-8") as f:
-        data = json.load(f)
-    
-    name = payload.name.strip()
-    if not name:
-        name = "Untitled Project"
-    if not name.endswith(".capcut"):
-        name += ".capcut"
-
-    data["name"] = name
-    data["updated_at"] = datetime.now(timezone.utc).isoformat()
-    with open(proj_file, "w", encoding="utf-8") as f:
-        json.dump(data, f, indent=2)
-
+    ok = db.rename_project(payload.id, payload.name)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Project not found in MySQL")
+    proj = db.get_project(payload.id)
     if current_settings.get("current_project_id") == payload.id:
-        current_settings["current_project_name"] = name
-
-    return {"status": "ok", "project": data}
+        current_settings["current_project_name"] = proj["name"]
+    return {"status": "ok", "project": proj}
 
 @app.post("/api/projects/delete")
 def delete_project(payload: ProjectIdPayload):
-    proj_file = PROJECTS_DIR / f"{payload.id}.json"
-    if proj_file.exists():
-        proj_file.unlink()
+    db.delete_project(payload.id)
     return {"status": "ok", "deleted_id": payload.id}
+
+class SaveProjectPayload(BaseModel):
+    id: str
+    name: Optional[str] = None
+    clips: List[Dict[str, Any]] = []
+    timelineTexts: List[Dict[str, Any]] = []
+    timelineEffects: List[Dict[str, Any]] = []
+    timelineSfx: List[Dict[str, Any]] = []
+    settings: Dict[str, Any] = {}
+
+@app.post("/api/projects/save")
+def save_project(payload: SaveProjectPayload):
+    proj_id = payload.id or current_settings.get("current_project_id")
+    if not proj_id:
+        raise HTTPException(status_code=400, detail="Missing project id")
+    
+    ok = db.save_project_timeline(
+        project_id=proj_id,
+        clips=payload.clips,
+        timelineTexts=payload.timelineTexts,
+        timelineEffects=payload.timelineEffects,
+        timelineSfx=payload.timelineSfx,
+        settings=payload.settings,
+        name=payload.name
+    )
+    if not ok:
+        raise HTTPException(status_code=500, detail="Failed to save project to MySQL")
+
+    current_settings["current_project_id"] = proj_id
+    if payload.name:
+        current_settings["current_project_name"] = payload.name
+    current_settings["timeline_clips"] = payload.clips
+    if payload.settings:
+        current_settings.update(payload.settings)
+
+    proj = db.get_project(proj_id)
+    return {"status": "ok", "message": "Saved to MySQL", "project": proj}
 
 @app.get("/api/project")
 def get_project():
@@ -638,7 +579,8 @@ def get_project():
                 "speed_curve": curve_meta,
                 "mask": mask_meta,
                 "tracking": current_settings.get("clip_tracking", {}).get(c.name),
-                "cutout": current_settings.get("clip_cutouts", {}).get(c.name)
+                "cutout": current_settings.get("clip_cutouts", {}).get(c.name),
+                "animation": current_settings.get("clip_animations", {}).get(c.name, {"in_type": "none", "in_dur": 0.5, "out_type": "none", "out_dur": 0.5, "combo_type": "none"})
             })
         current_settings["timeline_clips"] = clips_data
 

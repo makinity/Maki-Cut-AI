@@ -63,6 +63,90 @@
     html.dark ::-webkit-scrollbar-thumb { background: #334155; }
     ::-webkit-scrollbar-thumb:hover { background: #1683DF; }
 
+    /* Multi-Track Timeline Smooth Scroller (CapCut 1:1 Horizontal Scrollbar) */
+    #timelineScrollArea {
+      scrollbar-width: thin;
+      scrollbar-color: #94A3B8 rgba(0, 0, 0, 0.05);
+    }
+    html.dark #timelineScrollArea {
+      scrollbar-color: #475569 rgba(255, 255, 255, 0.05);
+    }
+    #timelineScrollArea::-webkit-scrollbar {
+      height: 9px;
+      width: 9px;
+    }
+    #timelineScrollArea::-webkit-scrollbar-track {
+      background: rgba(100, 116, 139, 0.1);
+      border-radius: 4px;
+    }
+    #timelineScrollArea::-webkit-scrollbar-thumb {
+      background: #94A3B8;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    html.dark #timelineScrollArea::-webkit-scrollbar-thumb {
+      background: #475569;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+    }
+    #timelineScrollArea::-webkit-scrollbar-thumb:hover {
+      background: #1683DF;
+    }
+
+    /* CapCut 1:1 Video Clip Animations (Keyframes & Live Preview) */
+    @keyframes capcut-fade-in { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes capcut-fade-out { from { opacity: 1; } to { opacity: 0; } }
+    @keyframes capcut-zoom-in { from { transform: scale(0.65); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes capcut-zoom-out { from { transform: scale(1.35); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes capcut-zoom-out-exit { from { transform: scale(1); opacity: 1; } to { transform: scale(0.65); opacity: 0; } }
+    @keyframes capcut-zoom-in-exit { from { transform: scale(1); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+    @keyframes capcut-slide-right { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes capcut-slide-left { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    @keyframes capcut-slide-up { from { transform: translateY(100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes capcut-slide-down { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes capcut-spin-cw { from { transform: rotate(-360deg) scale(0.5); opacity: 0; } to { transform: rotate(0deg) scale(1); opacity: 1; } }
+    @keyframes capcut-spin-ccw { from { transform: rotate(0deg) scale(1); opacity: 1; } to { transform: rotate(360deg) scale(0.5); opacity: 0; } }
+    @keyframes capcut-pop-up { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+    @keyframes capcut-pop-down { 0% { transform: scale(1); opacity: 1; } 30% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(0.5); opacity: 0; } }
+    @keyframes capcut-wipe-right { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+    @keyframes capcut-wipe-left { from { clip-path: inset(0 0 0 0); } to { clip-path: inset(0 100% 0 0); } }
+    @keyframes capcut-rock-in { 0% { transform: rotate(-15deg) scale(0.8); opacity: 0; } 60% { transform: rotate(5deg) scale(1.02); } 100% { transform: rotate(0deg) scale(1); opacity: 1; } }
+    @keyframes capcut-fall-down { from { transform: translateY(0) rotate(0deg); opacity: 1; } to { transform: translateY(120%) rotate(10deg); opacity: 0; } }
+    @keyframes capcut-swing { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(3deg); } 75% { transform: rotate(-3deg); } }
+    @keyframes capcut-shake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-4px, 4px); } 40% { transform: translate(4px, -4px); } 60% { transform: translate(-3px, -2px); } 80% { transform: translate(3px, 2px); } }
+    @keyframes capcut-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    @keyframes capcut-wobble { 0%, 100% { transform: scale(1) rotate(0deg); } 30% { transform: scale(1.03) rotate(-2deg); } 70% { transform: scale(1.03) rotate(2deg); } }
+
+    .anim-in-fade-in { animation: capcut-fade-in 0.6s ease-out forwards; }
+    .anim-in-zoom-in { animation: capcut-zoom-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-in-zoom-out { animation: capcut-zoom-out 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-in-slide-right { animation: capcut-slide-right 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-in-slide-left { animation: capcut-slide-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-in-slide-up { animation: capcut-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-in-slide-down { animation: capcut-slide-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-in-spin-cw { animation: capcut-spin-cw 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-in-pop-up { animation: capcut-pop-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+    .anim-in-wipe-right { animation: capcut-wipe-right 0.5s ease-out forwards; }
+    .anim-in-rock-in { animation: capcut-rock-in 0.6s ease-out forwards; }
+
+    .anim-out-fade-out { animation: capcut-fade-out 0.6s ease-in forwards; }
+    .anim-out-zoom-out { animation: capcut-zoom-out-exit 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-out-zoom-in { animation: capcut-zoom-in-exit 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-out-slide-right { animation: capcut-slide-right 0.5s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards; }
+    .anim-out-slide-left { animation: capcut-slide-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards; }
+    .anim-out-slide-up { animation: capcut-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards; }
+    .anim-out-slide-down { animation: capcut-slide-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) reverse forwards; }
+    .anim-out-spin-ccw { animation: capcut-spin-ccw 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .anim-out-pop-down { animation: capcut-pop-down 0.5s ease-in forwards; }
+    .anim-out-wipe-left { animation: capcut-wipe-left 0.5s ease-in forwards; }
+    .anim-out-fall-down { animation: capcut-fall-down 0.6s cubic-bezier(0.55, 0, 1, 0.45) forwards; }
+
+    .anim-combo-swing { animation: capcut-swing 1s ease-in-out infinite; }
+    .anim-combo-shake { animation: capcut-shake 0.5s ease-in-out; }
+    .anim-combo-pulse { animation: capcut-pulse 0.8s ease-in-out infinite; }
+    .anim-combo-wobble { animation: capcut-wobble 0.8s ease-in-out; }
+    .anim-combo-pendulum { animation: capcut-swing 1.2s ease-in-out infinite; }
+    .anim-combo-distort-zoom { animation: capcut-pulse 1s ease-in-out infinite; }
+
     /* Studio Canvas Grid Background (Adaptive Light/Dark Mode) */
     .studio-canvas {
       background-color: #F8FAFC;
@@ -233,6 +317,21 @@
             <span class="text-[9px] font-mono font-bold text-[#1683DF]" x-text="`${agentsList.length} Connected`"></span>
           </div>
           <p class="text-[10px] text-slate-500 dark:text-slate-400 truncate" x-text="`Engine: ${getActiveAgentName()}`"></p>
+        </div>
+
+        <!-- MySQL Database & Local Storage Status Pill -->
+        <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-[#182234] border border-slate-200 dark:border-[#243044] space-y-1">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" :class="dbHealth.connected ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'"></span>
+              <span class="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">MySQL 8.0</span>
+            </div>
+            <span class="text-[9px] font-mono font-bold" :class="dbHealth.connected ? 'text-emerald-500' : 'text-rose-500'" x-text="dbHealth.connected ? 'Port :3306' : 'Offline'"></span>
+          </div>
+          <div class="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+            <span class="truncate" x-text="dbHealth.connected ? `DB: ${dbHealth.database}` : 'MySQL Offline'"></span>
+            <span class="text-[9px] px-1 py-0.2 rounded bg-blue-100 dark:bg-blue-900/40 text-[#1683DF] font-bold">Local CAS</span>
+          </div>
         </div>
 
         <!-- Theme Toggle & Workspace Profile -->
@@ -879,12 +978,11 @@
   <!-- ========================================================================= -->
   <header class="h-12 border-b border-slate-200 dark:border-[#1E293B] bg-white dark:bg-[#111827] px-3 flex items-center justify-between shrink-0 z-30 transition-colors">
     <div class="flex items-center gap-3">
-      <!-- MakiSync Brand Logo & Title -->
-      <div class="flex items-center gap-2.5">
-        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#1683DF] to-[#93CCE9] flex items-center justify-center shadow-md shadow-blue-500/20">
+      <!-- MakiSync Brand Logo Icon -->
+      <div class="flex items-center">
+        <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#1683DF] to-[#93CCE9] flex items-center justify-center shadow-md shadow-blue-500/20" title="Makinity Cut Desktop">
           <i data-lucide="scissors" class="w-4 h-4 text-white font-black"></i>
         </div>
-        <span class="font-display font-extrabold text-xs tracking-wider text-slate-900 dark:text-slate-100">MAKINITY <span class="text-[#1683DF]">CAPCUT AI</span></span>
       </div>
 
       <!-- Return to Projects Hub Button -->
@@ -897,27 +995,19 @@
 
       <div class="h-4 w-px bg-slate-200 dark:bg-[#2E2E35] mx-1"></div>
 
-      <!-- File / Edit Menu Bar -->
-      <div class="hidden md:flex items-center gap-3 text-xs text-slate-600 dark:text-slate-400 font-medium">
-        <button class="hover:text-[#1683DF] transition-colors">File</button>
-        <button class="hover:text-[#1683DF] transition-colors" @click="revertPatch()">Edit</button>
-        <button class="hover:text-[#1683DF] transition-colors" @click="showSafeZone = !showSafeZone">
-          <span :class="showSafeZone ? 'text-[#1683DF] font-bold ring-1 ring-[#1683DF]/30 px-1.5 py-0.5 rounded bg-blue-50 dark:bg-blue-950/40' : ''">Safe-Zones</span>
-        </button>
-        <button class="hover:text-emerald-500 transition-colors flex items-center gap-1 font-semibold" @click="auditBioChromaSpec(); showSpecAuditModal = true" title="Audit BioChroma Client Specifications">
-          <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-500"></i>
-          <span>Check Spec</span>
-        </button>
-      </div>
-
-      <!-- Project Name -->
-      <div class="hidden lg:flex items-center gap-1.5 ml-2 text-xs bg-slate-100 dark:bg-[#182234] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-[#243044]">
+      <!-- Project Name & Save Indicator (Ctrl+S) -->
+      <div class="hidden lg:flex items-center gap-2 ml-2 text-xs bg-slate-100 dark:bg-[#182234] px-2.5 py-1 rounded-lg border border-slate-200 dark:border-[#243044]">
         <i data-lucide="file-video" class="w-3.5 h-3.5 text-[#1683DF]"></i>
-        <input type="text" x-model="projectName" class="bg-transparent border-none text-slate-800 dark:text-slate-200 text-xs focus:outline-none w-36 font-medium">
-        <span class="text-[10px] text-emerald-500 font-mono flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full" :class="wsConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'"></span>
-          <span x-text="wsConnected ? 'Live' : 'Saved'"></span>
-        </span>
+        <input type="text" x-model="projectName" @change="saveCurrentProject(false)"
+               class="bg-transparent border-none text-slate-800 dark:text-slate-200 text-xs focus:outline-none w-36 font-medium"
+               title="Project title (auto-renames on change)">
+        <div class="h-3.5 w-px bg-slate-300 dark:bg-[#2A3B53]"></div>
+        <button @click="saveCurrentProject(true)"
+                class="flex items-center gap-1.5 font-mono text-[10px] text-slate-500 hover:text-[#1683DF] dark:text-slate-400 dark:hover:text-blue-400 transition-colors cursor-pointer"
+                title="Save Project to MySQL (Ctrl+S)">
+          <span class="w-1.5 h-1.5 rounded-full" :class="isSavingProject ? 'bg-amber-400 animate-ping' : 'bg-emerald-500'"></span>
+          <span x-text="isSavingProject ? 'Saving...' : (lastSavedTime ? `Saved ${lastSavedTime}` : 'Save (Ctrl+S)')"></span>
+        </button>
       </div>
     </div>
 
@@ -983,28 +1073,6 @@
               :title="theme === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode'">
         <i :data-lucide="theme === 'light' ? 'moon' : 'sun'" class="w-3.5 h-3.5"></i>
         <span class="capitalize text-[11px]" x-text="theme === 'light' ? 'Dark' : 'Light'"></span>
-      </button>
-
-      <div class="h-4 w-px bg-slate-200 dark:bg-[#2E2E35] mx-0.5"></div>
-
-      <!-- AI Copilot Panel Toggle Button -->
-      <button @click="setActiveTab('ai_copilot')"
-              :class="activeTab === 'ai_copilot' ? 'bg-[#1683DF] text-white font-bold shadow-md shadow-blue-500/25 ring-2 ring-blue-300 dark:ring-blue-500/50' : 'bg-slate-100 dark:bg-[#182234] hover:bg-slate-200 dark:hover:bg-[#243044] text-[#1683DF] border border-slate-200 dark:border-[#243044]'"
-              class="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all"
-              title="Open AI Prompt Panel on the Side">
-        <i data-lucide="bot" class="w-4 h-4"></i>
-        <span>AI Copilot</span>
-        <span class="text-[9px] px-1 py-0.2 rounded bg-black/10 dark:bg-black/40 text-blue-900 dark:text-blue-300 font-mono">PROMPT</span>
-      </button>
-
-      <div class="h-4 w-px bg-slate-200 dark:bg-[#2E2E35] mx-0.5"></div>
-
-      <!-- Undo / Redo -->
-      <button @click="revertPatch()" class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-[#2A2A32] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" title="Undo Last Patch (Ctrl+Z)">
-        <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
-      </button>
-      <button class="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-[#2A2A32] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors" title="Redo (Ctrl+Y)">
-        <i data-lucide="redo-2" class="w-3.5 h-3.5"></i>
       </button>
 
       <div class="h-4 w-px bg-slate-200 dark:bg-[#2E2E35] mx-0.5"></div>
@@ -1524,9 +1592,10 @@
             <span>CLICK VIDEO TO SAMPLE KEY COLOR</span>
           </div>
 
-          <!-- Native HTML5 Video Element with Real-Time Geometric Masking -->
+          <!-- Native HTML5 Video Element with Real-Time Geometric Masking & Clip Animations -->
           <video id="mainVideoPlayer"
                  class="w-full h-full object-cover transition-all"
+                 :class="previewAnimClass"
                  playsinline
                  @timeupdate="onTimeUpdate()"
                  @ended="onEnded()"
@@ -1888,11 +1957,16 @@
           <span class="text-[9px] px-2 py-0.5 rounded bg-slate-100 dark:bg-[#243044] text-slate-700 dark:text-amber-300 font-mono uppercase font-bold" x-text="selectedClip?.speed_curve?.preset || activeCurvePreset"></span>
         </div>
 
-        <!-- Video Sub-Tabs: Basic, Speed, Cutout, Mask, Tracking, Audio -->
-        <div class="grid grid-cols-6 gap-1 bg-slate-100 dark:bg-[#182234] p-1 rounded-lg border border-slate-200 dark:border-[#243044]">
+        <!-- Video Sub-Tabs: Basic, Anim, Speed, Cutout, Mask, Tracking, Audio -->
+        <div class="grid grid-cols-7 gap-1 bg-slate-100 dark:bg-[#182234] p-1 rounded-lg border border-slate-200 dark:border-[#243044]">
           <button @click="videoSubTab = 'transform'"
                   :class="videoSubTab === 'transform' ? 'bg-white dark:bg-[#243044] text-[#1683DF] dark:text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
                   class="py-1 rounded text-[9px] transition-all">Basic</button>
+          <button @click="videoSubTab = 'animation'"
+                  :class="videoSubTab === 'animation' ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                  class="py-1 rounded text-[9px] transition-all flex items-center justify-center gap-0.5">
+            <i data-lucide="sparkles" class="w-2.5 h-2.5"></i> Anim
+          </button>
           <button @click="videoSubTab = 'speed'"
                   :class="videoSubTab === 'speed' ? 'bg-[#1683DF] text-white font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
                   class="py-1 rounded text-[9px] transition-all flex items-center justify-center gap-0.5">
@@ -1927,6 +2001,111 @@
             </div>
             <input type="range" min="1.0" max="2.0" step="0.05" value="1.18"
                    class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+          </div>
+        </div>
+
+        <!-- SUBTAB: CAPCUT 1:1 CLIP ANIMATIONS (In, Out, Combo) -->
+        <div x-show="videoSubTab === 'animation'" class="space-y-3 pt-1">
+          <!-- Animation Category Selector (In / Out / Combo) -->
+          <div class="flex items-center justify-between bg-slate-100 dark:bg-[#182234] p-0.5 rounded-lg border border-slate-200 dark:border-[#243044]">
+            <button @click="animCategory = 'in'"
+                    :class="animCategory === 'in' ? 'bg-white dark:bg-[#243044] text-[#1683DF] dark:text-cyan-300 font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                    class="flex-1 py-1 rounded text-[10px] transition-all flex items-center justify-center gap-1 cursor-pointer">
+              <i data-lucide="log-in" class="w-3 h-3"></i> In
+            </button>
+            <button @click="animCategory = 'out'"
+                    :class="animCategory === 'out' ? 'bg-white dark:bg-[#243044] text-rose-500 dark:text-rose-400 font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                    class="flex-1 py-1 rounded text-[10px] transition-all flex items-center justify-center gap-1 cursor-pointer">
+              <i data-lucide="log-out" class="w-3 h-3"></i> Out
+            </button>
+            <button @click="animCategory = 'combo'"
+                    :class="animCategory === 'combo' ? 'bg-white dark:bg-[#243044] text-amber-500 dark:text-amber-400 font-bold shadow-xs' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                    class="flex-1 py-1 rounded text-[10px] transition-all flex items-center justify-center gap-1 cursor-pointer">
+              <i data-lucide="sparkles" class="w-3 h-3"></i> Combo
+            </button>
+          </div>
+
+          <!-- Animation Duration Slider (CapCut 1:1) -->
+          <div class="bg-slate-50 dark:bg-[#182234] p-2.5 rounded-xl border border-slate-200 dark:border-[#243044] space-y-1.5">
+            <div class="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+              <span class="flex items-center gap-1">
+                <i data-lucide="clock" class="w-3 h-3 text-[#1683DF]"></i>
+                <span x-text="`${animCategory.toUpperCase()} Animation Duration`"></span>
+              </span>
+              <span class="text-[#1683DF] font-mono text-xs" x-text="`${getActiveAnimDuration().toFixed(2)}s`"></span>
+            </div>
+            <input type="range" min="0.1" :max="Math.min(3.0, (selectedClip?.duration || 5.0) / 2)" step="0.05"
+                   :value="getActiveAnimDuration()"
+                   @input="setActiveAnimDuration($event.target.value)"
+                   class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+            <div class="flex justify-between text-[9px] font-mono text-slate-400">
+              <span>0.10s (Snappy)</span>
+              <span>1.00s</span>
+              <span x-text="`${Math.min(3.0, (selectedClip?.duration || 5.0) / 2).toFixed(1)}s (Max)`"></span>
+            </div>
+          </div>
+
+          <!-- Active Animation Status & Clear Button -->
+          <div class="flex items-center justify-between text-[10px] px-1 font-mono">
+            <span class="text-slate-500 dark:text-slate-400 truncate">
+              Active: <strong class="text-slate-800 dark:text-slate-200" x-text="getActiveAnimName()"></strong>
+            </span>
+            <button @click="clearActiveAnimation()"
+                    class="text-rose-500 hover:underline flex items-center gap-0.5 cursor-pointer"
+                    x-show="hasActiveAnimation()">
+              <i data-lucide="x" class="w-2.5 h-2.5"></i> Clear
+            </button>
+          </div>
+
+          <!-- IN ANIMATIONS GRID -->
+          <div x-show="animCategory === 'in'" class="space-y-2">
+            <div class="grid grid-cols-3 gap-1.5 max-h-[300px] overflow-y-auto pr-1">
+              <template x-for="anim in inAnimationsList" :key="anim.id">
+                <button @click="selectClipAnimation('in', anim.id)"
+                        :class="isAnimSelected('in', anim.id) ? 'ring-2 ring-[#1683DF] border-[#1683DF] bg-blue-50 dark:bg-[#152744] text-[#1683DF] dark:text-cyan-300 font-bold' : 'border-slate-200 dark:border-[#243044] bg-white dark:bg-[#161F30] text-slate-700 dark:text-slate-300 hover:border-[#1683DF]/50'"
+                        class="p-2 rounded-xl border text-[10px] flex flex-col items-center gap-1.5 transition-all cursor-pointer group shadow-2xs">
+                  <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
+                       :class="isAnimSelected('in', anim.id) ? 'bg-[#1683DF] text-white shadow-xs' : 'bg-slate-100 dark:bg-[#202B3E] text-slate-500 dark:text-slate-400'">
+                    <i :data-lucide="anim.icon" class="w-3.5 h-3.5"></i>
+                  </div>
+                  <span class="truncate w-full text-center text-[9px]" x-text="anim.name"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <!-- OUT ANIMATIONS GRID -->
+          <div x-show="animCategory === 'out'" class="space-y-2">
+            <div class="grid grid-cols-3 gap-1.5 max-h-[300px] overflow-y-auto pr-1">
+              <template x-for="anim in outAnimationsList" :key="anim.id">
+                <button @click="selectClipAnimation('out', anim.id)"
+                        :class="isAnimSelected('out', anim.id) ? 'ring-2 ring-rose-500 border-rose-500 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-300 font-bold' : 'border-slate-200 dark:border-[#243044] bg-white dark:bg-[#161F30] text-slate-700 dark:text-slate-300 hover:border-rose-400/50'"
+                        class="p-2 rounded-xl border text-[10px] flex flex-col items-center gap-1.5 transition-all cursor-pointer group shadow-2xs">
+                  <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
+                       :class="isAnimSelected('out', anim.id) ? 'bg-rose-500 text-white shadow-xs' : 'bg-slate-100 dark:bg-[#202B3E] text-slate-500 dark:text-slate-400'">
+                    <i :data-lucide="anim.icon" class="w-3.5 h-3.5"></i>
+                  </div>
+                  <span class="truncate w-full text-center text-[9px]" x-text="anim.name"></span>
+                </button>
+              </template>
+            </div>
+          </div>
+
+          <!-- COMBO ANIMATIONS GRID -->
+          <div x-show="animCategory === 'combo'" class="space-y-2">
+            <div class="grid grid-cols-3 gap-1.5 max-h-[300px] overflow-y-auto pr-1">
+              <template x-for="anim in comboAnimationsList" :key="anim.id">
+                <button @click="selectClipAnimation('combo', anim.id)"
+                        :class="isAnimSelected('combo', anim.id) ? 'ring-2 ring-amber-500 border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 font-bold' : 'border-slate-200 dark:border-[#243044] bg-white dark:bg-[#161F30] text-slate-700 dark:text-slate-300 hover:border-amber-400/50'"
+                        class="p-2 rounded-xl border text-[10px] flex flex-col items-center gap-1.5 transition-all cursor-pointer group shadow-2xs">
+                  <div class="w-7 h-7 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110"
+                       :class="isAnimSelected('combo', anim.id) ? 'bg-amber-500 text-white shadow-xs' : 'bg-slate-100 dark:bg-[#202B3E] text-slate-500 dark:text-slate-400'">
+                    <i :data-lucide="anim.icon" class="w-3.5 h-3.5"></i>
+                  </div>
+                  <span class="truncate w-full text-center text-[9px]" x-text="anim.name"></span>
+                </button>
+              </template>
+            </div>
           </div>
         </div>
 
@@ -2655,6 +2834,26 @@
     <!-- Timeline Utility Toolbar (CapCut Pro Tools) -->
     <div class="h-9 border-b border-slate-200 dark:border-[#1E293B] px-3 flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
       <div class="flex items-center gap-1.5">
+        <!-- Undo Tool (Ctrl+Z) -->
+        <button @click="undo()"
+                :disabled="undoStack.length === 0"
+                :class="undoStack.length === 0 ? 'opacity-35 cursor-not-allowed text-slate-400' : 'hover:bg-slate-100 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-200 cursor-pointer'"
+                class="px-2 py-1 rounded-md flex items-center gap-1 transition-all"
+                title="Undo (Ctrl+Z)">
+          <i data-lucide="undo-2" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <!-- Redo Tool (Ctrl+Y) -->
+        <button @click="redo()"
+                :disabled="redoStack.length === 0"
+                :class="redoStack.length === 0 ? 'opacity-35 cursor-not-allowed text-slate-400' : 'hover:bg-slate-100 dark:hover:bg-[#1E293B] text-slate-700 dark:text-slate-200 cursor-pointer'"
+                class="px-2 py-1 rounded-md flex items-center gap-1 transition-all"
+                title="Redo (Ctrl+Y / Ctrl+Shift+Z)">
+          <i data-lucide="redo-2" class="w-3.5 h-3.5"></i>
+        </button>
+
+        <div class="h-4 w-px bg-slate-200 dark:bg-[#2E2E35] mx-0.5"></div>
+
         <!-- Select Tool -->
         <button @click="timelineTool = 'select'"
                 :class="timelineTool === 'select' ? 'bg-blue-50 dark:bg-blue-950/40 text-[#1683DF] font-bold border border-blue-200 dark:border-blue-900' : 'hover:bg-slate-100 dark:hover:bg-[#1E293B]'"
@@ -2664,16 +2863,24 @@
 
         <!-- CapCut 1:1 Razor Split Tool -->
         <button @click="splitElementAtPlayhead()"
-                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-[#182234] hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800 border border-slate-200 dark:border-[#243044] flex items-center gap-1.5 transition-all font-medium text-slate-800 dark:text-slate-200"
-                title="Split Selected Element (Text, Effect, Clip, SFX, BGM) at Playhead (Ctrl+B / S)">
+                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-[#182234] hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-300 dark:hover:border-rose-800 border border-slate-200 dark:border-[#243044] flex items-center gap-1.5 transition-all font-medium text-slate-800 dark:text-slate-200 cursor-pointer"
+                title="Split Selected Element at Playhead (Ctrl+B)">
           <i data-lucide="scissors" class="w-3.5 h-3.5 text-rose-500"></i>
           <span>Split (Ctrl+B)</span>
         </button>
 
+        <!-- CapCut 1:1 Duplicate Tool -->
+        <button @click="duplicateSelectedElement()"
+                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-[#182234] hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-[#1683DF] border border-slate-200 dark:border-[#243044] flex items-center gap-1.5 transition-all font-medium text-slate-800 dark:text-slate-200 cursor-pointer"
+                title="Duplicate Selected Element (Ctrl+D)">
+          <i data-lucide="copy" class="w-3.5 h-3.5 text-[#1683DF]"></i>
+          <span>Duplicate (Ctrl+D)</span>
+        </button>
+
         <!-- CapCut 1:1 Ripple Delete Tool -->
         <button @click="deleteSelectedTimelineItem()"
-                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-[#182234] hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-[#243044] flex items-center gap-1.5 transition-all font-medium text-slate-800 dark:text-slate-200"
-                title="Delete Clip & Ripple Close (Del)">
+                class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-[#182234] hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-600 dark:hover:text-rose-400 border border-slate-200 dark:border-[#243044] flex items-center gap-1.5 transition-all font-medium text-slate-800 dark:text-slate-200 cursor-pointer"
+                title="Delete Selected Item (Del)">
           <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
           <span>Delete (Del)</span>
         </button>
@@ -2722,17 +2929,21 @@
       <!-- Timeline Zoom Slider -->
       <div class="flex items-center gap-2">
         <i data-lucide="zoom-out" class="w-3.5 h-3.5 text-slate-400"></i>
-        <input type="range" min="0.5" max="2.0" step="0.1" x-model="timelineZoom"
-               class="w-20 h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+        <input type="range" min="0.3" max="3.0" step="0.05" x-model.number="timelineZoom"
+               class="w-24 h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]"
+               title="Zoom Timeline (Ctrl + Scroll Wheel)">
         <i data-lucide="zoom-in" class="w-3.5 h-3.5 text-slate-400"></i>
       </div>
     </div>
 
-    <!-- Multi-Track Canvas Area -->
-    <div class="flex-1 flex overflow-x-auto relative" id="timelineScrollArea">
+    <!-- Multi-Track Canvas Area (CapCut 1:1 Horizontal Scrolling & Mouse Wheel) -->
+    <div class="flex-1 flex overflow-x-auto overflow-y-hidden relative select-none"
+         id="timelineScrollArea"
+         @wheel="handleTimelineWheel($event)"
+         @mousedown="startTimelinePan($event)">
       
-      <!-- Track Header Labels (Left Fixed Column) -->
-      <div class="w-28 border-r border-slate-200 dark:border-[#1E293B] bg-slate-50 dark:bg-[#111827] flex flex-col shrink-0 text-[10px] text-slate-500 dark:text-slate-400 font-mono z-20 select-none">
+      <!-- Track Header Labels (Sticky Left Column - Always visible during horizontal scroll) -->
+      <div class="w-28 sticky left-0 z-30 border-r border-slate-200 dark:border-[#1E293B] bg-slate-50/95 dark:bg-[#111827]/95 backdrop-blur-sm flex flex-col shrink-0 text-[10px] text-slate-500 dark:text-slate-400 font-mono select-none shadow-md">
         <div class="h-6 border-b border-slate-200 dark:border-[#1E293B] px-2 flex items-center justify-between font-bold text-slate-700 dark:text-slate-300">Time</div>
         <div class="h-9 border-b border-slate-200 dark:border-[#1E293B] px-2 flex items-center justify-between">T1 Text</div>
         <div class="h-8 border-b border-slate-200 dark:border-[#1E293B] px-2 flex items-center justify-between">V2 Effects</div>
@@ -2741,31 +2952,35 @@
         <div class="h-9 border-b border-slate-200 dark:border-[#1E293B] px-2 flex items-center justify-between">A1 BGM</div>
       </div>
 
-      <!-- Tracks Storyline (Scroller) -->
+      <!-- Tracks Storyline (Scroller - Dynamically Sized by Longest Element & Zoom) -->
       <div id="timelineTracksContainer"
            class="flex-1 relative bg-slate-100/70 dark:bg-[#0B0F17] select-none cursor-crosshair"
-           :style="`min-width: ${Math.max(900, Math.round(1100 * timelineZoom))}px;`"
+           :style="`min-width: ${timelineWidthPx}px; width: ${timelineWidthPx}px;`"
            @click="seekTimelineByClick($event)">
         
-        <!-- Red Playhead Needle -->
-        <div class="playhead-line" :style="`left: ${playheadPercent}%;`">
+        <!-- Red Playhead Needle (Draggable & Synchronized at pxPerSecond) -->
+        <div class="playhead-line" :style="`left: ${Math.round(currentTime * pxPerSecond)}px;`">
           <div class="playhead-handle" @mousedown.stop="startDragPlayhead($event)"></div>
         </div>
 
-        <!-- Timecode Ruler -->
-        <div class="h-6 border-b border-slate-200 dark:border-[#1E293B] bg-slate-100 dark:bg-[#151518] flex items-center px-2 text-[9px] text-slate-500 font-mono">
-          <span class="w-32">00:00</span>
-          <span class="w-32">00:05</span>
-          <span class="w-32">00:10</span>
-          <span class="w-32">00:15</span>
-          <span class="w-32">00:20</span>
+        <!-- Dynamic Timecode Ruler (CapCut 1:1 Scales dynamically across the entire duration) -->
+        <div class="h-6 border-b border-slate-200 dark:border-[#1E293B] bg-slate-100 dark:bg-[#151518] relative select-none overflow-hidden"
+             :style="`width: ${timelineWidthPx}px;`">
+          <template x-for="mark in getRulerMarks()" :key="mark.sec">
+            <div class="absolute top-0 bottom-0 flex flex-col justify-between pointer-events-none"
+                 :style="`left: ${mark.leftPx}px;`">
+              <span class="text-[9px] font-mono text-slate-500 dark:text-slate-400 pl-1 whitespace-nowrap select-none" x-text="mark.label"></span>
+              <div class="w-px h-1.5 bg-slate-300 dark:bg-slate-600"></div>
+            </div>
+          </template>
         </div>
 
         <!-- TRACK 1: Text & Subtitles (CapCut 1:1 Adjustable Duration & Trim) -->
-        <div class="h-9 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-hidden">
+        <div class="h-9 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-hidden"
+             :style="`width: ${timelineWidthPx}px;`">
           <template x-for="txt in timelineTexts" :key="txt.id">
             <div @click.stop="selectTimelineElement('text', txt)"
-                 :style="`position: absolute; left: ${(txt.start / Math.max(1, totalDuration)) * 100}%; width: ${Math.max(5, (txt.duration / Math.max(1, totalDuration)) * 100)}%; min-width: 60px;`"
+                 :style="`position: absolute; left: ${Math.round(txt.start * pxPerSecond)}px; width: ${Math.max(50, Math.round(txt.duration * pxPerSecond))}px;`"
                  :class="selectedTimelineItem && selectedTimelineItem.type === 'text' && selectedTimelineItem.id === txt.id ? 'ring-2 ring-[#1683DF] border-[#1683DF] bg-amber-200 dark:bg-amber-400/40 shadow-sm z-20' : 'border-amber-300 dark:border-amber-400/60 bg-amber-100 dark:bg-amber-400/20 z-10'"
                  class="h-7 rounded-md border text-amber-900 dark:text-amber-200 text-[10px] font-bold flex items-center justify-between px-1.5 cursor-pointer shadow-xs group transition-all select-none overflow-visible"
                  title="Click to select text layer • Drag handles to expand/cut duration • Drag center to move">
@@ -2826,10 +3041,11 @@
         </div>
 
         <!-- TRACK 2: Video Overlay Effects (CapCut 1:1 Adjustable Duration & Trim) -->
-        <div class="h-8 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-hidden">
+        <div class="h-8 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-hidden"
+             :style="`width: ${timelineWidthPx}px;`">
           <template x-for="fx in timelineEffects" :key="fx.id">
             <div @click.stop="selectTimelineElement('effect', fx)"
-                 :style="`position: absolute; left: ${(fx.start / Math.max(1, totalDuration)) * 100}%; width: ${Math.max(5, (fx.duration / Math.max(1, totalDuration)) * 100)}%; min-width: 60px;`"
+                 :style="`position: absolute; left: ${Math.round(fx.start * pxPerSecond)}px; width: ${Math.max(50, Math.round(fx.duration * pxPerSecond))}px;`"
                  :class="selectedTimelineItem && selectedTimelineItem.type === 'effect' && selectedTimelineItem.id === fx.id ? 'ring-2 ring-purple-500 border-purple-500 bg-purple-200 dark:bg-purple-500/40 shadow-sm z-20' : 'border-purple-300 dark:border-purple-500/50 bg-purple-100 dark:bg-purple-500/20 z-10'"
                  class="h-6 rounded border text-purple-900 dark:text-purple-200 text-[9px] font-mono flex items-center justify-between px-1.5 cursor-pointer transition-all group shadow-2xs select-none overflow-visible"
                  title="Click to select effect • Drag handles to expand/cut duration • Drag center to move">
@@ -2881,11 +3097,15 @@
           </template>
         </div>
 
-        <!-- TRACK 3: Video Clips & Manual Trim/Cut (CapCut 1:1) -->
-        <div class="h-12 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center p-1 gap-1">
-          <template x-for="(clip, idx) in clips" :key="clip.id || clip.name">
-            <div class="h-full flex items-center relative"
-                 :style="'flex: ' + (clip.duration || 1) + ' 0 0; min-width: 90px;'">
+        <!-- TRACK 3: Video Clips & Manual Trim/Cut (CapCut 1:1 Aligned to Timeline Duration) -->
+        <div class="h-12 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-visible"
+             :style="`width: ${timelineWidthPx}px;`">
+          <!-- Sequential Clips Strip (Proportional to Video Track Duration) -->
+          <div class="h-full relative flex items-center gap-1"
+               :style="`width: ${Math.round(getVideoTrackTotalDuration() * pxPerSecond)}px; flex-shrink: 0;`">
+            <template x-for="(clip, idx) in clips" :key="clip.id || clip.name">
+              <div class="h-full flex items-center relative"
+                   :style="`width: ${Math.max(45, Math.round(clip.duration * pxPerSecond))}px; flex-shrink: 0;`">
               
               <!-- Clip Block with CapCut Precision Trim Brackets -->
               <div @click.stop="selectTimelineElement('clip', clip)"
@@ -2924,6 +3144,15 @@
                         class="text-[8px] px-1 py-0.2 rounded bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-mono truncate">
                     🟩 Cutout
                   </span>
+                  <span x-show="clip.animation && clip.animation.in_type && clip.animation.in_type !== 'none'"
+                        class="text-[8px] px-1 py-0.2 rounded bg-cyan-100 dark:bg-cyan-900/40 text-cyan-700 dark:text-cyan-300 font-mono truncate"
+                        x-text="`✨ In: ${clip.animation.in_type.replace(/_/g, ' ')}`"></span>
+                  <span x-show="clip.animation && clip.animation.out_type && clip.animation.out_type !== 'none'"
+                        class="text-[8px] px-1 py-0.2 rounded bg-rose-100 dark:bg-rose-900/40 text-rose-700 dark:text-rose-300 font-mono truncate"
+                        x-text="`🏁 Out: ${clip.animation.out_type.replace(/_/g, ' ')}`"></span>
+                  <span x-show="clip.animation && clip.animation.combo_type && clip.animation.combo_type !== 'none'"
+                        class="text-[8px] px-1 py-0.2 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 font-mono truncate"
+                        x-text="`🌀 ${clip.animation.combo_type.replace(/_/g, ' ')}`"></span>
                 </div>
 
                 <!-- Direct Delete Button on Hover -->
@@ -2957,6 +3186,7 @@
               </template>
             </div>
           </template>
+          </div>
 
           <!-- Empty Timeline Dropzone State -->
           <template x-if="clips.length === 0">
@@ -2969,10 +3199,11 @@
         </div>
 
         <!-- TRACK 4: SFX Audio Hits (CapCut 1:1 Adjustable Duration & Trim) -->
-        <div class="h-7 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-hidden">
+        <div class="h-7 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-hidden"
+             :style="`width: ${timelineWidthPx}px;`">
           <template x-for="sfx in timelineSfx" :key="sfx.id">
             <div @click.stop="selectTimelineElement('sfx', sfx)"
-                 :style="`position: absolute; left: ${(sfx.start / Math.max(1, totalDuration)) * 100}%; width: ${Math.max(4, (sfx.duration / Math.max(1, totalDuration)) * 100)}%; min-width: 50px;`"
+                 :style="`position: absolute; left: ${Math.round(sfx.start * pxPerSecond)}px; width: ${Math.max(45, Math.round(sfx.duration * pxPerSecond))}px;`"
                  :class="selectedTimelineItem && selectedTimelineItem.type === 'sfx' && selectedTimelineItem.id === sfx.id ? 'ring-2 ring-amber-500 border-amber-500 shadow-xs z-20' : 'border-amber-300 dark:border-amber-700 z-10'"
                  class="h-5.5 rounded bg-amber-100 dark:bg-yellow-950/80 border text-amber-800 dark:text-yellow-300 text-[8px] font-mono flex items-center justify-between px-1 cursor-pointer group transition-all shadow-2xs select-none overflow-visible"
                  title="Click to select SFX • Drag handles to adjust duration • Drag center to move">
@@ -3020,12 +3251,13 @@
 
         <!-- TRACK 5: BGM Audio Track (CapCut 1:1 Adjustable Duration, Waveforms & Deletion) -->
         <div class="h-10 border-b border-slate-200 dark:border-[#1E293B] relative flex items-center px-1 overflow-hidden transition-all"
+             :style="`width: ${timelineWidthPx}px;`"
              :class="timelineBgm.active && settings.bgm_track && settings.bgm_track !== 'none' ? 'bg-emerald-50 dark:bg-emerald-950/25' : 'bg-transparent'">
           
           <!-- If BGM is Active -->
           <template x-if="timelineBgm.active && settings.bgm_track && settings.bgm_track !== 'none'">
             <div @click.stop="selectTimelineElement('bgm')"
-                 :style="`position: absolute; left: ${(timelineBgm.start / Math.max(1, totalDuration)) * 100}%; width: ${Math.max(8, (timelineBgm.duration / Math.max(1, totalDuration)) * 100)}%;`"
+                 :style="`position: absolute; left: ${Math.round(timelineBgm.start * pxPerSecond)}px; width: ${Math.max(60, Math.round(timelineBgm.duration * pxPerSecond))}px;`"
                  :class="selectedTimelineItem && selectedTimelineItem.type === 'bgm' ? 'ring-2 ring-emerald-500 border-emerald-500 shadow-md z-20' : 'border-emerald-300 dark:border-emerald-700/60 z-10'"
                  class="h-8 rounded-lg border bg-emerald-100/80 dark:bg-emerald-900/40 relative flex items-center justify-between px-2 cursor-pointer group transition-all select-none overflow-hidden"
                  title="Click to select BGM • Drag handles to expand/cut music duration • Drag center to reposition">
@@ -3091,7 +3323,7 @@
             <div class="absolute inset-0 pointer-events-none">
               <template x-for="bt in beatData.beat1_major" :key="bt">
                 <div class="absolute top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-amber-400 dark:bg-yellow-400 shadow-md shadow-amber-500/80 -translate-x-1"
-                     :style="`left: ${(bt / Math.max(1, totalDuration)) * 100}%;`"
+                     :style="`left: ${Math.round(bt * pxPerSecond)}px;`"
                      title="Beat 1 Downbeat Kick"></div>
               </template>
             </div>
@@ -3102,7 +3334,7 @@
             <div class="absolute inset-0 pointer-events-none">
               <template x-for="bt in beatData.beat2_sub" :key="bt">
                 <div class="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-[#1683DF] dark:bg-cyan-400 shadow-xs -translate-x-0.5"
-                     :style="`left: ${(bt / Math.max(1, totalDuration)) * 100}%;`"
+                     :style="`left: ${Math.round(bt * pxPerSecond)}px;`"
                      title="Beat 2 Sub-Rhythm"></div>
               </template>
             </div>
@@ -3168,6 +3400,14 @@
   <script>
     function capcutApp() {
       return {
+        // Active Project Persistence (Ctrl+S & Auto-Save)
+        currentProjectId: 'proj_biochroma',
+        isSavingProject: false,
+        lastSavedTime: '',
+
+        // MySQL 8.0 Database & Local Storage State
+        dbHealth: { connected: false, engine: 'MySQL 8.0', database: 'makinity_cut', projects_count: 0 },
+
         // Screen Navigation (CapCut Desktop 1:1 - Starts on Project Hub!)
         currentScreen: 'home', // 'home' (Project Hub Start Screen) | 'editor' (CapCut Video Editor)
         homeNav: 'home', // 'home' | 'projects' | 'templates' | 'cloud'
@@ -3235,8 +3475,54 @@
           waveform_envelope: []
         },
 
+        // Video Clip Inspector Sub-Tab: 'transform', 'animation', 'speed', 'cutout', 'mask', 'tracking', 'audio'
+        videoSubTab: 'animation',
+        animCategory: 'in', // 'in' | 'out' | 'combo'
+        inAnimationsList: [
+          { id: 'none', name: 'None', icon: 'ban' },
+          { id: 'fade_in', name: 'Fade In', icon: 'sun' },
+          { id: 'zoom_in', name: 'Zoom In', icon: 'zoom-in' },
+          { id: 'zoom_out', name: 'Zoom Out', icon: 'zoom-out' },
+          { id: 'slide_right', name: 'Slide Right', icon: 'arrow-right' },
+          { id: 'slide_left', name: 'Slide Left', icon: 'arrow-left' },
+          { id: 'slide_up', name: 'Slide Up', icon: 'arrow-up' },
+          { id: 'slide_down', name: 'Slide Down', icon: 'arrow-down' },
+          { id: 'spin_cw', name: 'Spin In', icon: 'rotate-cw' },
+          { id: 'pop_up', name: 'Pop Up', icon: 'sparkle' },
+          { id: 'wipe_right', name: 'Wipe In', icon: 'move-right' },
+          { id: 'rock_in', name: 'Rock In', icon: 'activity' }
+        ],
+        outAnimationsList: [
+          { id: 'none', name: 'None', icon: 'ban' },
+          { id: 'fade_out', name: 'Fade Out', icon: 'moon' },
+          { id: 'zoom_out', name: 'Zoom Out', icon: 'minimize-2' },
+          { id: 'zoom_in', name: 'Zoom In 2', icon: 'maximize-2' },
+          { id: 'slide_right', name: 'Slide Right', icon: 'arrow-right' },
+          { id: 'slide_left', name: 'Slide Left', icon: 'arrow-left' },
+          { id: 'slide_up', name: 'Slide Up', icon: 'arrow-up' },
+          { id: 'slide_down', name: 'Slide Down', icon: 'arrow-down' },
+          { id: 'spin_ccw', name: 'Spin Out', icon: 'rotate-ccw' },
+          { id: 'pop_down', name: 'Pop Down', icon: 'sparkles' },
+          { id: 'wipe_left', name: 'Wipe Out', icon: 'move-left' },
+          { id: 'fall_down', name: 'Fall Down', icon: 'arrow-down-circle' }
+        ],
+        comboAnimationsList: [
+          { id: 'none', name: 'None', icon: 'ban' },
+          { id: 'swing', name: 'Swing', icon: 'refresh-cw' },
+          { id: 'pendulum', name: 'Pendulum', icon: 'clock' },
+          { id: 'distort_zoom', name: 'Distort Zoom', icon: 'maximize' },
+          { id: 'shake', name: 'Camera Shake', icon: 'zap' },
+          { id: 'wobble', name: 'Wobble', icon: 'waves' },
+          { id: 'pulse', name: 'Pulse Beat', icon: 'heart-pulse' }
+        ],
+        previewAnimClass: '',
+
+        // Session-Based History & Clipboard (CapCut 1:1)
+        undoStack: [],
+        redoStack: [],
+        clipboardItem: null,
+
         // Video Clip Inspector Sub-Tab & Speed Ramping (CapCut 1:1)
-        videoSubTab: 'speed', // 'transform', 'speed', 'audio'
         speedMode: 'curve',   // 'normal', 'curve'
         normalSpeed: 1.0,
         pitchCorrection: true,
@@ -3526,6 +3812,7 @@
             document.documentElement.classList.remove('dark');
             document.documentElement.classList.add('light');
           }
+          await this.loadDbHealth();
           await this.loadAgents();
           await this.loadProjects();
           await this.loadProject();
@@ -3705,6 +3992,16 @@
           this.executeProduction();
         },
 
+        async loadDbHealth() {
+          try {
+            const res = await fetch('/api/db/health');
+            const data = await res.json();
+            this.dbHealth = data;
+          } catch (e) {
+            this.dbHealth = { connected: false, error: String(e) };
+          }
+        },
+
         async loadProjects() {
           try {
             const res = await fetch('/api/projects');
@@ -3750,7 +4047,12 @@
             const data = await res.json();
             if (data.status === 'ok') {
               const p = data.project;
+              this.currentProjectId = p.id;
               this.projectName = p.name;
+              this.lastSavedTime = new Date().toLocaleTimeString();
+              // Reset Session-Based Undo / Redo Stacks (CapCut Standard: Fresh session)
+              this.undoStack = [];
+              this.redoStack = [];
               if (p.clips && p.clips.length > 0) {
                 this.clips = p.clips;
                 this.selectedClip = this.clips[0];
@@ -3954,10 +4256,14 @@
           });
         },
 
-        returnToHome() {
-          this.saveSettings();
+        async returnToHome() {
+          await this.saveCurrentProject(false);
+          // Session-Based History & Clipboard Reset (CapCut 1:1)
+          this.undoStack = [];
+          this.redoStack = [];
+          this.clipboardItem = null;
           this.currentScreen = 'home';
-          this.loadProjects();
+          await this.loadProjects();
           this.$nextTick(() => lucide.createIcons());
         },
 
@@ -3980,10 +4286,465 @@
           }
         },
 
+        getVideoTrackTotalDuration() {
+          if (!this.clips || this.clips.length === 0) return 0;
+          return this.clips.reduce((sum, c) => sum + (Number(c.duration) || 0), 0);
+        },
+
         recalculateTotalDuration() {
-          if (!this.clips || this.clips.length === 0) return;
-          const total = this.clips.reduce((sum, c) => sum + (c.duration || 0), 0);
-          this.totalDuration = Math.max(1, Math.round(total * 100) / 100);
+          let maxTime = 0;
+
+          // 1. Video track (sum of sequential clips)
+          const videoTotal = this.getVideoTrackTotalDuration();
+          if (videoTotal > maxTime) maxTime = videoTotal;
+
+          // 2. Text layers (start + duration)
+          (this.timelineTexts || []).forEach(t => {
+            const end = (Number(t.start) || 0) + (Number(t.duration) || 0);
+            if (end > maxTime) maxTime = end;
+          });
+
+          // 3. Effects layers (start + duration)
+          (this.timelineEffects || []).forEach(fx => {
+            const end = (Number(fx.start) || 0) + (Number(fx.duration) || 0);
+            if (end > maxTime) maxTime = end;
+          });
+
+          // 4. SFX layers (start + duration)
+          (this.timelineSfx || []).forEach(s => {
+            const end = (Number(s.start) || 0) + (Number(s.duration) || 0);
+            if (end > maxTime) maxTime = end;
+          });
+
+          // 5. BGM track (start + duration if active)
+          if (this.timelineBgm && this.timelineBgm.active && this.settings.bgm_track && this.settings.bgm_track !== 'none') {
+            const bgmEnd = (Number(this.timelineBgm.start) || 0) + (Number(this.timelineBgm.duration) || 0);
+            if (bgmEnd > maxTime) maxTime = bgmEnd;
+          }
+
+          // Fallback if empty
+          if (maxTime <= 0) {
+            maxTime = (this.totalRawDur && this.totalRawDur > 0) ? this.totalRawDur : 20.0;
+          }
+
+          this.totalDuration = Math.max(1, Math.round(maxTime * 100) / 100);
+
+          if (this.currentTime > this.timelineCanvasDuration) {
+            this.currentTime = this.timelineCanvasDuration;
+          }
+        },
+
+        get pxPerSecond() {
+          const zoom = Math.max(0.3, Math.min(3.0, Number(this.timelineZoom) || 1.0));
+          return Math.max(15, Math.round(75 * zoom));
+        },
+
+        get timelineCanvasDuration() {
+          const contentDur = Math.max(Number(this.totalDuration) || 0, this.getVideoTrackTotalDuration() || 0, 15);
+          const playheadDur = (Number(this.currentTime) || 0) + 30;
+          // CapCut Desktop 1:1 Architecture: Virtual canvas always extends far beyond clips
+          // Minimum 120 seconds (e.g. 9,000px at 75px/s), allowing continuous horizontal scrolling
+          return Math.max(120, Math.ceil(Math.max(contentDur * 2.5, playheadDur, 90)));
+        },
+
+        get timelineWidthPx() {
+          return Math.max(3500, Math.round(this.timelineCanvasDuration * this.pxPerSecond));
+        },
+
+        getRulerMarks() {
+          const pps = this.pxPerSecond;
+          const maxSec = this.timelineCanvasDuration;
+
+          // Adaptive interval like CapCut desktop
+          let step = 5;
+          if (pps >= 120) step = 1;
+          else if (pps >= 60) step = 2;
+          else if (pps >= 30) step = 5;
+          else if (pps >= 15) step = 10;
+          else step = 15;
+
+          const marks = [];
+          for (let sec = 0; sec <= maxSec; sec += step) {
+            const m = Math.floor(sec / 60);
+            const s = Math.floor(sec % 60);
+            marks.push({
+              sec,
+              label: `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`,
+              leftPx: Math.round(sec * pps)
+            });
+          }
+          return marks;
+        },
+
+        // =========================================================================
+        // SESSION-BASED HISTORY (UNDO / REDO) & CLIPBOARD (COPY / CUT / DUPLICATE / PASTE)
+        // CapCut Desktop 1:1 Behavior:
+        // - Undo/Redo stacks operate ONLY within current active session.
+        // - Exiting project or reopening starts with fresh empty stacks.
+        // - Mutating actions push previous state and clear redo stack.
+        // =========================================================================
+        pushUndoState() {
+          const snapshot = {
+            clips: JSON.parse(JSON.stringify(this.clips || [])),
+            timelineTexts: JSON.parse(JSON.stringify(this.timelineTexts || [])),
+            timelineEffects: JSON.parse(JSON.stringify(this.timelineEffects || [])),
+            timelineSfx: JSON.parse(JSON.stringify(this.timelineSfx || [])),
+            timelineBgm: JSON.parse(JSON.stringify(this.timelineBgm || {})),
+            currentTime: this.currentTime,
+            settings: JSON.parse(JSON.stringify(this.settings || {}))
+          };
+          this.undoStack.push(snapshot);
+          if (this.undoStack.length > 50) this.undoStack.shift();
+          this.redoStack = []; // Clears redo history on new action
+        },
+
+        undo() {
+          if (!this.undoStack || this.undoStack.length === 0) return;
+
+          // Snapshot current state for Redo
+          const currentSnapshot = {
+            clips: JSON.parse(JSON.stringify(this.clips || [])),
+            timelineTexts: JSON.parse(JSON.stringify(this.timelineTexts || [])),
+            timelineEffects: JSON.parse(JSON.stringify(this.timelineEffects || [])),
+            timelineSfx: JSON.parse(JSON.stringify(this.timelineSfx || [])),
+            timelineBgm: JSON.parse(JSON.stringify(this.timelineBgm || {})),
+            currentTime: this.currentTime,
+            settings: JSON.parse(JSON.stringify(this.settings || {}))
+          };
+          this.redoStack.push(currentSnapshot);
+          if (this.redoStack.length > 50) this.redoStack.shift();
+
+          const prev = this.undoStack.pop();
+          this.clips = prev.clips || [];
+          this.timelineTexts = prev.timelineTexts || [];
+          this.timelineEffects = prev.timelineEffects || [];
+          this.timelineSfx = prev.timelineSfx || [];
+          if (prev.timelineBgm) this.timelineBgm = prev.timelineBgm;
+          if (typeof prev.currentTime === 'number') this.currentTime = prev.currentTime;
+          if (prev.settings) this.settings = prev.settings;
+
+          if (this.clips.length > 0) {
+            this.selectedClip = this.clips[0];
+            this.currentVideoSrc = this.selectedClip.path || ('/media/input/' + this.selectedClip.name);
+          } else {
+            this.selectedClip = null;
+            this.currentVideoSrc = '';
+          }
+          if (this.timelineTexts.length > 0) {
+            this.selectedTextItem = this.timelineTexts[0];
+            this.selectedText.content = this.timelineTexts[0].content;
+            this.currentSubtitle = this.timelineTexts[0].content;
+          } else {
+            this.selectedTextItem = null;
+          }
+
+          this.recalculateTotalDuration();
+          this.saveTimelineToBackend();
+          this.showToast('↶ Undo');
+          this.$nextTick(() => lucide.createIcons());
+        },
+
+        redo() {
+          if (!this.redoStack || this.redoStack.length === 0) return;
+
+          // Snapshot current state for Undo
+          const currentSnapshot = {
+            clips: JSON.parse(JSON.stringify(this.clips || [])),
+            timelineTexts: JSON.parse(JSON.stringify(this.timelineTexts || [])),
+            timelineEffects: JSON.parse(JSON.stringify(this.timelineEffects || [])),
+            timelineSfx: JSON.parse(JSON.stringify(this.timelineSfx || [])),
+            timelineBgm: JSON.parse(JSON.stringify(this.timelineBgm || {})),
+            currentTime: this.currentTime,
+            settings: JSON.parse(JSON.stringify(this.settings || {}))
+          };
+          this.undoStack.push(currentSnapshot);
+          if (this.undoStack.length > 50) this.undoStack.shift();
+
+          const next = this.redoStack.pop();
+          this.clips = next.clips || [];
+          this.timelineTexts = next.timelineTexts || [];
+          this.timelineEffects = next.timelineEffects || [];
+          this.timelineSfx = next.timelineSfx || [];
+          if (next.timelineBgm) this.timelineBgm = next.timelineBgm;
+          if (typeof next.currentTime === 'number') this.currentTime = next.currentTime;
+          if (next.settings) this.settings = next.settings;
+
+          if (this.clips.length > 0) {
+            this.selectedClip = this.clips[0];
+            this.currentVideoSrc = this.selectedClip.path || ('/media/input/' + this.selectedClip.name);
+          } else {
+            this.selectedClip = null;
+            this.currentVideoSrc = '';
+          }
+          if (this.timelineTexts.length > 0) {
+            this.selectedTextItem = this.timelineTexts[0];
+            this.selectedText.content = this.timelineTexts[0].content;
+            this.currentSubtitle = this.timelineTexts[0].content;
+          } else {
+            this.selectedTextItem = null;
+          }
+
+          this.recalculateTotalDuration();
+          this.saveTimelineToBackend();
+          this.showToast('↷ Redo');
+          this.$nextTick(() => lucide.createIcons());
+        },
+
+        getSelectionTarget() {
+          let target = this.selectedTimelineItem;
+          if (!target) {
+            if (this.selectedClip) {
+              target = { type: 'clip', id: this.selectedClip.id || this.selectedClip.name };
+            } else if (this.inspectorTarget === 'Text' && this.timelineTexts && this.timelineTexts.length > 0) {
+              target = { type: 'text', id: (this.selectedTextItem && this.selectedTextItem.id) || this.timelineTexts[0].id };
+            } else if (this.clips && this.clips.length > 0) {
+              target = { type: 'clip', id: this.clips[0].id || this.clips[0].name };
+            }
+          }
+          return target;
+        },
+
+        copySelectedElement() {
+          const target = this.getSelectionTarget();
+          if (!target) {
+            this.showToast('⚠️ Click an element to copy');
+            return;
+          }
+
+          if (target.type === 'clip') {
+            const clip = this.selectedClip || this.clips.find(c => (c.id && c.id === target.id) || c.name === target.id) || this.clips[0];
+            if (!clip) return;
+            this.clipboardItem = { type: 'clip', data: JSON.parse(JSON.stringify(clip)) };
+            this.showToast(`📋 Copied Clip: ${clip.name}`);
+          } else if (target.type === 'text') {
+            const txt = (this.timelineTexts || []).find(t => t.id === target.id) || (this.timelineTexts && this.timelineTexts[0]);
+            if (!txt) return;
+            this.clipboardItem = { type: 'text', data: JSON.parse(JSON.stringify(txt)) };
+            this.showToast(`📋 Copied Text: "${txt.content}"`);
+          } else if (target.type === 'effect') {
+            const fx = (this.timelineEffects || []).find(f => f.id === target.id) || (this.timelineEffects && this.timelineEffects[0]);
+            if (!fx) return;
+            this.clipboardItem = { type: 'effect', data: JSON.parse(JSON.stringify(fx)) };
+            this.showToast(`📋 Copied Effect: ${fx.name}`);
+          } else if (target.type === 'sfx') {
+            const sfx = (this.timelineSfx || []).find(s => s.id === target.id) || (this.timelineSfx && this.timelineSfx[0]);
+            if (!sfx) return;
+            this.clipboardItem = { type: 'sfx', data: JSON.parse(JSON.stringify(sfx)) };
+            this.showToast(`📋 Copied SFX: ${sfx.name}`);
+          }
+        },
+
+        cutSelectedElement() {
+          const target = this.getSelectionTarget();
+          if (!target) {
+            this.showToast('⚠️ Click an element to cut');
+            return;
+          }
+          this.copySelectedElement();
+          if (this.clipboardItem) {
+            this.deleteSelectedTimelineItem();
+            this.showToast('✂️ Cut to clipboard (Ctrl+X)');
+          }
+        },
+
+        duplicateSelectedElement() {
+          const target = this.getSelectionTarget();
+          if (!target) {
+            this.showToast('⚠️ Click an element on the timeline to duplicate');
+            return;
+          }
+
+          if (target.type === 'clip') {
+            if (!this.selectedClip && this.clips && this.clips.length > 0) {
+              this.selectedClip = this.clips[0];
+            }
+            if (!this.selectedClip) return;
+            const idx = this.clips.findIndex(c => (c.id && c.id === this.selectedClip.id) || c.name === this.selectedClip.name);
+            if (idx === -1) return;
+
+            this.pushUndoState();
+            const orig = this.clips[idx];
+            const clone = {
+              ...JSON.parse(JSON.stringify(orig)),
+              id: 'clip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              name: `${orig.name} (Copy)`
+            };
+            this.clips.splice(idx + 1, 0, clone);
+            this.selectTimelineClip(clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Duplicated Clip: ${clone.name}`);
+            this.$nextTick(() => lucide.createIcons());
+          } else if (target.type === 'text') {
+            const idx = (this.timelineTexts || []).findIndex(t => t.id === target.id);
+            const orig = idx !== -1 ? this.timelineTexts[idx] : (this.timelineTexts && this.timelineTexts[0]);
+            if (!orig) return;
+
+            this.pushUndoState();
+            const clone = {
+              ...JSON.parse(JSON.stringify(orig)),
+              id: 'txt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              start: Math.round(Math.max(this.currentTime, orig.start + orig.duration) * 100) / 100
+            };
+            this.timelineTexts.push(clone);
+            this.selectTimelineElement('text', clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Duplicated Text: "${clone.content}"`);
+            this.$nextTick(() => lucide.createIcons());
+          } else if (target.type === 'effect') {
+            const idx = (this.timelineEffects || []).findIndex(f => f.id === target.id);
+            const orig = idx !== -1 ? this.timelineEffects[idx] : (this.timelineEffects && this.timelineEffects[0]);
+            if (!orig) return;
+
+            this.pushUndoState();
+            const clone = {
+              ...JSON.parse(JSON.stringify(orig)),
+              id: 'fx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              start: Math.round(Math.max(this.currentTime, orig.start + orig.duration) * 100) / 100
+            };
+            this.timelineEffects.push(clone);
+            this.selectTimelineElement('effect', clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Duplicated Effect: ${clone.name}`);
+            this.$nextTick(() => lucide.createIcons());
+          } else if (target.type === 'sfx') {
+            const idx = (this.timelineSfx || []).findIndex(s => s.id === target.id);
+            const orig = idx !== -1 ? this.timelineSfx[idx] : (this.timelineSfx && this.timelineSfx[0]);
+            if (!orig) return;
+
+            this.pushUndoState();
+            const clone = {
+              ...JSON.parse(JSON.stringify(orig)),
+              id: 'sfx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              start: Math.round(Math.max(this.currentTime, orig.start + orig.duration) * 100) / 100
+            };
+            this.timelineSfx.push(clone);
+            this.selectTimelineElement('sfx', clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Duplicated SFX: ${clone.name}`);
+            this.$nextTick(() => lucide.createIcons());
+          }
+        },
+
+        pasteClipboardElement() {
+          if (!this.clipboardItem || !this.clipboardItem.data) {
+            this.showToast('⚠️ Clipboard is empty (Copy with Ctrl+C first)');
+            return;
+          }
+
+          this.pushUndoState();
+          const { type, data } = this.clipboardItem;
+
+          if (type === 'clip') {
+            const clone = {
+              ...JSON.parse(JSON.stringify(data)),
+              id: 'clip_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              name: `${data.name} (Copy)`
+            };
+            let insertIdx = this.clips.length;
+            if (this.selectedClip) {
+              const curIdx = this.clips.findIndex(c => (c.id && c.id === this.selectedClip.id) || c.name === this.selectedClip.name);
+              if (curIdx !== -1) insertIdx = curIdx + 1;
+            }
+            this.clips.splice(insertIdx, 0, clone);
+            this.selectTimelineClip(clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Pasted Clip: ${clone.name}`);
+            this.$nextTick(() => lucide.createIcons());
+          } else if (type === 'text') {
+            const clone = {
+              ...JSON.parse(JSON.stringify(data)),
+              id: 'txt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              start: Math.round(this.currentTime * 100) / 100
+            };
+            this.timelineTexts.push(clone);
+            this.selectTimelineElement('text', clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Pasted Text: "${clone.content}" at ${this.formatTimecode(this.currentTime)}`);
+            this.$nextTick(() => lucide.createIcons());
+          } else if (type === 'effect') {
+            const clone = {
+              ...JSON.parse(JSON.stringify(data)),
+              id: 'fx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              start: Math.round(this.currentTime * 100) / 100
+            };
+            this.timelineEffects.push(clone);
+            this.selectTimelineElement('effect', clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Pasted Effect: ${clone.name} at ${this.formatTimecode(this.currentTime)}`);
+            this.$nextTick(() => lucide.createIcons());
+          } else if (type === 'sfx') {
+            const clone = {
+              ...JSON.parse(JSON.stringify(data)),
+              id: 'sfx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              start: Math.round(this.currentTime * 100) / 100
+            };
+            this.timelineSfx.push(clone);
+            this.selectTimelineElement('sfx', clone);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
+            this.showToast(`📋 Pasted SFX: ${clone.name} at ${this.formatTimecode(this.currentTime)}`);
+            this.$nextTick(() => lucide.createIcons());
+          }
+        },
+
+        async saveCurrentProject(showToast = true) {
+          if (!this.currentProjectId) {
+            const found = this.projectsList.find(p => p.name === this.projectName);
+            this.currentProjectId = found ? found.id : (this.projectsList[0] ? this.projectsList[0].id : 'proj_biochroma');
+          }
+          this.isSavingProject = true;
+          try {
+            const fullSettings = {
+              ...this.settings,
+              caption_font: this.selectedText.font,
+              caption_size: this.selectedText.size,
+              caption_color: this.selectedText.color,
+              caption_stroke: this.selectedText.strokeColor,
+              caption_stroke_width: this.selectedText.strokeWidth,
+              caption_margin_v: this.selectedText.marginV,
+              caption_wrap_style: this.selectedText.singleRow ? 2 : 0,
+              bgm_track: this.timelineBgm.active ? (this.timelineBgm.track || this.settings.bgm_track) : 'none'
+            };
+
+            const payload = {
+              id: this.currentProjectId,
+              name: this.projectName,
+              clips: this.clips,
+              timelineTexts: this.timelineTexts,
+              timelineEffects: this.timelineEffects,
+              timelineSfx: this.timelineSfx,
+              settings: fullSettings
+            };
+
+            const res = await fetch('/api/projects/save', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.status === 'ok') {
+              this.lastSavedTime = new Date().toLocaleTimeString();
+              if (showToast) {
+                this.showToast(`💾 Saved changes to MySQL (${this.projectName})`);
+              }
+              await this.loadProjects();
+              this.$nextTick(() => lucide.createIcons());
+            } else {
+              if (showToast) this.showToast('⚠️ Failed to save project changes');
+            }
+          } catch (e) {
+            console.error('Save error:', e);
+            if (showToast) this.showToast('⚠️ Could not connect to MySQL to save');
+          } finally {
+            this.isSavingProject = false;
+          }
         },
 
         async saveTimelineToBackend() {
@@ -4270,6 +5031,105 @@
               this.curvePoints = clip.speed_curve.points.map(p => ({ time: p[0], speed: p[1] }));
             }
           }
+          if (!clip.animation) {
+            clip.animation = { in_type: 'none', in_dur: 0.5, out_type: 'none', out_dur: 0.5, combo_type: 'none' };
+          }
+        },
+
+        // Clip In/Out/Combo Animations (CapCut 1:1)
+        getActiveAnimDuration() {
+          const clip = this.selectedClip;
+          if (!clip || !clip.animation) return 0.5;
+          if (this.animCategory === 'in') return Number(clip.animation.in_dur) || 0.5;
+          if (this.animCategory === 'out') return Number(clip.animation.out_dur) || 0.5;
+          return Number(clip.animation.combo_dur) || 1.0;
+        },
+
+        setActiveAnimDuration(val) {
+          const num = Math.round(Number(val) * 100) / 100;
+          if (!this.selectedClip) return;
+          if (!this.selectedClip.animation) {
+            this.selectedClip.animation = { in_type: 'none', in_dur: 0.5, out_type: 'none', out_dur: 0.5, combo_type: 'none' };
+          }
+          if (this.animCategory === 'in') this.selectedClip.animation.in_dur = num;
+          else if (this.animCategory === 'out') this.selectedClip.animation.out_dur = num;
+          else this.selectedClip.animation.combo_dur = num;
+          this.saveTimelineToBackend();
+        },
+
+        getActiveAnimName() {
+          const clip = this.selectedClip;
+          if (!clip || !clip.animation) return 'None';
+          let animId = 'none';
+          if (this.animCategory === 'in') animId = clip.animation.in_type || 'none';
+          else if (this.animCategory === 'out') animId = clip.animation.out_type || 'none';
+          else animId = clip.animation.combo_type || 'none';
+
+          if (animId === 'none') return 'None';
+          const list = this.animCategory === 'in' ? this.inAnimationsList : (this.animCategory === 'out' ? this.outAnimationsList : this.comboAnimationsList);
+          const found = list.find(a => a.id === animId);
+          return found ? found.name : animId;
+        },
+
+        hasActiveAnimation() {
+          const clip = this.selectedClip;
+          if (!clip || !clip.animation) return false;
+          if (this.animCategory === 'in') return clip.animation.in_type && clip.animation.in_type !== 'none';
+          if (this.animCategory === 'out') return clip.animation.out_type && clip.animation.out_type !== 'none';
+          return clip.animation.combo_type && clip.animation.combo_type !== 'none';
+        },
+
+        isAnimSelected(cat, animId) {
+          const clip = this.selectedClip;
+          if (!clip || !clip.animation) return animId === 'none';
+          if (cat === 'in') return (clip.animation.in_type || 'none') === animId;
+          if (cat === 'out') return (clip.animation.out_type || 'none') === animId;
+          return (clip.animation.combo_type || 'none') === animId;
+        },
+
+        clearActiveAnimation() {
+          if (!this.selectedClip) return;
+          if (!this.selectedClip.animation) return;
+          if (this.animCategory === 'in') this.selectedClip.animation.in_type = 'none';
+          else if (this.animCategory === 'out') this.selectedClip.animation.out_type = 'none';
+          else this.selectedClip.animation.combo_type = 'none';
+          this.saveTimelineToBackend();
+          this.showToast(`🗑️ Cleared ${this.animCategory.toUpperCase()} animation`);
+        },
+
+        selectClipAnimation(category, animId) {
+          if (!this.selectedClip) {
+            this.showToast('⚠️ Please select a clip first');
+            return;
+          }
+          if (!this.selectedClip.animation) {
+            this.selectedClip.animation = { in_type: 'none', in_dur: 0.5, out_type: 'none', out_dur: 0.5, combo_type: 'none' };
+          }
+
+          if (category === 'in') {
+            this.selectedClip.animation.in_type = animId;
+          } else if (category === 'out') {
+            this.selectedClip.animation.out_type = animId;
+          } else {
+            this.selectedClip.animation.combo_type = animId;
+          }
+
+          // Trigger live preview animation class on main player
+          if (animId !== 'none') {
+            this.previewAnimClass = `anim-${category}-${animId.replace(/_/g, '-')}`;
+            setTimeout(() => {
+              this.previewAnimClass = '';
+            }, 800);
+          } else {
+            this.previewAnimClass = '';
+          }
+
+          this.saveTimelineToBackend();
+          const list = category === 'in' ? this.inAnimationsList : (category === 'out' ? this.outAnimationsList : this.comboAnimationsList);
+          const found = list.find(a => a.id === animId);
+          const name = found ? found.name : animId;
+          this.showToast(`✨ Applied ${category.toUpperCase()} Animation: ${name}`);
+          this.$nextTick(() => lucide.createIcons());
         },
 
         // Masking Methods (CapCut 1:1)
@@ -4665,6 +5525,7 @@
         },
 
         addManualText() {
+          this.pushUndoState();
           const newTxt = {
             id: 'txt_' + Date.now(),
             content: 'NEW UGC HEADING',
@@ -4678,11 +5539,14 @@
           this.currentSubtitle = newTxt.content;
           this.inspectorTarget = 'Text';
           this.selectTimelineElement('text', newTxt);
+          this.recalculateTotalDuration();
+          this.saveTimelineToBackend();
           this.showToast('✨ Added Text Layer at ' + this.formatTimecode(this.currentTime));
           this.$nextTick(() => lucide.createIcons());
         },
 
         addStickerToTimeline(stk) {
+          this.pushUndoState();
           const newTxt = {
             id: 'txt_' + Date.now(),
             content: stk.label,
@@ -4696,11 +5560,14 @@
           this.currentSubtitle = newTxt.content;
           this.inspectorTarget = 'Text';
           this.selectTimelineElement('text', newTxt);
+          this.recalculateTotalDuration();
+          this.saveTimelineToBackend();
           this.showToast(`✨ Added Sticker: ${stk.label}`);
           this.$nextTick(() => lucide.createIcons());
         },
 
         addEffectToTimeline(fx) {
+          this.pushUndoState();
           const newFx = {
             id: 'fx_' + Date.now(),
             name: fx.name || 'Camera Shake',
@@ -4710,11 +5577,14 @@
           };
           this.timelineEffects.push(newFx);
           this.selectTimelineElement('effect', newFx);
+          this.recalculateTotalDuration();
+          this.saveTimelineToBackend();
           this.showToast(`✨ Added ${newFx.name} (Dur: 2.5s)`);
           this.$nextTick(() => lucide.createIcons());
         },
 
         addSfxToTimeline(sfx) {
+          this.pushUndoState();
           const newSfx = {
             id: 'sfx_' + Date.now(),
             name: sfx.title || sfx.name || '⚡ SFX',
@@ -4724,6 +5594,8 @@
           };
           this.timelineSfx.push(newSfx);
           this.selectTimelineElement('sfx', newSfx);
+          this.recalculateTotalDuration();
+          this.saveTimelineToBackend();
           this.showToast(`🔊 Added ${newSfx.name} onto SFX Track`);
           this.$nextTick(() => lucide.createIcons());
         },
@@ -4885,6 +5757,7 @@
         },
 
         async quickTrimDeadAir() {
+          this.pushUndoState();
           await this.applyPatches([{ op: 'trim_dead_air', cushion: 0.12 }]);
         },
 
@@ -5064,6 +5937,20 @@
             this.currentTime = vid.currentTime;
             this.syncActiveSubtitle(this.currentTime);
 
+            // Auto-scroll timeline to keep playhead in view during playback
+            const scrollArea = document.getElementById('timelineScrollArea');
+            const tracksContainer = document.getElementById('timelineTracksContainer');
+            if (scrollArea && tracksContainer && !vid.paused) {
+              const playheadPx = (this.currentTime / Math.max(1, this.totalDuration)) * tracksContainer.clientWidth;
+              const viewLeft = scrollArea.scrollLeft;
+              const viewRight = viewLeft + scrollArea.clientWidth - 150;
+              if (playheadPx > viewRight) {
+                scrollArea.scrollLeft = playheadPx - 100;
+              } else if (playheadPx < viewLeft) {
+                scrollArea.scrollLeft = Math.max(0, playheadPx - 50);
+              }
+            }
+
             // CapCut 1:1 Motion Tracking - Pin Subtitle/Text to Tracked Subject
             if (this.pinTextToFace && this.activeClipTracking && this.activeClipTracking.trajectory && this.activeClipTracking.trajectory.length > 0) {
               const traj = this.activeClipTracking.trajectory;
@@ -5111,12 +5998,96 @@
         },
 
         seekTimelineByClick(event) {
-          const rect = event.currentTarget.getBoundingClientRect();
+          const tracksContainer = document.getElementById('timelineTracksContainer');
+          if (!tracksContainer) return;
+          const rect = tracksContainer.getBoundingClientRect();
           const clickX = event.clientX - rect.left;
-          const ratio = Math.max(0, Math.min(1, clickX / rect.width));
-          this.currentTime = ratio * this.totalDuration;
+          const targetSec = Math.max(0, Math.min(this.timelineCanvasDuration, clickX / this.pxPerSecond));
+          this.currentTime = Math.round(targetSec * 100) / 100;
           const vid = document.getElementById('mainVideoPlayer');
-          if (vid) vid.currentTime = this.currentTime;
+          if (vid) vid.currentTime = Math.min(this.totalDuration, this.currentTime);
+          this.syncActiveSubtitle(this.currentTime);
+        },
+
+        startDragPlayhead(event) {
+          event.preventDefault();
+          event.stopPropagation();
+          const tracksContainer = document.getElementById('timelineTracksContainer');
+          const scrollArea = document.getElementById('timelineScrollArea');
+          if (!tracksContainer) return;
+
+          const onMouseMove = (moveEvt) => {
+            const rect = tracksContainer.getBoundingClientRect();
+            const clickX = moveEvt.clientX - rect.left;
+            const targetSec = Math.max(0, Math.min(this.timelineCanvasDuration, clickX / this.pxPerSecond));
+            this.currentTime = Math.round(targetSec * 100) / 100;
+            const vid = document.getElementById('mainVideoPlayer');
+            if (vid) vid.currentTime = Math.min(this.totalDuration, this.currentTime);
+            this.syncActiveSubtitle(this.currentTime);
+
+            // Auto-scroll timeline when dragging playhead near view boundaries
+            if (scrollArea) {
+              const scrollRect = scrollArea.getBoundingClientRect();
+              if (moveEvt.clientX > scrollRect.right - 80) {
+                scrollArea.scrollLeft += 24;
+              } else if (moveEvt.clientX < scrollRect.left + 140) {
+                scrollArea.scrollLeft = Math.max(0, scrollArea.scrollLeft - 24);
+              }
+            }
+          };
+
+          const onMouseUp = () => {
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+          };
+
+          window.addEventListener('mousemove', onMouseMove);
+          window.addEventListener('mouseup', onMouseUp);
+        },
+
+        handleTimelineWheel(e) {
+          const scrollContainer = document.getElementById('timelineScrollArea');
+          if (!scrollContainer) return;
+
+          if (e.ctrlKey || e.metaKey) {
+            // Ctrl + Wheel = Smooth Zoom in / out (0.3x to 3.0x)
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.08 : -0.08;
+            this.timelineZoom = Math.max(0.3, Math.min(3.0, Math.round((this.timelineZoom + delta) * 100) / 100));
+          } else {
+            // Standard vertical or horizontal mouse wheel -> smoothly scroll timeline horizontally
+            e.preventDefault();
+            const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+            scrollContainer.scrollLeft += delta * 1.25;
+          }
+        },
+
+        startTimelinePan(e) {
+          if (e.target.closest('.timeline-clip-block') || e.target.closest('.playhead-handle') || e.target.closest('button')) return;
+          const scrollArea = document.getElementById('timelineScrollArea');
+          if (!scrollArea) return;
+
+          // Middle mouse button (1) or Alt/Shift key hand drag
+          if (e.button === 1 || e.shiftKey || e.altKey) {
+            e.preventDefault();
+            const startX = e.clientX;
+            const scrollStart = scrollArea.scrollLeft;
+            scrollArea.style.cursor = 'grabbing';
+
+            const onPanMove = (moveEvt) => {
+              const dx = moveEvt.clientX - startX;
+              scrollArea.scrollLeft = scrollStart - dx;
+            };
+
+            const onPanUp = () => {
+              window.removeEventListener('mousemove', onPanMove);
+              window.removeEventListener('mouseup', onPanUp);
+              scrollArea.style.cursor = '';
+            };
+
+            window.addEventListener('mousemove', onPanMove);
+            window.addEventListener('mouseup', onPanUp);
+          }
         },
 
         toggleBeforeAfter() {
@@ -5272,6 +6243,7 @@
 
         // CapCut 1:1 Manual Clip Trimming (Left & Right Handles)
         startTrim(clip, handle, e) {
+          this.pushUndoState();
           this.isTrimming = true;
           this.trimClip = clip;
           this.trimHandle = handle; // 'left' or 'right'
@@ -5280,9 +6252,7 @@
           this.trimInitialOut = clip.out_point || clip.file_duration || clip.duration;
           this.trimInitialDuration = clip.duration;
 
-          const clipEl = e.target.closest('.timeline-clip-block');
-          const clipWidth = clipEl ? clipEl.offsetWidth : 120;
-          const pxPerSec = Math.max(10, clipWidth / Math.max(0.5, clip.duration));
+          const pxPerSec = this.pxPerSecond;
 
           const onMouseMove = (moveEvt) => {
             const dx = moveEvt.clientX - this.trimStartX;
@@ -5330,6 +6300,7 @@
         startGeneralTrim(item, type, handle, e) {
           e.preventDefault();
           e.stopPropagation();
+          this.pushUndoState();
           this.selectTimelineElement(type, item);
 
           this.isTrimmingGeneral = true;
@@ -5340,20 +6311,17 @@
           this.trimInitialStart = item.start || 0.0;
           this.trimInitialDuration = item.duration || (type === 'bgm' ? (this.totalDuration || 21.98) : 2.5);
 
-          const tracksContainer = document.getElementById('timelineTracksContainer');
-          const containerWidth = tracksContainer ? tracksContainer.clientWidth : 900;
-          const totDur = Math.max(1, this.totalDuration || 21.98);
-          const pxPerSec = Math.max(1, containerWidth / totDur);
+          const pxPerSec = this.pxPerSecond;
 
           const onMouseMove = (moveEvt) => {
             const dx = moveEvt.clientX - this.trimStartX;
             const dt = dx / pxPerSec;
 
             if (this.trimHandle === 'right') {
-              // Expand or cut/shorten duration based on desired duration
-              let newDur = this.trimInitialDuration + dt;
-              newDur = Math.max(0.2, Math.min(totDur * 3, newDur));
+              // Expand or cut/shorten duration based on desired duration (up to 300s)
+              let newDur = Math.max(0.2, Math.min(300, this.trimInitialDuration + dt));
               this.trimItem.duration = Math.round(newDur * 100) / 100;
+              this.recalculateTotalDuration();
             } else if (this.trimHandle === 'left') {
               // Trim in-point (start)
               const maxStart = this.trimInitialStart + this.trimInitialDuration - 0.2;
@@ -5362,11 +6330,13 @@
               const deltaStart = newStart - this.trimInitialStart;
               this.trimItem.start = Math.round(newStart * 100) / 100;
               this.trimItem.duration = Math.max(0.2, Math.round((this.trimInitialDuration - deltaStart) * 100) / 100);
+              this.recalculateTotalDuration();
             } else if (this.trimHandle === 'move') {
               // Slide element along timeline
               let newStart = this.trimInitialStart + dt;
-              newStart = Math.max(0, Math.min(totDur + 10, newStart));
+              newStart = Math.max(0, Math.min(300, newStart));
               this.trimItem.start = Math.round(newStart * 100) / 100;
+              this.recalculateTotalDuration();
             }
           };
 
@@ -5374,6 +6344,8 @@
             window.removeEventListener('mousemove', onMouseMove);
             window.removeEventListener('mouseup', onMouseUp);
             this.isTrimmingGeneral = false;
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             const durStr = this.trimItem.duration ? this.trimItem.duration.toFixed(2) + 's' : '';
             this.showToast(`✂️ Adjusted ${type.toUpperCase()} duration to ${durStr}`);
             if (type === 'bgm') {
@@ -5406,11 +6378,14 @@
             const firstDur = Math.round((this.currentTime - txt.start) * 100) / 100;
             const secondDur = Math.max(0.2, Math.round((txt.duration - firstDur) * 100) / 100);
 
+            this.pushUndoState();
             const partA = { ...txt, duration: firstDur };
             const partB = { ...txt, id: 'txt_' + Date.now(), start: Math.round(this.currentTime * 100) / 100, duration: secondDur };
 
             this.timelineTexts.splice(idx !== -1 ? idx : 0, 1, partA, partB);
             this.selectTimelineElement('text', partB);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.showToast(`✂️ Cut text layer at ${this.formatTimecode(this.currentTime)}`);
             this.$nextTick(() => lucide.createIcons());
           } else if (target.type === 'effect') {
@@ -5426,11 +6401,14 @@
             const firstDur = Math.round((this.currentTime - fx.start) * 100) / 100;
             const secondDur = Math.max(0.2, Math.round((fx.duration - firstDur) * 100) / 100);
 
+            this.pushUndoState();
             const partA = { ...fx, duration: firstDur };
             const partB = { ...fx, id: 'fx_' + Date.now(), start: Math.round(this.currentTime * 100) / 100, duration: secondDur };
 
             this.timelineEffects.splice(idx !== -1 ? idx : 0, 1, partA, partB);
             this.selectTimelineElement('effect', partB);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.showToast(`✂️ Cut effect at ${this.formatTimecode(this.currentTime)}`);
             this.$nextTick(() => lucide.createIcons());
           } else if (target.type === 'sfx') {
@@ -5446,11 +6424,14 @@
             const firstDur = Math.round((this.currentTime - sfx.start) * 100) / 100;
             const secondDur = Math.max(0.2, Math.round((sfx.duration - firstDur) * 100) / 100);
 
+            this.pushUndoState();
             const partA = { ...sfx, duration: firstDur };
             const partB = { ...sfx, id: 'sfx_' + Date.now(), start: Math.round(this.currentTime * 100) / 100, duration: secondDur };
 
             this.timelineSfx.splice(idx !== -1 ? idx : 0, 1, partA, partB);
             this.selectTimelineElement('sfx', partB);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.showToast(`✂️ Cut SFX at ${this.formatTimecode(this.currentTime)}`);
             this.$nextTick(() => lucide.createIcons());
           } else if (target.type === 'bgm') {
@@ -5459,10 +6440,13 @@
               this.showToast('⚠️ Position playhead inside BGM to cut');
               return;
             }
+            this.pushUndoState();
             const newDur = Math.round((this.currentTime - this.timelineBgm.start) * 100) / 100;
             this.timelineBgm.duration = newDur;
-            this.showToast(`✂️ Cut BGM at ${this.formatTimecode(this.currentTime)} (Dur: ${newDur}s)`);
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.saveSettings();
+            this.showToast(`✂️ Cut BGM at ${this.formatTimecode(this.currentTime)} (Dur: ${newDur}s)`);
           }
         },
 
@@ -5525,6 +6509,7 @@
             duration: Math.max(0.2, Math.round((orig.out_point - splitTimestamp) * 100) / 100)
           };
 
+          this.pushUndoState();
           this.clips.splice(targetIdx, 1, partA, partB);
           this.selectTimelineClip(partB);
           this.recalculateTotalDuration();
@@ -5551,6 +6536,8 @@
             return;
           }
 
+          this.pushUndoState();
+
           if (target.type === 'text') {
             const idx = this.timelineTexts.findIndex(t => t.id === target.id);
             const delName = idx !== -1 ? this.timelineTexts[idx].content : 'Text';
@@ -5569,6 +6556,8 @@
               this.currentSubtitle = '';
             }
             this.selectedTimelineItem = null;
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.showToast(`🗑️ Deleted Text: "${delName}"`);
             this.$nextTick(() => lucide.createIcons());
           } else if (target.type === 'effect') {
@@ -5580,6 +6569,8 @@
               this.timelineEffects = [];
             }
             this.selectedTimelineItem = null;
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.showToast(`🗑️ Deleted ${fxName} Overlay Effect`);
             this.$nextTick(() => lucide.createIcons());
           } else if (target.type === 'sfx') {
@@ -5591,6 +6582,8 @@
               this.timelineSfx.pop();
             }
             this.selectedTimelineItem = null;
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.showToast(`🗑️ Deleted ${sfxName} Sound Effect Hit`);
             this.$nextTick(() => lucide.createIcons());
           } else if (target.type === 'bgm') {
@@ -5602,6 +6595,8 @@
             this.beatData.beat1_major = [];
             this.beatData.beat2_sub = [];
             this.selectedTimelineItem = null;
+            this.recalculateTotalDuration();
+            this.saveTimelineToBackend();
             this.saveSettings();
             this.showToast('🗑️ Cleared BGM Music Track from Timeline');
             this.$nextTick(() => lucide.createIcons());
@@ -5657,6 +6652,7 @@
             cancelText: 'Keep Editing',
             onConfirm: async () => {
               try {
+                this.pushUndoState();
                 await fetch('/api/timeline/reset', { method: 'POST' });
                 await this.loadProject();
                 this.showToast('🔄 Timeline restored to raw input clips');
@@ -5685,12 +6681,59 @@
         },
 
         handleGlobalKeys(e) {
+          // 1. Universal Ctrl+S / Cmd+S project save shortcut (works everywhere, even inside inputs)
+          if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyS' || e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.saveCurrentProject(true);
+            return;
+          }
+
           if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
+          // 2. Session-Based Undo (Ctrl+Z) & Redo (Ctrl+Y / Ctrl+Shift+Z)
+          if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyZ' || e.key === 'z' || e.key === 'Z')) {
+            e.preventDefault();
+            if (e.shiftKey) {
+              this.redo();
+            } else {
+              this.undo();
+            }
+            return;
+          }
+          if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyY' || e.key === 'y' || e.key === 'Y')) {
+            e.preventDefault();
+            this.redo();
+            return;
+          }
+
+          // 3. CapCut 1:1 Clipboard Operations: Ctrl+C (Copy), Ctrl+X (Cut), Ctrl+D (Duplicate), Ctrl+V (Paste)
+          if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyC' || e.key === 'c' || e.key === 'C')) {
+            e.preventDefault();
+            this.copySelectedElement();
+            return;
+          }
+          if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyX' || e.key === 'x' || e.key === 'X')) {
+            e.preventDefault();
+            this.cutSelectedElement();
+            return;
+          }
+          if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyD' || e.key === 'd' || e.key === 'D')) {
+            e.preventDefault();
+            this.duplicateSelectedElement();
+            return;
+          }
+          if ((e.ctrlKey || e.metaKey) && (e.code === 'KeyV' || e.key === 'v' || e.key === 'V')) {
+            e.preventDefault();
+            this.pasteClipboardElement();
+            return;
+          }
+
+          // 4. Playhead & Timeline Shortcuts: Space (Play/Pause), Ctrl+B / B (Split), Del / Backspace (Delete)
           if (e.code === 'Space') {
             e.preventDefault();
             this.togglePlay();
-          } else if ((e.ctrlKey && e.code === 'KeyB') || (!e.ctrlKey && !e.metaKey && (e.key === 's' || e.key === 'S'))) {
+          } else if ((e.ctrlKey && e.code === 'KeyB') || (!e.ctrlKey && !e.metaKey && (e.key === 'b' || e.key === 'B'))) {
             e.preventDefault();
             this.splitElementAtPlayhead();
           } else if (e.code === 'Delete' || e.code === 'Backspace') {
