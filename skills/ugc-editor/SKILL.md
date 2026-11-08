@@ -261,40 +261,71 @@ Intelligently layers and mixes sound effects from the curated `SFX/` library to 
 
 ---
 
-### Capability 5: Keyframed Camera Zooms & Dynamic Reframing (Smart Zooming)
+### Capability 5: CapCut 1:1 Keyframe Animation & Multi-Property Transform Engine
 
-Applies continuous slow zooms, punch-cut reframing, and dialogue-aware smart camera switches to simulate high-end multi-camera production.
+Provides desktop-grade multi-property keyframing (Scale, Position X, Position Y, Rotation, Opacity) matching CapCut Desktop with smooth cubic ease-in-out physics, 1-Click Pro UGC presets, and custom JSON keyframe tracks, all while preserving original audio bit-for-bit (`-c:a copy`).
 
-#### Available Modes:
-- **`smart_cuts`** *(UGC Standard)*: Dialogue- and scene-aware camera switching. Instead of arbitrary modulo timers, camera angle changes occur strictly on **clip transitions or sentence pauses**:
-  - **The Hook (0.0s - 2.0s)**: Opens with an immediate close-up punch (`1.18x`) to capture eye contact, then resets to wide (`1.0x`) as the premise is laid out.
-  - **Hero Reveal / Discovery**: Punches in (`1.18x`) to highlight the solution/product.
-  - **Demonstration**: Resets to wide/medium (`1.05x`) giving visual space for hands and actions.
-  - **Call-to-Action**: Punches in (`1.18x`) for commanding final authority.
-- **`slow_push`**: Gradual continuous zoom-in (`1.0x -> 1.15x`) that builds emotional connection and focus during core explanations.
-- **`slow_pull`**: Continuous pull-back (`1.15x -> 1.0x`) for opening hooks or section summaries.
-- **`punch_cuts`**: Alternates between wide (`1.0x`) and punch-zoom (`1.15x`) every N seconds (e.g. every `3.5s`).
-- **`custom`**: Explicit keyframe cues (`--cues "0:1.0, 3.5:1.18, 7.0:1.0"`).
-
-#### Smart Talking-Head Anchor (`--anchor face`):
-Standard zoom filters crop toward the center (cutting off hair/foreheads and framing chests). The `face` anchor offsets the vertical crop to the upper-third (`0.35` factor) so the speaker's eyes and face remain centered and flattering.
+#### Highlights & Architecture:
+1. **Multi-Property Transform Channels**:
+   - **`scale`**: Dynamic zoom factor ($1.0$ standard to $3.0\times$ punch zoom, or $< 1.0$ for PIP/picture-in-picture).
+   - **`pos_x` & `pos_y`**: Frame-accurate panning and tilting offsets in pixels relative to center or anchor point.
+   - **`rotation`**: Angle in degrees with automatic bounding box expansion (`ow=hypot(iw,ih):oh=hypot(iw,ih)`) to prevent corner clipping.
+   - **`opacity`**: Micro-interpolated alpha transparency ($0.0$ to $1.0$) composited seamlessly over canvas.
+2. **Cubic Ease-In-Out Curve Physics (`--easing cubic`)**:
+   - Implements authentic natural momentum:
+     $$\text{ease}(p) = \begin{cases} 2p^2 & \text{if } p < 0.5 \\ 1 - 2(1 - p)^2 & \text{if } p \ge 0.5 \end{cases}$$
+   - Eliminates robotic, jarring linear cuts in favor of cinematic, organic camera motion.
+   - Also supports `--easing linear` and `--easing step`.
+3. **1-Click Pro UGC Presets (`--preset`)**:
+   - **`zoom_in`**: Smooth cinematic push-in (`1.0x -> 1.25x`) with cubic easing (UGC talking-head focus standard).
+   - **`dramatic_push`**: High-energy punch zoom into the speaker (`1.0x -> 1.35x` in 0.8s) with subtle -1.5° camera tilt for intense dramatic emphasis.
+   - **`ken_burns`**: Slow documentary pan and gentle zoom (`1.08x -> 1.20x`, pan X/Y) across b-roll, product stills, or testimonials.
+   - **`pulse_snap`**: Hook pattern interrupt snap (`1.0x -> 1.22x` in 0.28s, settles to `1.05x`) that breaks scrolling trance at frame 1.
+   - **`fade_in_out`**: Smooth cinematic opacity envelope (`0.0 -> 1.0` entrance, `1.0 -> 0.0` exit).
+4. **Custom Keyframe Tracks (`--keyframes` / `--keyframes-file`)**:
+   - Pass any custom keyframe sequence directly as JSON via CLI or file:
+     ```json
+     [
+       {"time": 0.0, "scale": 1.0, "pos_x": 0, "pos_y": 0, "rotation": 0, "opacity": 1.0},
+       {"time": 1.2, "scale": 1.25, "pos_x": 20, "pos_y": -15, "rotation": 2.5, "opacity": 1.0},
+       {"time": 2.8, "scale": 1.0, "pos_x": 0, "pos_y": 0, "rotation": 0, "opacity": 1.0}
+     ]
+     ```
+5. **Legacy Modes & Smart Talking-Head Anchor (`--mode smart_cuts --anchor face`)**:
+   - 100% backwards compatible with legacy `--mode smart_cuts`, `--mode slow_push`, `--mode slow_pull`, `--mode punch_cuts`, `--mode custom`.
+   - The `face` anchor (`0.35` factor) centers talking heads in the upper third for 9:16 vertical TikTok/Reels footage.
+6. **Bit-Exact Audio Preservation**:
+   - Uses `-map [outv] -map 0:a? -c:a copy` so original dialogue and sound tracks are passed through bit-for-bit with zero re-encoding or compression.
 
 #### How to Execute:
 ```powershell
-.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_keyframes.py -i "Output/<video_file>.mp4" -o "Output/<video_file>_zoomed.mp4" --mode smart_cuts --max-zoom 1.18 --anchor face --scene-cuts "7.7,10.9,16.9"
+# 1. 1-Click Pro UGC Preset (Cinematic Push-In):
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_keyframes.py -i "Output/<video_file>.mp4" -o "Output/<video_file>_zoomin.mp4" --preset zoom_in
+
+# 2. Dramatic Punch Zoom with Tilt:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_keyframes.py -i "Output/<video_file>.mp4" -o "Output/<video_file>_dramatic.mp4" --preset dramatic_push
+
+# 3. Custom Multi-Property Keyframe Track:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_keyframes.py -i "Output/<video_file>.mp4" -o "Output/<video_file>_custom.mp4" --keyframes '[{"time":0.0,"scale":1.0,"rotation":0,"pos_x":0},{"time":1.0,"scale":1.25,"rotation":3,"pos_x":25},{"time":2.5,"scale":1.0,"rotation":0,"pos_x":0}]'
+
+# 4. List All Available Presets:
+.\.venv\Scripts\python.exe skills/ugc-editor/scripts/apply_keyframes.py list
 ```
 
 #### CLI Parameters:
-- `-i, --input <PATH>`: Source video path (Required).
-- `-o, --output <PATH>`: Output video path.
-- `-m, --mode <STR>`: Zoom profile (`smart_cuts`, `slow_push`, `slow_pull`, `punch_cuts`, `custom`).
-- `-z, --max-zoom <FLOAT>`: Peak zoom factor (Default: `1.18`x / 118%).
-- `-a, --anchor <STR>`: Framing anchor (`face`, `center`, `top`, `bottom`).
-- `--scene-cuts <STR>`: Comma-separated scene cut timestamps (e.g. `'7.76, 10.97, 16.97'`).
-- `--from-ass <PATH>`: Subtitle `.ass` file to align zooms to dialogue phrases.
-- `-a, --anchor <STR>`: Focus anchor: `face` (default for talking heads), `center`, `top`, `bottom`.
+- `-i, --input <PATH>`: Source video path in `Input/` or `Output/` (Required).
+- `-o, --output <PATH>`: Destination video path (Defaults to `Output/<stem>_<preset_or_mode>.mp4`).
+- `-p, --preset <STR>`: Pro UGC motion preset (`zoom_in`, `dramatic_push`, `ken_burns`, `pulse_snap`, `fade_in_out`).
+- `-k, --keyframes <JSON>`: JSON string of keyframe objects.
+- `--keyframes-file <PATH>`: External JSON keyframes file path.
+- `-e, --easing <STR>`: Easing curve: `cubic` (smooth ease-in-out, default), `linear`, or `step`.
+- `-m, --mode <STR>`: Legacy zoom profile: `smart_cuts`, `slow_push`, `slow_pull`, `punch_cuts`, `custom`.
+- `-z, --max-zoom <FLOAT>`: Peak zoom factor (Default: `1.18`x).
+- `-a, --anchor <STR>`: Framing anchor: `face` (default for talking heads, upper third), `center`, `top`, `bottom`.
 - `-c, --cycle <FLOAT>`: Cycle period in seconds for `punch_cuts` (Default: `3.5`s).
-- `--cues <STR>`: Custom keyframe cues (e.g. `'0:1.0, 4.0:1.18, 8.0:1.0'`).
+- `--scene-cuts <STR>`: Comma-separated scene cut timestamps (e.g. `'7.7, 10.9, 16.9'`).
+- `--from-ass <PATH>`: Subtitle `.ass` file to align zooms to dialogue phrases.
+- `--cues <STR>`: Legacy timestamp cues (e.g. `'0:1.0, 4.0:1.18, 8.0:1.0'`).
 
 ---
 

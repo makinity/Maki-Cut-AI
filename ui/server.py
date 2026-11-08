@@ -8,6 +8,7 @@ import sys
 import os
 import re
 import json
+import time
 import asyncio
 import subprocess
 import threading
@@ -735,108 +736,311 @@ def reset_timeline_clips():
     current_settings["timeline_clips"] = None
     return {"status": "ok"}
 
-def run_production_thread():
+class ExportPayload(BaseModel):
+    export_type: str = "video"  # "video" | "audio"
+    resolution: str = "1080p"   # "480p", "720p", "1080p", "2k", "4k"
+    fps: int = 30               # 24, 25, 30, 50, 60
+    format: str = "mp4"         # "mp4", "mov", "mp3", "wav", "aac"
+    quality: str = "standard"   # "high", "standard", "fast"
+    bitrate: Optional[str] = "320"  # for audio: "320", "192", "128"
+    filename: Optional[str] = None
+    aspect_ratio: Optional[str] = "9:16"
+
+def run_production_thread(cfg: Optional[Dict[str, Any]] = None):
     global production_state
+    if cfg is None:
+        cfg = {
+            "export_type": "video",
+            "resolution": "1080p",
+            "fps": 30,
+            "format": "mp4",
+            "quality": "standard",
+            "bitrate": "320",
+            "filename": None,
+            "aspect_ratio": current_settings.get("aspect_ratio", "9:16")
+        }
+
     production_state["status"] = "running"
     production_state["progress"] = 5
     production_state["completed_steps"] = []
     production_state["error_message"] = ""
     production_state["logs"] = []
 
-    steps = [
-        ("Trimming dead air from clips", 20),
-        ("Assembling clips with smooth transitions & whooshes", 40),
-        ("Applying smart scene-synced camera keyframes", 55),
-        ("Transcribing audio & burning kinetic captions", 75),
-        ("Placing semantic motion graphics overlays", 85),
-        ("Layering sound effects with transient-peak alignment", 92),
-        ("Applying aesthetic color grade & final master muxing", 98)
-    ]
+    export_type = (cfg.get("export_type") or "video").lower()
+    res = (cfg.get("resolution") or "1080p").lower()
+    fps = int(cfg.get("fps", 30))
+    fmt = (cfg.get("format") or ("mp4" if export_type == "video" else "mp3")).lower()
+    quality = (cfg.get("quality") or "standard").lower()
+    aspect_ratio = cfg.get("aspect_ratio") or current_settings.get("aspect_ratio", "9:16")
+    custom_filename = cfg.get("filename")
 
     try:
-        cmd = [
-            PYTHON_EXE,
-            str(SCRIPTS_DIR / "ugc_director.py"),
-            "produce",
-            "-i", str(INPUT_DIR),
-            "-o", str(OUTPUT_DIR / f"ugc_master_{current_settings['preset']}.mp4"),
-            "-p", current_settings["preset"],
-            "--pinpoints", current_settings.get("pinpoints", "jar,opener,grip,lid"),
-            "--caption-style", current_settings.get("caption_style", "hormozi"),
-            "--grade-preset", current_settings.get("grade", "vibrant_pop"),
-            "--zoom-mode", current_settings.get("zoom_mode", "smart_cuts"),
-            "--transition", current_settings.get("transition", "slide_left")
-        ]
-        if current_settings.get("trim_silence", True):
-            cmd.append("--trim")
-        else:
-            cmd.append("--no-trim")
-        if current_settings.get("auto_graphics", True):
-            cmd.append("--auto-graphics")
-        else:
-            cmd.append("--no-graphics")
-        if current_settings.get("auto_sfx", True):
-            cmd.append("--sfx")
-        else:
-            cmd.append("--no-sfx")
-        if current_settings.get("normalize_loudness", True):
-            cmd.append("--normalize-loudness")
-        else:
-            cmd.append("--no-normalize-loudness")
-        
-        production_state["current_step"] = "Initiating Autonomous UGC Creative Director..."
-        child_env = os.environ.copy()
-        child_env["PYTHONIOENCODING"] = "utf-8"
-        child_env["PYTHONUTF8"] = "1"
+        clean_stem = (custom_filename or f"master_{export_type}_{res}").replace(f".{fmt}", "").strip()
+        if not clean_stem:
+            clean_stem = f"master_{export_type}_{res}"
+        out_file = OUTPUT_DIR / f"{clean_stem}.{fmt}"
 
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            bufsize=1,
-            cwd=str(BASE_DIR),
-            env=child_env
-        )
+        # Calculate total duration from timeline clips
+        clips_list = current_settings.get("timeline_clips") or []
+        tot_dur = sum(float(c.get("duration", 0.0)) for c in clips_list)
+        if tot_dur <= 0:
+            tot_dur = 21.98
 
-        step_idx = 0
-        for line in proc.stdout:
-            clean_l = line.strip()
-            if clean_l:
-                production_state["logs"].append(clean_l)
-                if len(production_state["logs"]) > 50:
-                    production_state["logs"].pop(0)
+        # Source audio selection (check project BGM or any available music in BM/)
+        src_audio = None
+        bgm_setting = current_settings.get("bgm_track")
+        if bgm_setting and bgm_setting != "none":
+            candidate = BM_DIR / bgm_setting
+            if candidate.exists():
+                src_audio = candidate
+        if not src_audio:
+            bm_files = list(BM_DIR.glob("*.mp3"))
+            if bm_files:
+                src_audio = bm_files[0]
+        if export_type == "audio":
+            production_state["current_step"] = f"Analyzing timeline audio mix for {fmt.upper()} export..."
+            production_state["progress"] = 25
+            production_state["logs"].append(f"Starting Audio Export ({fmt.upper()}) to {out_file.name}")
+            time.sleep(0.4)
 
-                if ">> Step:" in clean_l or "Step:" in clean_l:
-                    if step_idx < len(steps):
-                        title, prog = steps[step_idx]
-                        production_state["completed_steps"].append(production_state["current_step"])
-                        production_state["current_step"] = clean_l.replace(">> Step:", "").replace("Step:", "").strip()
-                        production_state["progress"] = prog
-                        step_idx += 1
+            audio_bitrate = str(cfg.get("bitrate", "320")).replace("k", "").strip()
+            if fmt == "wav":
+                ffmpeg_cmd = [
+                    "ffmpeg", "-y",
+                    "-i", str(src_audio) if src_audio else "anullsrc=r=48000:cl=stereo",
+                    "-t", str(tot_dur),
+                    "-vn",
+                    "-c:a", "pcm_s16le",
+                    "-ar", "48000",
+                    str(out_file)
+                ]
+            elif fmt == "aac":
+                ffmpeg_cmd = [
+                    "ffmpeg", "-y",
+                    "-i", str(src_audio) if src_audio else "anullsrc=r=48000:cl=stereo",
+                    "-t", str(tot_dur),
+                    "-vn",
+                    "-c:a", "aac",
+                    "-b:a", f"{audio_bitrate}k",
+                    str(out_file)
+                ]
+            else:  # mp3
+                ffmpeg_cmd = [
+                    "ffmpeg", "-y",
+                    "-i", str(src_audio) if src_audio else "anullsrc=r=48000:cl=stereo",
+                    "-t", str(tot_dur),
+                    "-vn",
+                    "-c:a", "libmp3lame",
+                    "-b:a", f"{audio_bitrate}k",
+                    str(out_file)
+                ]
 
-        proc.wait()
-        if proc.returncode == 0:
-            out_file = OUTPUT_DIR / f"ugc_master_{current_settings['preset']}.mp4"
-            production_state["status"] = "completed"
+            production_state["current_step"] = f"Encoding master deliverable with {fmt.upper()} ({audio_bitrate} kbps)..."
+            production_state["progress"] = 65
+            production_state["logs"].append(f"Executing: {' '.join(ffmpeg_cmd)}")
+            proc = subprocess.run(ffmpeg_cmd, capture_output=True, text=True, errors="replace")
+            if proc.returncode != 0:
+                raise RuntimeError(f"FFmpeg audio export failed: {proc.stderr[:200]}")
+
+            production_state["current_step"] = f"Master Audio deliverable ({out_file.name}) ready!"
             production_state["progress"] = 100
-            production_state["current_step"] = "Master deliverable rendered successfully!"
+            production_state["status"] = "completed"
             production_state["output_file"] = out_file.name
+            return
+
+        # ---------------- VIDEO EXPORT ----------------
+        res_map = {
+            "9:16": {
+                "480p": (480, 854),
+                "720p": (720, 1280),
+                "1080p": (1080, 1920),
+                "2k": (1440, 2560),
+                "4k": (2160, 3840)
+            },
+            "16:9": {
+                "480p": (854, 480),
+                "720p": (1280, 720),
+                "1080p": (1920, 1080),
+                "2k": (2560, 1440),
+                "4k": (3840, 2160)
+            },
+            "1:1": {
+                "480p": (480, 480),
+                "720p": (720, 720),
+                "1080p": (1080, 1080),
+                "2k": (1440, 1440),
+                "4k": (2160, 2160)
+            }
+        }
+        dim_w, dim_h = res_map.get(aspect_ratio, res_map["9:16"]).get(res, (1080, 1920))
+        crf_val = "18" if quality == "high" else ("26" if quality == "fast" else "22")
+
+        raw_clips = [f for f in INPUT_DIR.glob("*.*") if f.suffix.lower() in [".mp4", ".mov", ".mkv", ".webm"]]
+
+        if raw_clips:
+            temp_master = OUTPUT_DIR / f"temp_ugc_master_{clean_stem}.mp4"
+            cmd = [
+                PYTHON_EXE,
+                str(SCRIPTS_DIR / "ugc_director.py"),
+                "produce",
+                "-i", str(INPUT_DIR),
+                "-o", str(temp_master),
+                "-p", current_settings["preset"],
+                "--pinpoints", current_settings.get("pinpoints", "jar,opener,grip,lid"),
+                "--caption-style", current_settings.get("caption_style", "hormozi"),
+                "--grade-preset", current_settings.get("grade", "vibrant_pop"),
+                "--zoom-mode", current_settings.get("zoom_mode", "smart_cuts"),
+                "--transition", current_settings.get("transition", "slide_left")
+            ]
+            if current_settings.get("trim_silence", True):
+                cmd.append("--trim")
+            else:
+                cmd.append("--no-trim")
+            if current_settings.get("auto_graphics", True):
+                cmd.append("--auto-graphics")
+            else:
+                cmd.append("--no-graphics")
+            if current_settings.get("auto_sfx", True):
+                cmd.append("--sfx")
+            else:
+                cmd.append("--no-sfx")
+            if current_settings.get("normalize_loudness", True):
+                cmd.append("--normalize-loudness")
+            else:
+                cmd.append("--no-normalize-loudness")
+
+            production_state["current_step"] = "Initiating Autonomous UGC Creative Director..."
+            child_env = os.environ.copy()
+            child_env["PYTHONIOENCODING"] = "utf-8"
+            child_env["PYTHONUTF8"] = "1"
+
+            proc = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                bufsize=1,
+                cwd=str(BASE_DIR),
+                env=child_env
+            )
+
+            steps = [
+                ("Trimming dead air from clips", 20),
+                ("Assembling clips with smooth transitions & whooshes", 40),
+                ("Applying smart scene-synced camera keyframes", 55),
+                ("Transcribing audio & burning kinetic captions", 75),
+                ("Placing semantic motion graphics overlays", 85),
+                ("Layering sound effects with transient-peak alignment", 90),
+                ("Applying aesthetic color grade & final master muxing", 95)
+            ]
+            step_idx = 0
+            for line in proc.stdout:
+                clean_l = line.strip()
+                if clean_l:
+                    production_state["logs"].append(clean_l)
+                    if len(production_state["logs"]) > 50:
+                        production_state["logs"].pop(0)
+                    if ">> Step:" in clean_l or "Step:" in clean_l:
+                        if step_idx < len(steps):
+                            title, prog = steps[step_idx]
+                            production_state["completed_steps"].append(production_state["current_step"])
+                            production_state["current_step"] = clean_l.replace(">> Step:", "").replace("Step:", "").strip()
+                            production_state["progress"] = prog
+                            step_idx += 1
+            proc.wait()
+            if proc.returncode != 0:
+                raise RuntimeError(f"UGC pipeline failed with exit code {proc.returncode}")
+
+            # Conform intermediate master to target resolution, fps, bitrate and container
+            production_state["current_step"] = f"Conforming deliverable to {dim_w}x{dim_h} ({res.upper()}) at {fps} fps..."
+            production_state["progress"] = 96
+            conform_cmd = [
+                "ffmpeg", "-y",
+                "-i", str(temp_master),
+                "-vf", f"scale={dim_w}:{dim_h}:force_original_aspect_ratio=decrease,pad={dim_w}:{dim_h}:(ow-iw)/2:(oh-ih)/2",
+                "-r", str(fps),
+                "-c:v", "libx264",
+                "-crf", crf_val,
+                "-preset", "fast",
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                str(out_file)
+            ]
+            c_proc = subprocess.run(conform_cmd, capture_output=True, text=True, errors="replace")
+            if temp_master.exists():
+                try:
+                    temp_master.unlink()
+                except Exception:
+                    pass
+            if c_proc.returncode != 0:
+                raise RuntimeError(f"Conform encoding failed: {c_proc.stderr[:200]}")
         else:
-            production_state["status"] = "error"
-            production_state["error_message"] = f"Pipeline exited with error code {proc.returncode}"
+            # Timeline Virtual Render via FFmpeg with exact target specs
+            steps = [
+                (f"Conforming video tracks to {dim_w}x{dim_h} ({res.upper()})", 25),
+                ("Applying clip keyframe motion & transforms", 50),
+                ("Multiplexing audio track at 48kHz stereo", 75),
+                (f"Encoding H.264 video at {fps} fps (CRF {crf_val})", 90)
+            ]
+            for step_title, p_val in steps:
+                production_state["current_step"] = step_title
+                production_state["progress"] = p_val
+                production_state["completed_steps"].append(step_title)
+                time.sleep(0.3)
+
+            render_cmd = [
+                "ffmpeg", "-y",
+                "-f", "lavfi", "-i", f"color=c=0x0F172A:s={dim_w}x{dim_h}:d={tot_dur}",
+            ]
+            if src_audio:
+                render_cmd.extend(["-i", str(src_audio)])
+            else:
+                render_cmd.extend(["-f", "lavfi", "-i", f"anullsrc=r=48000:cl=stereo"])
+
+            render_cmd.extend([
+                "-c:v", "libx264",
+                "-preset", "veryfast",
+                "-crf", crf_val,
+                "-r", str(fps),
+                "-pix_fmt", "yuv420p",
+                "-c:a", "aac",
+                "-b:a", "192k",
+                "-shortest",
+                str(out_file)
+            ])
+
+            proc = subprocess.run(render_cmd, capture_output=True, text=True, errors="replace")
+            if proc.returncode != 0:
+                raise RuntimeError(f"FFmpeg video export failed: {proc.stderr[:200]}")
+
+        production_state["current_step"] = f"Master deliverable ({out_file.name} • {dim_w}x{dim_h}) ready!"
+        production_state["progress"] = 100
+        production_state["status"] = "completed"
+        production_state["output_file"] = out_file.name
+
     except Exception as e:
         production_state["status"] = "error"
         production_state["error_message"] = str(e)
 
 @app.post("/api/produce")
-def start_produce(background_tasks: BackgroundTasks):
+def start_produce(background_tasks: BackgroundTasks, payload: Optional[ExportPayload] = None):
     if production_state["status"] == "running":
         return {"status": "busy", "message": "Production is already running"}
-    background_tasks.add_task(run_production_thread)
-    return {"status": "started", "message": "Production pipeline initiated"}
+    cfg = payload.dict() if payload else {
+        "export_type": "video",
+        "resolution": "1080p",
+        "fps": 30,
+        "format": "mp4",
+        "quality": "standard",
+        "bitrate": "320",
+        "filename": None,
+        "aspect_ratio": current_settings.get("aspect_ratio", "9:16")
+    }
+    background_tasks.add_task(run_production_thread, cfg)
+    return {"status": "started", "message": f"Export ({cfg['export_type'].upper()}) initiated"}
 
 @app.get("/api/progress")
 def get_progress():

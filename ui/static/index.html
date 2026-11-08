@@ -1078,7 +1078,7 @@
       <div class="h-4 w-px bg-slate-200 dark:bg-[#2E2E35] mx-0.5"></div>
 
       <!-- CapCut Export CTA Button -->
-      <button @click="startProduction()"
+      <button @click="openExportModal()"
               class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#1683DF] to-blue-600 hover:from-[#126ec0] hover:to-blue-700 text-white font-display font-extrabold text-xs tracking-wider flex items-center gap-1.5 shadow-md shadow-blue-500/25 active:scale-95 transition-all">
         <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
         <span>EXPORT</span>
@@ -1528,12 +1528,12 @@
     <main class="flex-1 studio-canvas flex flex-col items-center justify-between p-3 overflow-hidden relative transition-colors">
       
       <!-- Top Canvas Control Bar -->
-      <div class="w-full max-w-lg flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-1">
+      <div class="w-full max-w-xl flex items-center justify-between text-xs text-slate-600 dark:text-slate-400 mb-1 px-1">
         <!-- Aspect Ratio -->
         <div class="flex items-center gap-2">
           <span class="text-[10px] uppercase font-mono font-bold text-slate-500">Aspect:</span>
           <select x-model="aspectRatio" class="bg-white dark:bg-[#182234] border border-slate-200 dark:border-[#243044] rounded-md px-2 py-0.5 text-slate-800 dark:text-slate-200 text-xs shadow-xs focus:outline-none">
-            <option value="9:16">9:16 (TikTok/Reels)</option>
+            <option value="9:16">9:16 (TikTok/Reels/Shorts)</option>
             <option value="16:9">16:9 (YouTube)</option>
             <option value="1:1">1:1 (Square)</option>
           </select>
@@ -1541,11 +1541,37 @@
 
         <!-- Safe Zone & Compare Toggles -->
         <div class="flex items-center gap-2">
-          <button @click="showSafeZone = !showSafeZone"
-                  :class="showSafeZone ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800 font-bold' : 'bg-white dark:bg-[#182234] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#243044]'"
-                  class="px-2.5 py-1 rounded-md border text-[11px] flex items-center gap-1 transition-all shadow-xs">
-            <i data-lucide="grid" class="w-3 h-3"></i> Safe Guides
-          </button>
+          <!-- Safe Guides Toggle + 4 Platform Selector (TikTok, IG, YT, FB) -->
+          <div class="flex items-center bg-white dark:bg-[#182234] p-0.5 rounded-lg border border-slate-200 dark:border-[#243044] shadow-xs">
+            <button @click="showSafeZone = !showSafeZone; $nextTick(() => lucide.createIcons())"
+                    :class="showSafeZone ? 'bg-amber-500 text-white font-bold shadow-xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'"
+                    class="px-2 py-0.5 rounded-md text-[11px] flex items-center gap-1 transition-all cursor-pointer"
+                    title="Toggle Platform Safe Guide Wireframes">
+              <i data-lucide="grid" class="w-3 h-3"></i>
+              <span>Safe Guides</span>
+            </button>
+
+            <!-- 4 Platform Buttons (TikTok, IG, YT, FB) -->
+            <div x-show="showSafeZone" x-transition.opacity class="flex items-center gap-0.5 pl-1.5 ml-1 border-l border-slate-200 dark:border-slate-700">
+              <button @click="safeGuidePlatform = 'tiktok'; $nextTick(() => lucide.createIcons())"
+                      :class="safeGuidePlatform === 'tiktok' ? 'bg-black text-cyan-300 font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'"
+                      class="px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer"
+                      title="TikTok 9:16 Native UI Safe Guide">TikTok</button>
+              <button @click="safeGuidePlatform = 'ig'; $nextTick(() => lucide.createIcons())"
+                      :class="safeGuidePlatform === 'ig' ? 'bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'"
+                      class="px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer"
+                      title="Instagram Reels 9:16 Native UI Safe Guide">IG</button>
+              <button @click="safeGuidePlatform = 'yt'; $nextTick(() => lucide.createIcons())"
+                      :class="safeGuidePlatform === 'yt' ? 'bg-red-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'"
+                      class="px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer"
+                      title="YouTube Shorts 9:16 Native UI Safe Guide">YT</button>
+              <button @click="safeGuidePlatform = 'fb'; $nextTick(() => lucide.createIcons())"
+                      :class="safeGuidePlatform === 'fb' ? 'bg-blue-600 text-white font-bold shadow-xs' : 'text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white'"
+                      class="px-1.5 py-0.5 rounded text-[10px] font-mono transition-all cursor-pointer"
+                      title="Facebook Reels 9:16 Native UI Safe Guide">FB</button>
+            </div>
+          </div>
+
           <button @click="toggleBeforeAfter()"
                   :class="previewMode === 'raw' ? 'bg-blue-100 dark:bg-blue-950/40 text-[#1683DF] border-[#1683DF] font-bold' : 'bg-white dark:bg-[#182234] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-[#243044]'"
                   class="px-2.5 py-1 rounded-md border text-[11px] flex items-center gap-1 transition-all shadow-xs">
@@ -1599,7 +1625,7 @@
                  playsinline
                  @timeupdate="onTimeUpdate()"
                  @ended="onEnded()"
-                 :style="getVideoMaskStyle()"
+                 :style="getVideoPlayerStyle()"
                  :src="currentVideoSrc">
           </video>
 
@@ -1642,33 +1668,370 @@
             <div class="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-cyan-300"></div>
           </div>
 
-          <!-- Safe Zone Guidelines (TikTok / Reels & BioChroma Standard Overlay) -->
-          <div x-show="showSafeZone" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-3 z-30">
-            <!-- Top Soundbar Safe Zone -->
-            <div class="w-28 h-5 mx-auto rounded-full border border-dashed border-yellow-400/80 bg-yellow-400/10 flex items-center justify-center shadow-xs">
-              <span class="text-[8px] text-yellow-300 font-mono font-semibold">Sound Safe (Top)</span>
-            </div>
+          <!-- Safe Zone Guidelines: 4 Multi-Platform Native Wireframes (TikTok, IG Reels, YT Shorts, FB Reels) -->
+          <div x-show="showSafeZone" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-3 z-30 select-none overflow-hidden text-white">
 
-            <!-- Right Native UI Simulation (Likes, Comments, Share, Disc) -->
-            <div class="self-end flex flex-col gap-2.5 items-center mr-1">
-              <div class="w-6 h-6 rounded-full border border-dashed border-rose-400/70 bg-rose-400/10 flex items-center justify-center text-[7px] text-rose-300 font-mono">♥</div>
-              <div class="w-6 h-6 rounded-full border border-dashed border-slate-300/70 bg-slate-400/10 flex items-center justify-center text-[7px] text-slate-300 font-mono">💬</div>
-              <div class="w-6 h-6 rounded-full border border-dashed border-cyan-400/70 bg-cyan-400/10 flex items-center justify-center text-[7px] text-cyan-300 font-mono">↗</div>
-              <div class="w-6 h-6 rounded-full border border-dashed border-amber-400/70 bg-amber-400/10 flex items-center justify-center text-[7px] text-amber-300 font-mono">♫</div>
-            </div>
+            <!-- ===================== 1. TIKTOK NATIVE OVERLAY ===================== -->
+            <template x-if="safeGuidePlatform === 'tiktok'">
+              <div class="w-full h-full flex flex-col justify-between relative">
+                <!-- Top Header: LIVE, Following | For You, Search -->
+                <div class="flex items-center justify-between pt-1">
+                  <span class="px-1.5 py-0.5 rounded bg-black/40 text-[8px] font-bold border border-white/20 text-white/90">LIVE</span>
+                  <div class="flex items-center gap-3 text-[11px] drop-shadow">
+                    <span class="text-white/60 font-semibold">Following</span>
+                    <span class="text-white font-bold border-b-2 border-white pb-0.5">For You</span>
+                  </div>
+                  <div class="w-5 h-5 rounded-full bg-black/30 flex items-center justify-center text-white/90">
+                    <i data-lucide="search" class="w-3 h-3"></i>
+                  </div>
+                </div>
 
-            <!-- BioChroma Lower-Middle Safe Line (~27% from Bottom / MarginV: 520) -->
-            <div class="relative w-full mb-1">
-              <div class="w-full border-t-2 border-dashed border-[#1683DF] flex items-center justify-between px-2 py-0.5 bg-[#1683DF]/15 rounded">
-                <span class="text-[8px] text-[#1683DF] dark:text-cyan-300 font-mono font-bold">BioChroma 78pt Safe-Zone (MarginV: 520, ~27%)</span>
-                <span class="text-[7px] text-[#1683DF] dark:text-cyan-300 font-mono">Strict Single Row</span>
+                <!-- Top Sound Safe Pill Wireframe -->
+                <div class="w-28 h-4 mx-auto rounded-full border border-dashed border-yellow-400/80 bg-yellow-400/15 flex items-center justify-center shadow-xs">
+                  <span class="text-[7.5px] text-yellow-300 font-mono font-semibold">Sound Safe (Top)</span>
+                </div>
+
+                <!-- Right Action Rail (TikTok Avatar, Heart, Comment, Bookmark, Share, Disc) -->
+                <div class="absolute right-0 top-1/3 -translate-y-4 flex flex-col gap-2 items-center text-center">
+                  <!-- Avatar + Plus -->
+                  <div class="relative mb-0.5">
+                    <div class="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-400 to-rose-400 p-0.5 shadow-md">
+                      <div class="w-full h-full rounded-full bg-slate-900 flex items-center justify-center text-[9px] font-bold text-white">BC</div>
+                    </div>
+                    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-rose-500 text-white flex items-center justify-center text-[10px] font-bold leading-none shadow-xs">+</div>
+                  </div>
+                  <!-- Heart -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/35 backdrop-blur-xs flex items-center justify-center text-rose-500 shadow-sm">
+                      <i data-lucide="heart" class="w-3.5 h-3.5 fill-rose-500"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">312.4K</span>
+                  </div>
+                  <!-- Comment -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/35 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="message-circle" class="w-3.5 h-3.5 fill-white"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">2,481</span>
+                  </div>
+                  <!-- Bookmark -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/35 backdrop-blur-xs flex items-center justify-center text-amber-300 shadow-sm">
+                      <i data-lucide="bookmark" class="w-3.5 h-3.5 fill-amber-300"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">28.6K</span>
+                  </div>
+                  <!-- Share -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/35 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="share-2" class="w-3.5 h-3.5 fill-white"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">14.2K</span>
+                  </div>
+                  <!-- Spinning Vinyl Music Disc -->
+                  <div class="w-6 h-6 rounded-full bg-black border-2 border-slate-700 flex items-center justify-center animate-spin" style="animation-duration: 4s;">
+                    <div class="w-2.5 h-2.5 rounded-full bg-rose-500"></div>
+                  </div>
+                </div>
+
+                <!-- Bottom Area: BioChroma Safe Zone + Creator Caption + Seekbar -->
+                <div class="mt-auto space-y-1.5">
+                  <!-- BioChroma Lower-Middle Safe Line (~27% from Bottom / MarginV: 520) -->
+                  <div class="relative w-full">
+                    <div class="w-full border-t-2 border-dashed border-[#1683DF] flex items-center justify-between px-2 py-0.5 bg-[#1683DF]/25 rounded backdrop-blur-xs">
+                      <span class="text-[7.5px] text-cyan-200 font-mono font-bold">BioChroma 78pt Safe-Zone (MarginV: 520, ~27%)</span>
+                      <span class="text-[7px] text-cyan-200 font-mono font-bold">Strict Single Row</span>
+                    </div>
+                  </div>
+
+                  <!-- Creator Name & Caption Ticker -->
+                  <div class="max-w-[210px] space-y-0.5 text-left drop-shadow-md">
+                    <div class="font-bold text-[10px] text-white flex items-center gap-1">
+                      <span>@biochroma_official</span>
+                      <i data-lucide="badge-check" class="w-3 h-3 text-cyan-400 fill-cyan-400"></i>
+                    </div>
+                    <p class="text-[8.5px] text-white/90 leading-tight line-clamp-2">
+                      Il nostro piccolo segreto per un viso disteso ✨ #biochroma #skincare #lifting
+                    </p>
+                    <div class="flex items-center gap-1 text-[8px] text-white/80">
+                      <i data-lucide="music" class="w-2.5 h-2.5"></i>
+                      <span class="truncate">♫ Original Audio - BioChroma Skincare</span>
+                    </div>
+                  </div>
+
+                  <!-- TikTok Bottom Scrubber Safe Zone -->
+                  <div class="w-full h-4 rounded border border-dashed border-yellow-400/70 bg-yellow-400/10 flex items-center justify-between px-2">
+                    <span class="text-[7px] text-yellow-300 font-mono">TikTok Bottom Seekbar Safe Zone</span>
+                    <div class="w-16 h-0.5 bg-white/70 rounded-full"></div>
+                  </div>
+                </div>
               </div>
-            </div>
+            </template>
 
-            <!-- Bottom Seekbar & Caption Safe Zone -->
-            <div class="w-full h-8 rounded-lg border border-dashed border-yellow-400/60 bg-yellow-400/10 flex items-center justify-center">
-              <span class="text-[8px] text-yellow-300 font-mono">Platform Seekbar Safe Zone (Bottom)</span>
-            </div>
+            <!-- ===================== 2. INSTAGRAM REELS NATIVE OVERLAY ===================== -->
+            <template x-if="safeGuidePlatform === 'ig'">
+              <div class="w-full h-full flex flex-col justify-between relative">
+                <!-- Top Header: Reels Title & Camera -->
+                <div class="flex items-center justify-between pt-1 drop-shadow">
+                  <div class="flex items-center gap-1 font-extrabold text-[12px] text-white">
+                    <span>Reels</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3"></i>
+                  </div>
+                  <div class="flex items-center gap-2 text-white">
+                    <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+
+                <!-- Top Safe Zone Header -->
+                <div class="w-28 h-4 mx-auto rounded-full border border-dashed border-pink-400/80 bg-pink-500/15 flex items-center justify-center shadow-xs">
+                  <span class="text-[7.5px] text-pink-200 font-mono font-semibold">Instagram Top Header</span>
+                </div>
+
+                <!-- Right Action Rail (Instagram Reels: Heart, Comment, Share/PaperPlane, More) -->
+                <div class="absolute right-0 top-1/2 -translate-y-4 flex flex-col gap-2.5 items-center text-center">
+                  <!-- Heart -->
+                  <div class="flex flex-col items-center">
+                    <i data-lucide="heart" class="w-4 h-4 text-white drop-shadow"></i>
+                    <span class="text-[8px] font-semibold drop-shadow">184K</span>
+                  </div>
+                  <!-- Comment -->
+                  <div class="flex flex-col items-center">
+                    <i data-lucide="message-circle" class="w-4 h-4 text-white drop-shadow"></i>
+                    <span class="text-[8px] font-semibold drop-shadow">942</span>
+                  </div>
+                  <!-- Send (Paper Plane) -->
+                  <div class="flex flex-col items-center">
+                    <i data-lucide="send" class="w-4 h-4 text-white drop-shadow"></i>
+                    <span class="text-[8px] font-semibold drop-shadow">12.5K</span>
+                  </div>
+                  <!-- Three Dots -->
+                  <div class="flex flex-col items-center">
+                    <i data-lucide="more-horizontal" class="w-4 h-4 text-white drop-shadow"></i>
+                  </div>
+                  <!-- Square Audio Thumbnail -->
+                  <div class="w-5 h-5 rounded-md border border-white/60 bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center shadow-sm">
+                    <i data-lucide="music" class="w-2.5 h-2.5 text-white"></i>
+                  </div>
+                </div>
+
+                <!-- Bottom Area: BioChroma Safe Zone + Profile + Follow + Instagram Bottom UI -->
+                <div class="mt-auto space-y-1.5">
+                  <!-- BioChroma Lower-Middle Safe Line (~27% from Bottom / MarginV: 520) -->
+                  <div class="relative w-full">
+                    <div class="w-full border-t-2 border-dashed border-[#1683DF] flex items-center justify-between px-2 py-0.5 bg-[#1683DF]/25 rounded backdrop-blur-xs">
+                      <span class="text-[7.5px] text-cyan-200 font-mono font-bold">BioChroma 78pt Safe-Zone (MarginV: 520, ~27%)</span>
+                      <span class="text-[7px] text-cyan-200 font-mono font-bold">Strict Single Row</span>
+                    </div>
+                  </div>
+
+                  <!-- Instagram Profile, Follow Pill & Caption -->
+                  <div class="max-w-[210px] space-y-0.5 text-left drop-shadow-md">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-gradient-to-tr from-yellow-400 via-rose-500 to-purple-600 p-0.5">
+                        <div class="w-full h-full rounded-full bg-black flex items-center justify-center text-[7px] font-bold text-white">BC</div>
+                      </div>
+                      <span class="font-bold text-[10px] text-white">biochroma_it</span>
+                      <span class="px-1.5 py-0.2 rounded border border-white/70 text-[7.5px] font-bold text-white">Segui</span>
+                    </div>
+                    <p class="text-[8.5px] text-white/90 leading-tight">
+                      Effetto lifting immediato senza botox ✨ #biochroma... altro
+                    </p>
+                    <div class="flex items-center gap-1 text-[8px] text-white/80">
+                      <i data-lucide="music" class="w-2.5 h-2.5"></i>
+                      <span>biochroma_it • Audio originale</span>
+                    </div>
+                  </div>
+
+                  <!-- Instagram Bottom Nav Safe Zone (120px) -->
+                  <div class="w-full h-5 rounded border border-dashed border-pink-400/80 bg-pink-500/15 flex items-center justify-around px-3 text-white/80">
+                    <span class="text-[7.5px] text-pink-200 font-mono font-bold">Instagram Bottom Nav Safe Margin</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- ===================== 3. YOUTUBE SHORTS NATIVE OVERLAY ===================== -->
+            <template x-if="safeGuidePlatform === 'yt'">
+              <div class="w-full h-full flex flex-col justify-between relative">
+                <!-- Top Header: YouTube Shorts & Search -->
+                <div class="flex items-center justify-between pt-1 drop-shadow">
+                  <div class="flex items-center gap-1 font-extrabold text-[11px] text-white">
+                    <div class="w-3.5 h-3.5 rounded bg-red-600 flex items-center justify-center text-[8px]">▶</div>
+                    <span>Shorts</span>
+                  </div>
+                  <div class="flex items-center gap-2.5 text-white">
+                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                    <i data-lucide="more-vertical" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+
+                <!-- Top Safe Zone Header -->
+                <div class="w-28 h-4 mx-auto rounded-full border border-dashed border-red-400/80 bg-red-500/15 flex items-center justify-center shadow-xs">
+                  <span class="text-[7.5px] text-red-200 font-mono font-semibold">YT Shorts Top Margin</span>
+                </div>
+
+                <!-- Right Action Rail (YouTube Shorts: Like, Dislike, Comment, Share, Remix, Sound) -->
+                <div class="absolute right-0 top-1/3 -translate-y-4 flex flex-col gap-2 items-center text-center">
+                  <!-- Like -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/40 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="thumbs-up" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">94K</span>
+                  </div>
+                  <!-- Dislike -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/40 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="thumbs-down" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <span class="text-[7.5px] font-medium drop-shadow">Dislike</span>
+                  </div>
+                  <!-- Comment -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/40 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">1,240</span>
+                  </div>
+                  <!-- Share -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/40 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="share" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <span class="text-[7.5px] font-medium drop-shadow">Share</span>
+                  </div>
+                  <!-- Remix -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/40 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="repeat" class="w-3 h-3"></i>
+                    </div>
+                    <span class="text-[7.5px] font-medium drop-shadow">Remix</span>
+                  </div>
+                  <!-- Sound square -->
+                  <div class="w-5 h-5 rounded-md bg-red-600 flex items-center justify-center shadow-sm">
+                    <i data-lucide="music" class="w-2.5 h-2.5 text-white"></i>
+                  </div>
+                </div>
+
+                <!-- Bottom Area: BioChroma Safe Zone + Channel + Red Subscribe + Red Scrubber -->
+                <div class="mt-auto space-y-1.5">
+                  <!-- BioChroma Lower-Middle Safe Line (~27% from Bottom / MarginV: 520) -->
+                  <div class="relative w-full">
+                    <div class="w-full border-t-2 border-dashed border-[#1683DF] flex items-center justify-between px-2 py-0.5 bg-[#1683DF]/25 rounded backdrop-blur-xs">
+                      <span class="text-[7.5px] text-cyan-200 font-mono font-bold">BioChroma 78pt Safe-Zone (MarginV: 520, ~27%)</span>
+                      <span class="text-[7px] text-cyan-200 font-mono font-bold">Strict Single Row</span>
+                    </div>
+                  </div>
+
+                  <!-- Channel Name & Red Subscribe Button -->
+                  <div class="max-w-[210px] space-y-0.5 text-left drop-shadow-md">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-red-700 flex items-center justify-center text-[8px] font-bold text-white">BC</div>
+                      <span class="font-bold text-[10px] text-white">@BioChromaBeauty</span>
+                      <span class="px-2 py-0.5 rounded-full bg-red-600 text-white text-[8px] font-extrabold shadow-xs">SUBSCRIBE</span>
+                    </div>
+                    <p class="text-[8.5px] text-white/95 font-medium leading-tight">
+                      BioChroma Ad UGC • Guida Peptidi di Seta & Centella
+                    </p>
+                    <div class="flex items-center gap-1 text-[8px] text-white/80">
+                      <i data-lucide="music" class="w-2.5 h-2.5"></i>
+                      <span>Suono originale - BioChroma Beauty</span>
+                    </div>
+                  </div>
+
+                  <!-- YouTube Red Scrubber Bar -->
+                  <div class="w-full h-3 rounded border border-dashed border-red-500/80 bg-red-600/15 flex items-center justify-between px-2">
+                    <span class="text-[7px] text-red-300 font-mono">YouTube Shorts Bottom Scrubber</span>
+                    <div class="w-16 h-1 bg-red-600 rounded-full"></div>
+                  </div>
+                </div>
+              </div>
+            </template>
+
+            <!-- ===================== 4. FACEBOOK REELS NATIVE OVERLAY ===================== -->
+            <template x-if="safeGuidePlatform === 'fb'">
+              <div class="w-full h-full flex flex-col justify-between relative">
+                <!-- Top Header: Back Arrow + Reels Title & Camera -->
+                <div class="flex items-center justify-between pt-1 drop-shadow">
+                  <div class="flex items-center gap-1.5 font-bold text-[11px] text-white">
+                    <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+                    <span>Reels</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-white">
+                    <i data-lucide="search" class="w-3.5 h-3.5"></i>
+                    <i data-lucide="camera" class="w-3.5 h-3.5"></i>
+                  </div>
+                </div>
+
+                <!-- Top Safe Zone Header -->
+                <div class="w-28 h-4 mx-auto rounded-full border border-dashed border-blue-400/80 bg-blue-500/15 flex items-center justify-center shadow-xs">
+                  <span class="text-[7.5px] text-blue-200 font-mono font-semibold">Facebook Top Safe Zone</span>
+                </div>
+
+                <!-- Right Action Rail (Facebook: Like, Comment, Share, More) -->
+                <div class="absolute right-0 top-1/2 -translate-y-6 flex flex-col gap-2.5 items-center text-center">
+                  <!-- Like -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="thumbs-up" class="w-3.5 h-3.5 fill-white"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">52K</span>
+                  </div>
+                  <!-- Comment -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/40 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="message-circle" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <span class="text-[8px] font-bold drop-shadow">810</span>
+                  </div>
+                  <!-- Share -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-6 h-6 rounded-full bg-black/40 backdrop-blur-xs flex items-center justify-center text-white shadow-sm">
+                      <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                    </div>
+                    <span class="text-[7.5px] font-medium drop-shadow">Share</span>
+                  </div>
+                  <!-- Three Dots -->
+                  <div class="flex flex-col items-center">
+                    <i data-lucide="more-horizontal" class="w-4 h-4 text-white drop-shadow"></i>
+                  </div>
+                </div>
+
+                <!-- Bottom Area: BioChroma Safe Zone + Profile + Follow + Facebook Bottom Bar -->
+                <div class="mt-auto space-y-1.5">
+                  <!-- BioChroma Lower-Middle Safe Line (~27% from Bottom / MarginV: 520) -->
+                  <div class="relative w-full">
+                    <div class="w-full border-t-2 border-dashed border-[#1683DF] flex items-center justify-between px-2 py-0.5 bg-[#1683DF]/25 rounded backdrop-blur-xs">
+                      <span class="text-[7.5px] text-cyan-200 font-mono font-bold">BioChroma 78pt Safe-Zone (MarginV: 520, ~27%)</span>
+                      <span class="text-[7px] text-cyan-200 font-mono font-bold">Strict Single Row</span>
+                    </div>
+                  </div>
+
+                  <!-- Facebook Profile & Blue Follow Button -->
+                  <div class="max-w-[210px] space-y-0.5 text-left drop-shadow-md">
+                    <div class="flex items-center gap-1.5">
+                      <div class="w-5 h-5 rounded-full bg-[#1877F2] flex items-center justify-center text-[7.5px] font-bold text-white shadow-xs">f</div>
+                      <span class="font-bold text-[10px] text-white">BioChroma Italia</span>
+                      <span class="px-2 py-0.5 rounded bg-[#1877F2] text-white text-[7.5px] font-bold shadow-xs">Segui</span>
+                    </div>
+                    <p class="text-[8.5px] text-white/90 leading-tight">
+                      Formula brevettata con Peptidi di Seta e Centella Asiatica.
+                    </p>
+                    <div class="flex items-center gap-1 text-[8px] text-white/80">
+                      <i data-lucide="music" class="w-2.5 h-2.5"></i>
+                      <span>Audio originale • BioChroma Italia</span>
+                    </div>
+                  </div>
+
+                  <!-- Facebook Comments & Seekbar Safe Zone -->
+                  <div class="w-full h-4 rounded border border-dashed border-blue-400/80 bg-blue-500/15 flex items-center justify-between px-2">
+                    <span class="text-[7px] text-blue-200 font-mono font-semibold">Facebook Reels Bottom Safe Zone</span>
+                    <span class="text-[7px] text-white/70">Scrivi un commento...</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+
           </div>
 
           <!-- DIRECT CANVAS TEXT MANIPULATION (Interactive Bounding Box) -->
@@ -1992,16 +2355,194 @@
                   class="py-1 rounded text-[9px] transition-all">Audio</button>
         </div>
 
-        <!-- SUBTAB 1: Basic Transform -->
+        <!-- SUBTAB 1: Basic Transform & CapCut 1:1 Keyframing -->
         <div x-show="videoSubTab === 'transform'" class="space-y-3 pt-1">
-          <div>
-            <div class="flex justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1">
-              <span>Camera Scale (Zoom)</span>
-              <span class="text-[#1683DF] font-mono">1.18x</span>
+          <!-- Master Keyframe Bar -->
+          <div class="bg-slate-50 dark:bg-[#182234] p-2 rounded-xl border border-slate-200 dark:border-[#243044] flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-1.5">
+              <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#1683DF]"></i>
+              <span class="text-xs font-bold text-slate-800 dark:text-slate-200 font-display">Keyframing</span>
             </div>
-            <input type="range" min="1.0" max="2.0" step="0.05" value="1.18"
-                   class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+
+            <!-- Keyframe Navigation (Prev, Toggle, Next) & Reset -->
+            <div class="flex items-center gap-1">
+              <!-- Jump to Previous Keyframe -->
+              <button @click="jumpToPrevKeyframe()"
+                      class="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-200 dark:hover:bg-[#223047] text-slate-600 dark:text-slate-300 transition-colors"
+                      title="Jump to Previous Keyframe (◀)">
+                <i data-lucide="chevron-left" class="w-3.5 h-3.5"></i>
+              </button>
+
+              <!-- Master CapCut Diamond Toggle (Add/Remove Keyframe) -->
+              <button @click="toggleKeyframeAtPlayhead()"
+                      :class="hasKeyframeAtPlayhead() ? 'bg-cyan-500 text-white font-bold ring-2 ring-cyan-400 shadow-xs' : 'bg-slate-200 dark:bg-[#223047] text-slate-600 dark:text-slate-300 hover:text-cyan-400'"
+                      class="px-2 py-1 rounded text-[10px] flex items-center gap-1.5 transition-all cursor-pointer"
+                      :title="hasKeyframeAtPlayhead() ? 'Remove Keyframe at Playhead' : 'Add Keyframe at Playhead'">
+                <div class="w-2.5 h-2.5 rotate-45 border"
+                     :class="hasKeyframeAtPlayhead() ? 'bg-white border-white' : 'border-slate-500 dark:border-slate-400'"></div>
+                <span x-text="hasKeyframeAtPlayhead() ? 'Keyframe Set' : 'Add Keyframe'"></span>
+              </button>
+
+              <!-- Jump to Next Keyframe -->
+              <button @click="jumpToNextKeyframe()"
+                      class="w-6 h-6 rounded flex items-center justify-center hover:bg-slate-200 dark:hover:bg-[#223047] text-slate-600 dark:text-slate-300 transition-colors"
+                      title="Jump to Next Keyframe (▶)">
+                <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+              </button>
+
+              <!-- Reset Transform & Clear Keyframes -->
+              <button @click="resetClipTransform()"
+                      class="w-6 h-6 rounded flex items-center justify-center hover:bg-rose-50 dark:hover:bg-rose-950/40 text-slate-400 hover:text-rose-500 transition-colors ml-1"
+                      title="Reset Transforms & Clear Keyframes">
+                <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
+              </button>
+            </div>
           </div>
+
+          <!-- 1. Scale (Zoom) -->
+          <div class="bg-slate-50 dark:bg-[#182234] p-2.5 rounded-xl border border-slate-200 dark:border-[#243044] space-y-2">
+            <div class="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+              <span class="flex items-center gap-1">
+                <span>Scale (Zoom)</span>
+              </span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[#1683DF] font-mono font-bold" x-text="`${Number(currentClipScale).toFixed(2)}x`"></span>
+                <button @click="toggleKeyframeAtPlayhead()" class="p-0.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-400 hover:text-cyan-400" :title="hasKeyframeAtPlayhead() ? 'Remove Scale Keyframe' : 'Add Scale Keyframe'">
+                  <div class="w-2 h-2 rotate-45 border" :class="hasKeyframeAtPlayhead() ? 'bg-cyan-400 border-cyan-400' : 'border-slate-400'"></div>
+                </button>
+              </div>
+            </div>
+            <input type="range" min="0.5" max="2.5" step="0.01" :value="currentClipScale"
+                   @input="onTransformInputChange('scale', $event.target.value)"
+                   class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+            <div class="flex items-center justify-between text-[9px] font-mono text-slate-400">
+              <button @click="onTransformInputChange('scale', 1.0)" class="hover:text-[#1683DF]">1.0x (Fit)</button>
+              <button @click="onTransformInputChange('scale', 1.18)" class="hover:text-[#1683DF]">1.18x (UGC Crop)</button>
+              <button @click="onTransformInputChange('scale', 1.35)" class="hover:text-[#1683DF]">1.35x (Close-Up)</button>
+              <button @click="onTransformInputChange('scale', 1.75)" class="hover:text-[#1683DF]">1.75x (Tight)</button>
+            </div>
+          </div>
+
+          <!-- 2. Position X & Y -->
+          <div class="bg-slate-50 dark:bg-[#182234] p-2.5 rounded-xl border border-slate-200 dark:border-[#243044] space-y-2">
+            <div class="flex items-center justify-between text-[11px] font-bold text-slate-700 dark:text-slate-300">
+              <span>Position (X & Y)</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[#1683DF] font-mono text-[10px]" x-text="`X: ${currentClipPosX}px | Y: ${currentClipPosY}px`"></span>
+                <button @click="onTransformInputChange('pos_x', 0); onTransformInputChange('pos_y', 0)" class="text-[9px] text-slate-400 hover:text-[#1683DF] font-mono">Center</button>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-[9px] text-slate-500 font-mono">X Axis (Pan)</label>
+                <input type="range" min="-250" max="250" step="1" :value="currentClipPosX"
+                       @input="onTransformInputChange('pos_x', $event.target.value)"
+                       class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+              </div>
+              <div>
+                <label class="text-[9px] text-slate-500 font-mono">Y Axis (Tilt)</label>
+                <input type="range" min="-250" max="250" step="1" :value="currentClipPosY"
+                       @input="onTransformInputChange('pos_y', $event.target.value)"
+                       class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Rotation & Opacity -->
+          <div class="grid grid-cols-2 gap-2">
+            <!-- Rotation -->
+            <div class="bg-slate-50 dark:bg-[#182234] p-2 rounded-xl border border-slate-200 dark:border-[#243044] space-y-1">
+              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                <span>Rotation</span>
+                <span class="text-[#1683DF] font-mono" x-text="`${currentClipRotation}°`"></span>
+              </div>
+              <input type="range" min="-180" max="180" step="1" :value="currentClipRotation"
+                     @input="onTransformInputChange('rotation', $event.target.value)"
+                     class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+              <div class="flex justify-between text-[8px] font-mono text-slate-400">
+                <button @click="onTransformInputChange('rotation', 0)" class="hover:text-blue-500">0°</button>
+                <button @click="onTransformInputChange('rotation', 90)" class="hover:text-blue-500">90°</button>
+                <button @click="onTransformInputChange('rotation', -90)" class="hover:text-blue-500">-90°</button>
+              </div>
+            </div>
+
+            <!-- Opacity -->
+            <div class="bg-slate-50 dark:bg-[#182234] p-2 rounded-xl border border-slate-200 dark:border-[#243044] space-y-1">
+              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                <span>Opacity</span>
+                <span class="text-[#1683DF] font-mono" x-text="`${Math.round(currentClipOpacity * 100)}%`"></span>
+              </div>
+              <input type="range" min="0" max="1" step="0.05" :value="currentClipOpacity"
+                     @input="onTransformInputChange('opacity', $event.target.value)"
+                     class="w-full h-1 bg-slate-200 dark:bg-[#27272A] rounded appearance-none cursor-pointer accent-[#1683DF]">
+              <div class="flex justify-between text-[8px] font-mono text-slate-400">
+                <button @click="onTransformInputChange('opacity', 1.0)" class="hover:text-blue-500">100%</button>
+                <button @click="onTransformInputChange('opacity', 0.5)" class="hover:text-blue-500">50%</button>
+                <button @click="onTransformInputChange('opacity', 0.0)" class="hover:text-blue-500">0%</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. 1-Click Pro UGC Motion Presets -->
+          <div class="bg-slate-50 dark:bg-[#182234] p-2.5 rounded-xl border border-slate-200 dark:border-[#243044] space-y-1.5">
+            <span class="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider font-display flex items-center gap-1">
+              <i data-lucide="zap" class="w-3 h-3 text-amber-500"></i>
+              <span>Pro UGC Motion Presets (Auto-Keyframe)</span>
+            </span>
+            <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+              <button @click="applyKeyframePreset('zoom_in')"
+                      class="px-2 py-1.5 rounded-lg bg-white dark:bg-[#121A28] hover:border-[#1683DF] border border-slate-200 dark:border-[#243044] text-[10px] text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 transition-all text-left">
+                <i data-lucide="zoom-in" class="w-3 h-3 text-[#1683DF] shrink-0"></i>
+                <span class="truncate">Slow Zoom In (1.28x)</span>
+              </button>
+              <button @click="applyKeyframePreset('dramatic_push')"
+                      class="px-2 py-1.5 rounded-lg bg-white dark:bg-[#121A28] hover:border-amber-400 border border-slate-200 dark:border-[#243044] text-[10px] text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 transition-all text-left">
+                <i data-lucide="sparkles" class="w-3 h-3 text-amber-500 shrink-0"></i>
+                <span class="truncate">Dramatic Hook Punch</span>
+              </button>
+              <button @click="applyKeyframePreset('ken_burns')"
+                      class="px-2 py-1.5 rounded-lg bg-white dark:bg-[#121A28] hover:border-purple-400 border border-slate-200 dark:border-[#243044] text-[10px] text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 transition-all text-left">
+                <i data-lucide="move-horizontal" class="w-3 h-3 text-purple-400 shrink-0"></i>
+                <span class="truncate">Ken Burns Pan</span>
+              </button>
+              <button @click="applyKeyframePreset('pulse_snap')"
+                      class="px-2 py-1.5 rounded-lg bg-white dark:bg-[#121A28] hover:border-emerald-400 border border-slate-200 dark:border-[#243044] text-[10px] text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 transition-all text-left">
+                <i data-lucide="heart-pulse" class="w-3 h-3 text-emerald-400 shrink-0"></i>
+                <span class="truncate">Beat Pulse Snap</span>
+              </button>
+              <button @click="applyKeyframePreset('fade_in_out')"
+                      class="col-span-2 px-2 py-1.5 rounded-lg bg-white dark:bg-[#121A28] hover:border-blue-400 border border-slate-200 dark:border-[#243044] text-[10px] text-slate-700 dark:text-slate-200 font-medium flex items-center gap-1.5 transition-all">
+                <i data-lucide="sun" class="w-3 h-3 text-amber-400 shrink-0"></i>
+                <span>Fade In & Fade Out (Opacity Ramp)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 5. Keyframes Track List -->
+          <template x-if="selectedClip && selectedClip.keyframes && selectedClip.keyframes.length > 0">
+            <div class="bg-slate-50 dark:bg-[#182234] p-2.5 rounded-xl border border-slate-200 dark:border-[#243044] space-y-1.5">
+              <div class="flex items-center justify-between text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                <span class="flex items-center gap-1 text-cyan-500 font-mono">
+                  <span>◆ Placed Keyframes (<span x-text="selectedClip.keyframes.length"></span>)</span>
+                </span>
+                <button @click="resetClipTransform(selectedClip)" class="text-[9px] text-rose-500 hover:underline">Clear All</button>
+              </div>
+              <div class="space-y-1 max-h-28 overflow-y-auto pr-1">
+                <template x-for="(kf, i) in selectedClip.keyframes" :key="kf.id || i">
+                  <div class="flex items-center justify-between px-2 py-1 rounded bg-white dark:bg-[#121A28] border border-slate-200 dark:border-[#243044] text-[9px] font-mono">
+                    <button @click="jumpToKeyframe(selectedClip, kf)" class="flex items-center gap-1.5 text-cyan-600 dark:text-cyan-300 hover:underline">
+                      <div class="w-1.5 h-1.5 rotate-45 bg-cyan-400"></div>
+                      <span x-text="`${kf.time.toFixed(2)}s`"></span>
+                      <span class="text-slate-400" x-text="`| ${(kf.scale || 1).toFixed(2)}x`"></span>
+                    </button>
+                    <button @click="removeSpecificKeyframe(selectedClip, kf.id)" class="text-slate-400 hover:text-rose-500 p-0.5">
+                      <i data-lucide="trash" class="w-2.5 h-2.5"></i>
+                    </button>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- SUBTAB: CAPCUT 1:1 CLIP ANIMATIONS (In, Out, Combo) -->
@@ -3153,7 +3694,21 @@
                   <span x-show="clip.animation && clip.animation.combo_type && clip.animation.combo_type !== 'none'"
                         class="text-[8px] px-1 py-0.2 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 font-mono truncate"
                         x-text="`🌀 ${clip.animation.combo_type.replace(/_/g, ' ')}`"></span>
+                  <!-- Keyframe Badge -->
+                  <span x-show="clip.keyframes && clip.keyframes.length > 0"
+                        class="text-[8px] px-1 py-0.2 rounded bg-cyan-100 dark:bg-cyan-900/50 text-cyan-700 dark:text-cyan-300 font-mono font-bold truncate">
+                    ◆ <span x-text="clip.keyframes.length"></span> KFs
+                  </span>
                 </div>
+
+                <!-- CapCut 1:1 Timeline Keyframe Diamonds -->
+                <template x-for="kf in (clip.keyframes || [])" :key="kf.id || kf.time">
+                  <div @click.stop="jumpToKeyframe(clip, kf)"
+                       class="absolute bottom-0.5 w-2.5 h-2.5 rotate-45 bg-cyan-400 border border-slate-900 shadow-md z-30 cursor-pointer hover:scale-135 hover:bg-cyan-300 transition-all pointer-events-auto"
+                       :style="`left: ${Math.max(4, Math.min(96, Math.round((kf.time / clip.duration) * 100)))}%; transform: translate(-50%, 0) rotate(45deg);`"
+                       :title="`Keyframe: ${kf.time.toFixed(2)}s | Scale: ${(kf.scale || 1).toFixed(2)}x`">
+                  </div>
+                </template>
 
                 <!-- Direct Delete Button on Hover -->
                 <button @click.stop="deleteTimelineElement('clip', clip)"
@@ -3345,6 +3900,292 @@
   </footer>
 
   <!-- ========================================================================= -->
+  <!-- 3.5 CAPCUT 1:1 EXPORT CONFIGURATION MODAL                                 -->
+  <!-- ========================================================================= -->
+  <div x-show="showExportModal" x-transition.opacity
+       class="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div @click.away="showExportModal = false"
+         class="w-full max-w-3xl bg-white dark:bg-[#18191E] border border-slate-200 dark:border-[#27282E] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-[#27282E] bg-slate-50/50 dark:bg-[#15161A]">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#1683DF] to-blue-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25">
+            <i data-lucide="arrow-up-right" class="w-4 h-4 stroke-[2.5]"></i>
+          </div>
+          <div>
+            <h2 class="text-sm font-extrabold text-slate-900 dark:text-slate-100 font-display tracking-tight">EXPORT</h2>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400">Configure deliverable specs, format, and resolution</p>
+          </div>
+        </div>
+        <button @click="showExportModal = false"
+                class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-[#23242B] transition-colors cursor-pointer">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (2 Columns) -->
+      <div class="flex-1 grid grid-cols-1 md:grid-cols-12 overflow-y-auto divide-y md:divide-y-0 md:divide-x divide-slate-200 dark:divide-[#27282E]">
+        
+        <!-- LEFT COLUMN: Canvas Preview & File Destination (5 cols) -->
+        <div class="md:col-span-5 p-5 flex flex-col justify-between space-y-4 bg-slate-50/30 dark:bg-[#15161A]/40">
+          
+          <!-- Poster Preview Box -->
+          <div class="w-full flex flex-col items-center">
+            <div class="w-full max-w-[200px] aspect-[9/16] rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shadow-md relative flex items-center justify-center group">
+              <!-- Video Poster Frame or Fallback -->
+              <video x-show="currentVideoSrc"
+                     :src="currentVideoSrc"
+                     class="w-full h-full object-cover pointer-events-none"
+                     muted playsinline></video>
+              <div x-show="!currentVideoSrc" class="text-center p-3 text-slate-500">
+                <i data-lucide="video" class="w-8 h-8 mx-auto mb-1 opacity-40"></i>
+                <span class="text-[9px] font-mono">Deliverable Frame</span>
+              </div>
+              
+              <!-- Floating Overlay Pills -->
+              <div class="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[8px] font-mono text-white font-bold">
+                <span x-text="aspectRatio || '9:16'"></span>
+              </div>
+              <div class="absolute bottom-2 right-2 px-1.5 py-0.5 rounded bg-black/60 backdrop-blur-xs text-[8px] font-mono text-cyan-300 font-bold">
+                <span x-text="formatTimecode(totalDuration)"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- File Name & Destination -->
+          <div class="space-y-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 font-display">
+                File Name
+              </label>
+              <div class="flex items-center rounded-lg border border-slate-300 dark:border-[#2D3039] bg-white dark:bg-[#1B1C22] px-2.5 py-1.5 focus-within:ring-2 focus-within:ring-[#1683DF] shadow-2xs">
+                <input type="text"
+                       x-model="exportSettings.filename"
+                       placeholder="Video_Name"
+                       class="w-full text-xs bg-transparent border-0 outline-none text-slate-900 dark:text-slate-100 font-mono">
+                <span class="text-[10px] font-mono font-bold text-[#1683DF] shrink-0 pl-1"
+                      x-text="`.${exportSettings.type === 'audio' ? exportSettings.audioFormat : exportSettings.videoFormat}`"></span>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1 font-display">
+                Save Destination
+              </label>
+              <div class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 dark:border-[#27282E] bg-slate-100/70 dark:bg-[#18191E] text-[10px] font-mono text-slate-600 dark:text-slate-400">
+                <i data-lucide="folder" class="w-3.5 h-3.5 text-amber-500 shrink-0"></i>
+                <span class="truncate">Makinity Cut / Output</span>
+              </div>
+            </div>
+
+            <!-- Pre-Flight Stats Card -->
+            <div class="p-3 rounded-xl bg-slate-100 dark:bg-[#1D1E24] border border-slate-200 dark:border-[#292A32] space-y-1.5 text-[10px] font-mono">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Estimated Size:</span>
+                <span class="font-bold text-[#1683DF] dark:text-cyan-400 text-xs" x-text="getExportEstimatedSize()"></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Resolution:</span>
+                <span class="font-bold text-slate-700 dark:text-slate-200" x-text="exportSettings.type === 'video' ? getExportDimensionsLabel() : 'Stereo 48.0 kHz'"></span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 dark:text-slate-400">Duration:</span>
+                <span class="font-bold text-slate-700 dark:text-slate-200" x-text="`${(totalDuration || 21.98).toFixed(2)}s`"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: CapCut 1:1 Export Specs (7 cols) -->
+        <div class="md:col-span-7 p-6 space-y-5">
+          
+          <!-- 1. Export Mode Tabs: Video vs Audio Only -->
+          <div>
+            <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-display">
+              Export Type
+            </label>
+            <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-[#141519] p-1 rounded-xl border border-slate-200 dark:border-[#27282E]">
+              <button @click="exportSettings.type = 'video'"
+                      :class="exportSettings.type === 'video' ? 'bg-[#1683DF] text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'"
+                      class="py-2 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                <i data-lucide="video" class="w-3.5 h-3.5"></i>
+                <span>Video (MP4 / MOV)</span>
+              </button>
+              <button @click="exportSettings.type = 'audio'"
+                      :class="exportSettings.type === 'audio' ? 'bg-[#1683DF] text-white font-bold shadow-sm' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'"
+                      class="py-2 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                <i data-lucide="music" class="w-3.5 h-3.5"></i>
+                <span>Audio Only (MP3 / WAV)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ================= VIDEO OPTIONS ================= -->
+          <div x-show="exportSettings.type === 'video'" class="space-y-4">
+            
+            <!-- Resolution Selector (1K, 720p, etc.) -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider font-display">
+                  Resolution
+                </label>
+                <span class="text-[10px] text-[#1683DF] font-mono font-bold" x-text="getExportDimensionsLabel()"></span>
+              </div>
+              <div class="grid grid-cols-5 gap-1.5">
+                <template x-for="r in [
+                  { id: '480p', label: '480p', desc: 'SD' },
+                  { id: '720p', label: '720p', desc: 'HD' },
+                  { id: '1080p', label: '1080p', desc: '1K / FHD', badge: 'Best' },
+                  { id: '2k', label: '2K', desc: 'QHD' },
+                  { id: '4k', label: '4K', desc: 'UHD' }
+                ]" :key="r.id">
+                  <button @click="exportSettings.resolution = r.id"
+                          :class="exportSettings.resolution === r.id ? 'border-[#1683DF] bg-blue-50/70 dark:bg-[#162744] text-[#1683DF] dark:text-cyan-300 font-bold ring-2 ring-[#1683DF]/30' : 'border-slate-200 dark:border-[#27282E] bg-white dark:bg-[#1B1C22] text-slate-700 dark:text-slate-300 hover:border-slate-400'"
+                          class="p-2 rounded-xl border text-center transition-all cursor-pointer relative group flex flex-col items-center justify-center">
+                    <span class="text-xs font-mono font-bold" x-text="r.label"></span>
+                    <span class="text-[8px] text-slate-400 font-mono" x-text="r.desc"></span>
+                    <span x-show="r.badge" class="absolute -top-1.5 right-1 px-1 rounded-full bg-[#1683DF] text-white text-[7px] font-bold shadow-xs">★</span>
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <!-- Bitrate / Quality -->
+            <div>
+              <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-display">
+                Bitrate (Quality)
+              </label>
+              <div class="grid grid-cols-3 gap-2">
+                <template x-for="b in [
+                  { id: 'higher', label: 'Higher', sub: 'CRF 18 • Crisp' },
+                  { id: 'standard', label: 'Standard', sub: 'CRF 22 • Recommended' },
+                  { id: 'fast', label: 'Fast / Smaller', sub: 'CRF 26 • Compact' }
+                ]" :key="b.id">
+                  <button @click="exportSettings.bitrate = b.id"
+                          :class="exportSettings.bitrate === b.id ? 'border-[#1683DF] bg-blue-50/70 dark:bg-[#162744] text-[#1683DF] dark:text-cyan-300 font-bold ring-1 ring-[#1683DF]' : 'border-slate-200 dark:border-[#27282E] bg-white dark:bg-[#1B1C22] text-slate-700 dark:text-slate-300 hover:border-slate-400'"
+                          class="p-2 rounded-xl border text-left transition-all cursor-pointer">
+                    <div class="text-xs font-bold" x-text="b.label"></div>
+                    <div class="text-[8px] text-slate-400 font-mono" x-text="b.sub"></div>
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <!-- Format & Frame Rate -->
+            <div class="grid grid-cols-2 gap-3">
+              <!-- Container Format -->
+              <div>
+                <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-display">
+                  Format
+                </label>
+                <div class="grid grid-cols-2 gap-1.5">
+                  <button @click="exportSettings.videoFormat = 'mp4'"
+                          :class="exportSettings.videoFormat === 'mp4' ? 'border-[#1683DF] bg-blue-50 dark:bg-[#162744] text-[#1683DF] dark:text-cyan-300 font-bold' : 'border-slate-200 dark:border-[#27282E] bg-white dark:bg-[#1B1C22] text-slate-700 dark:text-slate-300'"
+                          class="py-1.5 rounded-lg border text-xs font-mono font-bold text-center transition-all cursor-pointer">
+                    MP4
+                  </button>
+                  <button @click="exportSettings.videoFormat = 'mov'"
+                          :class="exportSettings.videoFormat === 'mov' ? 'border-[#1683DF] bg-blue-50 dark:bg-[#162744] text-[#1683DF] dark:text-cyan-300 font-bold' : 'border-slate-200 dark:border-[#27282E] bg-white dark:bg-[#1B1C22] text-slate-700 dark:text-slate-300'"
+                          class="py-1.5 rounded-lg border text-xs font-mono font-bold text-center transition-all cursor-pointer">
+                    MOV
+                  </button>
+                </div>
+              </div>
+
+              <!-- Frame Rate -->
+              <div>
+                <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-display">
+                  Frame Rate
+                </label>
+                <select x-model="exportSettings.fps"
+                        class="w-full py-1.5 px-2 rounded-lg border border-slate-300 dark:border-[#2D3039] bg-white dark:bg-[#1B1C22] text-xs font-mono text-slate-900 dark:text-slate-100 outline-none focus:ring-2 focus:ring-[#1683DF]">
+                  <option value="24">24 fps (Cinematic)</option>
+                  <option value="25">25 fps (PAL)</option>
+                  <option value="30">30 fps (Standard Recommended)</option>
+                  <option value="50">50 fps (European)</option>
+                  <option value="60">60 fps (Smooth Motion)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- ================= AUDIO ONLY OPTIONS ================= -->
+          <div x-show="exportSettings.type === 'audio'" class="space-y-4">
+            
+            <!-- Audio Format (MP3, WAV, AAC) -->
+            <div>
+              <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-display">
+                Audio Format
+              </label>
+              <div class="grid grid-cols-3 gap-2">
+                <template x-for="af in [
+                  { id: 'mp3', label: 'MP3', desc: 'Universal • Best For Sharing', badge: 'Recommended' },
+                  { id: 'wav', label: 'WAV', desc: '24-bit 48kHz • Lossless Studio' },
+                  { id: 'aac', label: 'AAC', desc: 'Apple/Web • Crisp Digital' }
+                ]" :key="af.id">
+                  <button @click="exportSettings.audioFormat = af.id"
+                          :class="exportSettings.audioFormat === af.id ? 'border-[#1683DF] bg-blue-50/70 dark:bg-[#162744] text-[#1683DF] dark:text-cyan-300 font-bold ring-1 ring-[#1683DF]' : 'border-slate-200 dark:border-[#27282E] bg-white dark:bg-[#1B1C22] text-slate-700 dark:text-slate-300 hover:border-slate-400'"
+                          class="p-2.5 rounded-xl border text-left transition-all cursor-pointer relative">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-bold font-mono" x-text="af.label"></span>
+                      <span x-show="af.badge" class="px-1 py-0.2 rounded bg-[#1683DF] text-white text-[7px] font-bold">★</span>
+                    </div>
+                    <div class="text-[8px] text-slate-400 font-mono mt-0.5" x-text="af.desc"></div>
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <!-- Audio Bitrate (Quality) -->
+            <div x-show="exportSettings.audioFormat !== 'wav'">
+              <label class="block text-[10px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5 font-display">
+                Audio Bitrate
+              </label>
+              <div class="grid grid-cols-3 gap-2">
+                <template x-for="ab in [
+                  { id: '320', label: '320 kbps', sub: 'High Fidelity' },
+                  { id: '192', label: '192 kbps', sub: 'Standard' },
+                  { id: '128', label: '128 kbps', sub: 'Compact Voice' }
+                ]" :key="ab.id">
+                  <button @click="exportSettings.audioBitrate = ab.id"
+                          :class="exportSettings.audioBitrate === ab.id ? 'border-[#1683DF] bg-blue-50/70 dark:bg-[#162744] text-[#1683DF] dark:text-cyan-300 font-bold ring-1 ring-[#1683DF]' : 'border-slate-200 dark:border-[#27282E] bg-white dark:bg-[#1B1C22] text-slate-700 dark:text-slate-300'"
+                          class="p-2 rounded-xl border text-center transition-all cursor-pointer">
+                    <div class="text-xs font-mono font-bold" x-text="ab.label"></div>
+                    <div class="text-[8px] text-slate-400 font-mono" x-text="ab.sub"></div>
+                  </button>
+                </template>
+              </div>
+            </div>
+
+            <!-- Channels & Mix -->
+            <div class="p-3 rounded-xl bg-slate-50 dark:bg-[#141519] border border-slate-200 dark:border-[#24252C] flex items-center justify-between text-xs font-mono">
+              <span class="text-slate-600 dark:text-slate-400">Audio Channels:</span>
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">Stereo 48.0 kHz</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Modal Footer Action Bar -->
+      <div class="flex items-center justify-between px-6 py-3.5 bg-slate-50 dark:bg-[#141519] border-t border-slate-200 dark:border-[#27282E]">
+        <button @click="showExportModal = false"
+                class="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-[#23242B] transition-colors cursor-pointer">
+          Cancel
+        </button>
+
+        <button @click="confirmExport()"
+                class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#1683DF] to-blue-600 hover:from-[#126ec0] hover:to-blue-700 text-white font-display font-extrabold text-xs tracking-wider flex items-center gap-2 shadow-lg shadow-blue-500/25 active:scale-95 transition-all cursor-pointer">
+          <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+          <span x-text="exportSettings.type === 'video' ? `Export Video (${exportSettings.resolution.toUpperCase()})` : `Export Audio (${exportSettings.audioFormat.toUpperCase()})`"></span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
   <!-- 4. LIVE PRODUCTION / EXPORT MODAL                                         -->
   <!-- ========================================================================= -->
   <div x-show="showProductionModal" x-transition.opacity
@@ -3360,7 +4201,7 @@
             <p class="text-[11px] text-slate-500 dark:text-slate-400" x-text="productionState.current_step || 'Ready to render...'"></p>
           </div>
         </div>
-        <button @click="showProductionModal = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-white">
+        <button @click="showProductionModal = false" class="text-slate-400 hover:text-slate-700 dark:hover:text-white cursor-pointer">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -3369,7 +4210,7 @@
       <div class="space-y-1">
         <div class="flex justify-between text-xs font-mono">
           <span class="text-[#1683DF] font-bold" x-text="`${productionState.progress}% COMPLETE`"></span>
-          <span class="text-slate-500 dark:text-slate-400">1080x1920 • YUV420p</span>
+          <span class="text-slate-500 dark:text-slate-400" x-text="exportSettings.type === 'video' ? getExportDimensionsLabel() : `${exportSettings.audioFormat.toUpperCase()} Audio`"></span>
         </div>
         <div class="w-full h-2.5 bg-slate-100 dark:bg-[#121214] rounded-full overflow-hidden p-0.5 border border-slate-200 dark:border-[#27272A]">
           <div class="h-full rounded-full bg-[#1683DF] transition-all duration-300"
@@ -3383,11 +4224,12 @@
            :href="`/media/output/${productionState.output_file || 'ugc_master_viral_hook.mp4'}`"
            download
            class="flex-1 py-2.5 rounded-xl bg-[#1683DF] hover:bg-[#126ec0] text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow-lg shadow-blue-500/25 transition-all">
-          <i data-lucide="download" class="w-4 h-4"></i> Download Master MP4
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span x-text="productionState.output_file && (productionState.output_file.endsWith('.mp3') || productionState.output_file.endsWith('.wav') || productionState.output_file.endsWith('.aac')) ? `Download ${productionState.output_file.split('.').pop().toUpperCase()} Audio` : 'Download Master Video'"></span>
         </a>
-        <button x-show="productionState.status === 'completed'"
+        <button x-show="productionState.status === 'completed' && (!productionState.output_file || (!productionState.output_file.endsWith('.mp3') && !productionState.output_file.endsWith('.wav') && !productionState.output_file.endsWith('.aac')))"
                 @click="watchMasterPreview()"
-                class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-[#2A2A32] hover:bg-slate-200 dark:hover:bg-[#33333F] text-slate-800 dark:text-slate-100 font-bold text-xs flex items-center justify-center gap-2 border border-slate-200 dark:border-transparent">
+                class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-[#2A2A32] hover:bg-slate-200 dark:hover:bg-[#33333F] text-slate-800 dark:text-slate-100 font-bold text-xs flex items-center justify-center gap-2 border border-slate-200 dark:border-transparent cursor-pointer">
           Watch in Canvas
         </button>
       </div>
@@ -3463,8 +4305,22 @@
         magneticSnap: true,
         timelineZoom: 1.0,
         showSafeZone: false,
+        safeGuidePlatform: 'tiktok', // 'tiktok', 'ig', 'yt', 'fb'
         previewMode: 'master',
         showProductionModal: false,
+
+        // CapCut Desktop 1:1 Export Modal State
+        showExportModal: false,
+        exportSettings: {
+          type: 'video',          // 'video' | 'audio'
+          filename: 'My_Video_Ad',
+          resolution: '1080p',    // '480p', '720p', '1080p', '2k', '4k'
+          bitrate: 'standard',    // 'higher', 'standard', 'fast'
+          videoFormat: 'mp4',     // 'mp4', 'mov'
+          fps: 30,                // 24, 25, 30, 50, 60
+          audioFormat: 'mp3',     // 'mp3', 'wav', 'aac'
+          audioBitrate: '320'     // '320', '192', '128'
+        },
 
         // Auto-Beat Detection State (CapCut 1:1)
         beatMode: 'beat1',
@@ -3475,8 +4331,15 @@
           waveform_envelope: []
         },
 
+        // Video Clip Keyframing & Transform State (CapCut Desktop 1:1)
+        currentClipScale: 1.0,
+        currentClipPosX: 0,
+        currentClipPosY: 0,
+        currentClipRotation: 0,
+        currentClipOpacity: 1.0,
+
         // Video Clip Inspector Sub-Tab: 'transform', 'animation', 'speed', 'cutout', 'mask', 'tracking', 'audio'
-        videoSubTab: 'animation',
+        videoSubTab: 'transform',
         animCategory: 'in', // 'in' | 'out' | 'combo'
         inAnimationsList: [
           { id: 'none', name: 'None', icon: 'ban' },
@@ -4054,9 +4917,22 @@
               this.undoStack = [];
               this.redoStack = [];
               if (p.clips && p.clips.length > 0) {
-                this.clips = p.clips;
+                this.clips = p.clips.map((c, i) => ({
+                  id: c.id || ('clip_' + (i + 1) + '_' + c.name),
+                  in_point: c.in_point !== undefined ? c.in_point : 0.0,
+                  out_point: c.out_point !== undefined ? c.out_point : c.duration,
+                  file_duration: c.file_duration || c.duration,
+                  scale: c.scale !== undefined ? c.scale : 1.0,
+                  pos_x: c.pos_x !== undefined ? c.pos_x : 0,
+                  pos_y: c.pos_y !== undefined ? c.pos_y : 0,
+                  rotation: c.rotation !== undefined ? c.rotation : 0,
+                  opacity: c.opacity !== undefined ? c.opacity : 1.0,
+                  keyframes: Array.isArray(c.keyframes) ? c.keyframes : [],
+                  ...c
+                }));
                 this.selectedClip = this.clips[0];
                 this.currentVideoSrc = this.selectedClip.path || ('/media/input/' + this.selectedClip.name);
+                this.syncClipTransformToPlayhead();
               }
               if (p.timelineTexts) {
                 this.timelineTexts = p.timelineTexts;
@@ -4426,6 +5302,7 @@
           if (this.clips.length > 0) {
             this.selectedClip = this.clips[0];
             this.currentVideoSrc = this.selectedClip.path || ('/media/input/' + this.selectedClip.name);
+            this.syncClipTransformToPlayhead();
           } else {
             this.selectedClip = null;
             this.currentVideoSrc = '';
@@ -4472,6 +5349,7 @@
           if (this.clips.length > 0) {
             this.selectedClip = this.clips[0];
             this.currentVideoSrc = this.selectedClip.path || ('/media/input/' + this.selectedClip.name);
+            this.syncClipTransformToPlayhead();
           } else {
             this.selectedClip = null;
             this.currentVideoSrc = '';
@@ -4940,6 +5818,12 @@
               in_point: c.in_point !== undefined ? c.in_point : 0.0,
               out_point: c.out_point !== undefined ? c.out_point : c.duration,
               file_duration: c.file_duration || c.duration,
+              scale: c.scale !== undefined ? c.scale : 1.0,
+              pos_x: c.pos_x !== undefined ? c.pos_x : 0,
+              pos_y: c.pos_y !== undefined ? c.pos_y : 0,
+              rotation: c.rotation !== undefined ? c.rotation : 0,
+              opacity: c.opacity !== undefined ? c.opacity : 1.0,
+              keyframes: Array.isArray(c.keyframes) ? c.keyframes : [],
               ...c
             }));
             this.recalculateTotalDuration();
@@ -4983,6 +5867,7 @@
 
             if (this.clips.length > 0) {
               this.selectedClip = this.clips[0];
+              this.syncClipTransformToPlayhead();
             }
 
             if (this.latestMaster) {
@@ -5019,6 +5904,13 @@
           this.selectedClip = clip;
           this.inspectorTarget = 'Video';
           this.activeClipTracking = clip.tracking || null;
+          if (clip.scale === undefined) clip.scale = 1.0;
+          if (clip.pos_x === undefined) clip.pos_x = 0;
+          if (clip.pos_y === undefined) clip.pos_y = 0;
+          if (clip.rotation === undefined) clip.rotation = 0;
+          if (clip.opacity === undefined) clip.opacity = 1.0;
+          if (!clip.keyframes) clip.keyframes = [];
+          this.syncClipTransformToPlayhead();
           if (clip.cutout) {
             this.activeCutout = { ...this.activeCutout, ...clip.cutout };
           }
@@ -5151,6 +6043,407 @@
           } else {
             return 'width: 290px; height: 520px; border-radius: 36px;';
           }
+        },
+
+        // CapCut Desktop 1:1 Video Clip Keyframing & Transform Engine
+        getClipTimelineRange(clip) {
+          if (!clip || !this.clips) return { start: 0, end: 0, duration: 0 };
+          let start = 0;
+          for (const c of this.clips) {
+            const dur = Number(c.duration) || 0;
+            if (c === clip || (c.id && c.id === clip.id) || c.name === clip.name) {
+              return { start, end: start + dur, duration: dur };
+            }
+            start += dur;
+          }
+          const d = Number(clip.duration) || 0;
+          return { start: 0, end: d, duration: d };
+        },
+
+        getCurrentClipAtPlayhead() {
+          const t = Number(this.currentTime) || 0;
+          if (!this.clips || this.clips.length === 0) return null;
+          let accumulated = 0;
+          for (let i = 0; i < this.clips.length; i++) {
+            const c = this.clips[i];
+            const dur = Number(c.duration) || 0;
+            const clipStart = accumulated;
+            const clipEnd = clipStart + dur;
+            if (t >= clipStart && (t < clipEnd || i === this.clips.length - 1)) {
+              return {
+                clip: c,
+                index: i,
+                clipStart: clipStart,
+                clipEnd: clipEnd,
+                relTime: Math.max(0, Math.min(dur, t - clipStart))
+              };
+            }
+            accumulated += dur;
+          }
+          const last = this.clips[this.clips.length - 1];
+          return {
+            clip: last,
+            index: this.clips.length - 1,
+            clipStart: Math.max(0, accumulated - (Number(last.duration) || 0)),
+            clipEnd: accumulated,
+            relTime: Number(last.duration) || 0
+          };
+        },
+
+        getInterpolatedClipTransform(clip, relTime) {
+          if (!clip) {
+            return { scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 };
+          }
+
+          const baseScale = clip.scale !== undefined ? Number(clip.scale) : 1.0;
+          const basePosX = clip.pos_x !== undefined ? Number(clip.pos_x) : 0;
+          const basePosY = clip.pos_y !== undefined ? Number(clip.pos_y) : 0;
+          const baseRot = clip.rotation !== undefined ? Number(clip.rotation) : 0;
+          const baseOp = clip.opacity !== undefined ? Number(clip.opacity) : 1.0;
+
+          if (!clip.keyframes || clip.keyframes.length === 0) {
+            return {
+              scale: baseScale,
+              pos_x: basePosX,
+              pos_y: basePosY,
+              rotation: baseRot,
+              opacity: baseOp
+            };
+          }
+
+          const sorted = [...clip.keyframes].sort((a, b) => a.time - b.time);
+
+          if (relTime <= sorted[0].time) {
+            const kf = sorted[0];
+            return {
+              scale: kf.scale !== undefined ? Number(kf.scale) : baseScale,
+              pos_x: kf.pos_x !== undefined ? Number(kf.pos_x) : basePosX,
+              pos_y: kf.pos_y !== undefined ? Number(kf.pos_y) : basePosY,
+              rotation: kf.rotation !== undefined ? Number(kf.rotation) : baseRot,
+              opacity: kf.opacity !== undefined ? Number(kf.opacity) : baseOp
+            };
+          }
+
+          if (relTime >= sorted[sorted.length - 1].time) {
+            const kf = sorted[sorted.length - 1];
+            return {
+              scale: kf.scale !== undefined ? Number(kf.scale) : baseScale,
+              pos_x: kf.pos_x !== undefined ? Number(kf.pos_x) : basePosX,
+              pos_y: kf.pos_y !== undefined ? Number(kf.pos_y) : basePosY,
+              rotation: kf.rotation !== undefined ? Number(kf.rotation) : baseRot,
+              opacity: kf.opacity !== undefined ? Number(kf.opacity) : baseOp
+            };
+          }
+
+          let kfA = sorted[0];
+          let kfB = sorted[1];
+          for (let i = 0; i < sorted.length - 1; i++) {
+            if (relTime >= sorted[i].time && relTime <= sorted[i + 1].time) {
+              kfA = sorted[i];
+              kfB = sorted[i + 1];
+              break;
+            }
+          }
+
+          const timeSpan = Math.max(0.001, kfB.time - kfA.time);
+          const rawProgress = Math.max(0, Math.min(1, (relTime - kfA.time) / timeSpan));
+
+          // CapCut Smooth Ease In-Out Curve
+          const easeProgress = rawProgress < 0.5
+            ? 2 * rawProgress * rawProgress
+            : -1 + (4 - 2 * rawProgress) * rawProgress;
+
+          const sA = kfA.scale !== undefined ? Number(kfA.scale) : baseScale;
+          const sB = kfB.scale !== undefined ? Number(kfB.scale) : baseScale;
+
+          const xA = kfA.pos_x !== undefined ? Number(kfA.pos_x) : basePosX;
+          const xB = kfB.pos_x !== undefined ? Number(kfB.pos_x) : basePosX;
+
+          const yA = kfA.pos_y !== undefined ? Number(kfA.pos_y) : basePosY;
+          const yB = kfB.pos_y !== undefined ? Number(kfB.pos_y) : basePosY;
+
+          const rA = kfA.rotation !== undefined ? Number(kfA.rotation) : baseRot;
+          const rB = kfB.rotation !== undefined ? Number(kfB.rotation) : baseRot;
+
+          const oA = kfA.opacity !== undefined ? Number(kfA.opacity) : baseOp;
+          const oB = kfB.opacity !== undefined ? Number(kfB.opacity) : baseOp;
+
+          return {
+            scale: Math.round((sA + (sB - sA) * easeProgress) * 1000) / 1000,
+            pos_x: Math.round(xA + (xB - xA) * easeProgress),
+            pos_y: Math.round(yA + (yB - yA) * easeProgress),
+            rotation: Math.round(rA + (rB - rA) * easeProgress),
+            opacity: Math.round((oA + (oB - oA) * easeProgress) * 100) / 100
+          };
+        },
+
+        getVideoPlayerStyle() {
+          const info = this.getCurrentClipAtPlayhead();
+          const clip = (info && info.clip) ? info.clip : this.selectedClip;
+          const relTime = info ? info.relTime : 0;
+
+          const tf = clip ? this.getInterpolatedClipTransform(clip, relTime) : {
+            scale: 1.0,
+            pos_x: 0,
+            pos_y: 0,
+            rotation: 0,
+            opacity: 1.0
+          };
+
+          let maskStyle = this.getVideoMaskStyle() || '';
+          maskStyle = maskStyle.replace(/transform:[^;]+;/gi, '').trim();
+
+          const tfStyle = `transform: translate3d(${tf.pos_x}px, ${tf.pos_y}px, 0px) scale(${tf.scale}) rotate(${tf.rotation}deg); opacity: ${tf.opacity}; transform-origin: center center;`;
+
+          return `${maskStyle} ${tfStyle}`.trim();
+        },
+
+        syncClipTransformToPlayhead() {
+          const info = this.getCurrentClipAtPlayhead();
+          const clip = this.selectedClip || (info ? info.clip : null);
+          if (!clip) return;
+
+          const range = this.getClipTimelineRange(clip);
+          const t = Number(this.currentTime) || 0;
+          const relTime = Math.max(0, Math.min(range.duration, t - range.start));
+
+          const tf = this.getInterpolatedClipTransform(clip, relTime);
+          this.currentClipScale = tf.scale;
+          this.currentClipPosX = tf.pos_x;
+          this.currentClipPosY = tf.pos_y;
+          this.currentClipRotation = tf.rotation;
+          this.currentClipOpacity = tf.opacity;
+        },
+
+        hasKeyframeAtPlayhead() {
+          const clip = this.selectedClip || (this.getCurrentClipAtPlayhead() ? this.getCurrentClipAtPlayhead().clip : null);
+          if (!clip || !clip.keyframes || clip.keyframes.length === 0) return false;
+          const range = this.getClipTimelineRange(clip);
+          const relTime = (Number(this.currentTime) || 0) - range.start;
+          if (relTime < -0.05 || relTime > range.duration + 0.05) return false;
+          return clip.keyframes.some(k => Math.abs(k.time - relTime) <= 0.12);
+        },
+
+        toggleKeyframeAtPlayhead() {
+          const clip = this.selectedClip || (this.getCurrentClipAtPlayhead() ? this.getCurrentClipAtPlayhead().clip : null);
+          if (!clip) {
+            this.showToast('⚠️ Select a video clip first');
+            return;
+          }
+          if (!clip.keyframes) clip.keyframes = [];
+          this.pushUndoState();
+
+          const range = this.getClipTimelineRange(clip);
+          const relTime = Math.max(0, Math.min(range.duration, (Number(this.currentTime) || 0) - range.start));
+          const existingIdx = clip.keyframes.findIndex(k => Math.abs(k.time - relTime) <= 0.12);
+
+          if (existingIdx !== -1) {
+            clip.keyframes.splice(existingIdx, 1);
+            this.showToast('🗑️ Removed Keyframe at Playhead');
+          } else {
+            clip.keyframes.push({
+              id: 'kf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              time: Math.round(relTime * 100) / 100,
+              scale: Number(this.currentClipScale) || 1.0,
+              pos_x: Number(this.currentClipPosX) || 0,
+              pos_y: Number(this.currentClipPosY) || 0,
+              rotation: Number(this.currentClipRotation) || 0,
+              opacity: Number(this.currentClipOpacity) !== undefined ? Number(this.currentClipOpacity) : 1.0
+            });
+            clip.keyframes.sort((a, b) => a.time - b.time);
+            this.showToast(`◆ Added Keyframe at ${relTime.toFixed(2)}s`);
+          }
+          this.saveTimelineToBackend();
+          this.$nextTick(() => lucide.createIcons());
+        },
+
+        jumpToPrevKeyframe() {
+          const clip = this.selectedClip || (this.getCurrentClipAtPlayhead() ? this.getCurrentClipAtPlayhead().clip : null);
+          if (!clip || !clip.keyframes || clip.keyframes.length === 0) {
+            this.showToast('ℹ️ No keyframes on this clip');
+            return;
+          }
+          const range = this.getClipTimelineRange(clip);
+          const relTime = (Number(this.currentTime) || 0) - range.start;
+          const sorted = [...clip.keyframes].sort((a, b) => a.time - b.time);
+
+          let target = null;
+          for (let i = sorted.length - 1; i >= 0; i--) {
+            if (sorted[i].time < relTime - 0.08) {
+              target = sorted[i];
+              break;
+            }
+          }
+          if (!target) target = sorted[0];
+
+          if (target) {
+            const targetAbsTime = Math.max(0, Math.round((range.start + target.time) * 100) / 100);
+            this.currentTime = targetAbsTime;
+            const vid = document.getElementById('mainVideoPlayer');
+            if (vid) vid.currentTime = Math.min(this.totalDuration, this.currentTime);
+            this.syncClipTransformToPlayhead();
+            this.syncActiveSubtitle(this.currentTime);
+            this.showToast(`◀ Jumped to Keyframe at ${target.time.toFixed(2)}s`);
+          }
+        },
+
+        jumpToNextKeyframe() {
+          const clip = this.selectedClip || (this.getCurrentClipAtPlayhead() ? this.getCurrentClipAtPlayhead().clip : null);
+          if (!clip || !clip.keyframes || clip.keyframes.length === 0) {
+            this.showToast('ℹ️ No keyframes on this clip');
+            return;
+          }
+          const range = this.getClipTimelineRange(clip);
+          const relTime = (Number(this.currentTime) || 0) - range.start;
+          const sorted = [...clip.keyframes].sort((a, b) => a.time - b.time);
+
+          let target = null;
+          for (let i = 0; i < sorted.length; i++) {
+            if (sorted[i].time > relTime + 0.08) {
+              target = sorted[i];
+              break;
+            }
+          }
+          if (!target) target = sorted[sorted.length - 1];
+
+          if (target) {
+            const targetAbsTime = Math.max(0, Math.round((range.start + target.time) * 100) / 100);
+            this.currentTime = targetAbsTime;
+            const vid = document.getElementById('mainVideoPlayer');
+            if (vid) vid.currentTime = Math.min(this.totalDuration, this.currentTime);
+            this.syncClipTransformToPlayhead();
+            this.syncActiveSubtitle(this.currentTime);
+            this.showToast(`▶ Jumped to Keyframe at ${target.time.toFixed(2)}s`);
+          }
+        },
+
+        jumpToKeyframe(clip, kf) {
+          if (!clip || !kf) return;
+          const range = this.getClipTimelineRange(clip);
+          const targetAbsTime = Math.max(0, Math.round((range.start + kf.time) * 100) / 100);
+          this.currentTime = targetAbsTime;
+          const vid = document.getElementById('mainVideoPlayer');
+          if (vid) vid.currentTime = Math.min(this.totalDuration, this.currentTime);
+          this.syncClipTransformToPlayhead();
+          this.syncActiveSubtitle(this.currentTime);
+          this.showToast(`◆ Jumped to Keyframe at ${kf.time.toFixed(2)}s`);
+        },
+
+        removeSpecificKeyframe(clip, kfId) {
+          if (!clip || !clip.keyframes) return;
+          this.pushUndoState();
+          clip.keyframes = clip.keyframes.filter(k => k.id !== kfId);
+          this.syncClipTransformToPlayhead();
+          this.saveTimelineToBackend();
+          this.showToast('🗑️ Keyframe removed');
+        },
+
+        resetClipTransform(targetClip = null) {
+          const clip = targetClip || this.selectedClip || (this.getCurrentClipAtPlayhead() ? this.getCurrentClipAtPlayhead().clip : null);
+          if (!clip) return;
+          this.pushUndoState();
+          clip.scale = 1.0;
+          clip.pos_x = 0;
+          clip.pos_y = 0;
+          clip.rotation = 0;
+          clip.opacity = 1.0;
+          clip.keyframes = [];
+          this.currentClipScale = 1.0;
+          this.currentClipPosX = 0;
+          this.currentClipPosY = 0;
+          this.currentClipRotation = 0;
+          this.currentClipOpacity = 1.0;
+          this.saveTimelineToBackend();
+          this.showToast('🔄 Reset clip transforms and cleared keyframes');
+        },
+
+        onTransformInputChange(prop, val) {
+          const clip = this.selectedClip || (this.getCurrentClipAtPlayhead() ? this.getCurrentClipAtPlayhead().clip : null);
+          if (!clip) return;
+          const numVal = Math.round(Number(val) * 100) / 100;
+
+          if (prop === 'scale') this.currentClipScale = numVal;
+          else if (prop === 'pos_x') this.currentClipPosX = Math.round(numVal);
+          else if (prop === 'pos_y') this.currentClipPosY = Math.round(numVal);
+          else if (prop === 'rotation') this.currentClipRotation = Math.round(numVal);
+          else if (prop === 'opacity') this.currentClipOpacity = numVal;
+
+          clip[prop] = numVal;
+
+          if (clip.keyframes && clip.keyframes.length > 0) {
+            const range = this.getClipTimelineRange(clip);
+            const relTime = Math.max(0, Math.min(range.duration, (Number(this.currentTime) || 0) - range.start));
+            const kf = clip.keyframes.find(k => Math.abs(k.time - relTime) <= 0.12);
+            if (kf) {
+              kf[prop] = numVal;
+            } else {
+              clip.keyframes.push({
+                id: 'kf_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                time: Math.round(relTime * 100) / 100,
+                scale: Number(this.currentClipScale) || 1.0,
+                pos_x: Number(this.currentClipPosX) || 0,
+                pos_y: Number(this.currentClipPosY) || 0,
+                rotation: Number(this.currentClipRotation) || 0,
+                opacity: Number(this.currentClipOpacity) !== undefined ? Number(this.currentClipOpacity) : 1.0
+              });
+              clip.keyframes.sort((a, b) => a.time - b.time);
+            }
+          }
+        },
+
+        applyKeyframePreset(preset) {
+          const clip = this.selectedClip || (this.getCurrentClipAtPlayhead() ? this.getCurrentClipAtPlayhead().clip : null);
+          if (!clip) {
+            this.showToast('⚠️ Select a video clip first');
+            return;
+          }
+          this.pushUndoState();
+          const dur = Number(clip.duration) || 5.0;
+          clip.keyframes = [];
+
+          if (preset === 'zoom_in') {
+            clip.keyframes = [
+              { id: 'kf_zi_1', time: 0.0, scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_zi_2', time: Math.round(dur * 100) / 100, scale: 1.28, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 }
+            ];
+            this.showToast('⚡ Applied Slow Zoom In (1.0x ➔ 1.28x)');
+          } else if (preset === 'dramatic_push') {
+            const punchT = Math.min(0.5, dur * 0.2);
+            clip.keyframes = [
+              { id: 'kf_dp_1', time: 0.0, scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_dp_2', time: Math.round(punchT * 100) / 100, scale: 1.35, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_dp_3', time: Math.round(dur * 100) / 100, scale: 1.40, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 }
+            ];
+            this.showToast('⚡ Applied Dramatic Hook Punch');
+          } else if (preset === 'ken_burns') {
+            clip.keyframes = [
+              { id: 'kf_kb_1', time: 0.0, scale: 1.18, pos_x: -35, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_kb_2', time: Math.round(dur * 100) / 100, scale: 1.18, pos_x: 35, pos_y: 0, rotation: 0, opacity: 1.0 }
+            ];
+            this.showToast('⚡ Applied Ken Burns Pan');
+          } else if (preset === 'pulse_snap') {
+            const t1 = Math.min(0.2, dur * 0.1);
+            const t2 = Math.min(0.4, dur * 0.2);
+            clip.keyframes = [
+              { id: 'kf_ps_1', time: 0.0, scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_ps_2', time: Math.round(t1 * 100) / 100, scale: 1.22, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_ps_3', time: Math.round(t2 * 100) / 100, scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 }
+            ];
+            this.showToast('⚡ Applied Beat Pulse Snap');
+          } else if (preset === 'fade_in_out') {
+            const fadeDur = Math.min(0.6, dur * 0.25);
+            clip.keyframes = [
+              { id: 'kf_fio_1', time: 0.0, scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 0.0 },
+              { id: 'kf_fio_2', time: Math.round(fadeDur * 100) / 100, scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_fio_3', time: Math.max(fadeDur, Math.round((dur - fadeDur) * 100) / 100), scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 1.0 },
+              { id: 'kf_fio_4', time: Math.round(dur * 100) / 100, scale: 1.0, pos_x: 0, pos_y: 0, rotation: 0, opacity: 0.0 }
+            ];
+            this.showToast('⚡ Applied Fade In & Out Opacity Ramp');
+          }
+
+          this.syncClipTransformToPlayhead();
+          this.saveTimelineToBackend();
+          this.$nextTick(() => lucide.createIcons());
         },
 
         getVideoMaskStyle() {
@@ -5936,6 +7229,7 @@
           if (vid) {
             this.currentTime = vid.currentTime;
             this.syncActiveSubtitle(this.currentTime);
+            this.syncClipTransformToPlayhead();
 
             // Auto-scroll timeline to keep playhead in view during playback
             const scrollArea = document.getElementById('timelineScrollArea');
@@ -6007,6 +7301,7 @@
           const vid = document.getElementById('mainVideoPlayer');
           if (vid) vid.currentTime = Math.min(this.totalDuration, this.currentTime);
           this.syncActiveSubtitle(this.currentTime);
+          this.syncClipTransformToPlayhead();
         },
 
         startDragPlayhead(event) {
@@ -6024,6 +7319,7 @@
             const vid = document.getElementById('mainVideoPlayer');
             if (vid) vid.currentTime = Math.min(this.totalDuration, this.currentTime);
             this.syncActiveSubtitle(this.currentTime);
+            this.syncClipTransformToPlayhead();
 
             // Auto-scroll timeline when dragging playhead near view boundaries
             if (scrollArea) {
@@ -6151,9 +7447,12 @@
           window.addEventListener('mouseup', onUp);
         },
 
-        // Production / Export Pre-Flight Validation
-        async startProduction() {
-          // 1. Validation: Empty timeline check
+        // Production / Export Pre-Flight Validation & CapCut 1:1 Modal
+        startProduction() {
+          this.openExportModal();
+        },
+
+        openExportModal() {
           if (!this.clips || this.clips.length === 0) {
             this.showValidationModal({
               title: 'Empty Timeline Cannot Be Exported',
@@ -6165,10 +7464,21 @@
             return;
           }
 
-          // 2. Validation: If BioChroma project or caption style, audit client spec
+          const baseName = (this.projectName || 'My_UGC_Viral_Ad')
+            .replace(/\.capcut$/i, '')
+            .replace(/[^a-zA-Z0-9_\-]/g, '_');
+          this.exportSettings.filename = baseName || 'My_Video_Ad';
+
+          this.showExportModal = true;
+          this.$nextTick(() => lucide.createIcons());
+        },
+
+        async confirmExport() {
+          this.showExportModal = false;
+
           const isBioChroma = (this.settings && this.settings.caption_style === 'biochroma') ||
                               (this.projectName && this.projectName.toLowerCase().includes('biochroma'));
-          if (isBioChroma) {
+          if (isBioChroma && this.exportSettings.type === 'video') {
             this.auditBioChromaSpec();
             if (!this.isSpecAuditAllPassed()) {
               this.showSpecAuditModal = true;
@@ -6177,7 +7487,6 @@
             }
           }
 
-          // 3. Launch Master Export
           await this.executeProduction();
         },
 
@@ -6185,10 +7494,59 @@
           this.showSpecAuditModal = false;
           this.showProductionModal = true;
           try {
-            await fetch('/api/produce', { method: 'POST' });
+            const ext = this.exportSettings.type === 'audio' ? this.exportSettings.audioFormat : this.exportSettings.videoFormat;
+            const payload = {
+              export_type: this.exportSettings.type,
+              resolution: this.exportSettings.resolution,
+              fps: Number(this.exportSettings.fps) || 30,
+              format: ext,
+              quality: this.exportSettings.bitrate,
+              bitrate: this.exportSettings.audioBitrate,
+              filename: `${this.exportSettings.filename || 'export'}.${ext}`,
+              aspect_ratio: this.aspectRatio || '9:16'
+            };
+
+            await fetch('/api/produce', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
             this.pollProgress();
           } catch (e) {
             console.error('Production error:', e);
+          }
+        },
+
+        getExportDimensionsLabel() {
+          const ar = this.aspectRatio || '9:16';
+          const res = this.exportSettings.resolution || '1080p';
+          const labels = {
+            '9:16': { '480p': '480x854 (SD 9:16)', '720p': '720x1280 (HD 9:16)', '1080p': '1080x1920 (1K FHD)', '2k': '1440x2560 (2K QHD)', '4k': '2160x3840 (4K UHD)' },
+            '16:9': { '480p': '854x480 (SD 16:9)', '720p': '1280x720 (HD 16:9)', '1080p': '1920x1080 (1K FHD)', '2k': '2560x1440 (2K QHD)', '4k': '3840x2160 (4K UHD)' },
+            '1:1': { '480p': '480x480 (SD 1:1)', '720p': '720x720 (HD 1:1)', '1080p': '1080x1080 (1K Square)', '2k': '1440x1440 (2K Square)', '4k': '2160x2160 (4K Square)' }
+          };
+          return (labels[ar] && labels[ar][res]) || '1080x1920 (1K)';
+        },
+
+        getExportEstimatedSize() {
+          const dur = Number(this.totalDuration) || 21.98;
+          if (this.exportSettings.type === 'audio') {
+            const kbps = this.exportSettings.audioFormat === 'wav' ? 1536 : Number(this.exportSettings.audioBitrate) || 320;
+            const mb = (kbps * dur) / (8 * 1024);
+            return `~${mb < 1 ? mb.toFixed(2) : mb.toFixed(1)} MB`;
+          } else {
+            const mbpsMap = {
+              '480p': { higher: 3.5, standard: 2.2, fast: 1.4 },
+              '720p': { higher: 7.5, standard: 4.8, fast: 3.0 },
+              '1080p': { higher: 16.0, standard: 9.5, fast: 5.5 },
+              '2k': { higher: 30.0, standard: 18.0, fast: 11.0 },
+              '4k': { higher: 65.0, standard: 38.0, fast: 22.0 }
+            };
+            const r = this.exportSettings.resolution || '1080p';
+            const q = this.exportSettings.bitrate || 'standard';
+            const mbps = (mbpsMap[r] && mbpsMap[r][q]) || 9.5;
+            const mb = (mbps * dur) / 8;
+            return `~${Math.max(1, Math.round(mb))} MB`;
           }
         },
 
