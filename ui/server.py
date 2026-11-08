@@ -14,11 +14,14 @@ import threading
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 import shutil
+from datetime import datetime, timezone
 
-from fastapi import FastAPI, BackgroundTasks, HTTPException, UploadFile, File
+from fastapi import FastAPI, BackgroundTasks, HTTPException, UploadFile, File, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from ui.agent_bridge import detect_available_agents, dispatch_agent_prompt
+
 
 # Ensure utf-8
 if sys.platform == "win32":
@@ -36,6 +39,8 @@ OUTPUT_DIR = BASE_DIR / "Output"
 BM_DIR = BASE_DIR / "BM"
 SFX_DIR = BASE_DIR / "SFX"
 SCRIPTS_DIR = BASE_DIR / "skills" / "ugc-editor" / "scripts"
+PROJECTS_DIR = BASE_DIR / "projects"
+PROJECTS_DIR.mkdir(parents=True, exist_ok=True)
 PYTHON_EXE = str(Path(sys.prefix) / "Scripts" / "python.exe")
 FFPROBE_EXE = str(Path(sys.prefix) / "Scripts" / "ffprobe.exe") if (Path(sys.prefix) / "Scripts" / "ffprobe.exe").exists() else "ffprobe"
 
@@ -74,10 +79,75 @@ AVAILABLE_STICKERS = [
 ]
 
 AVAILABLE_TEXT_STYLES = [
-    {"id": "hormozi", "name": "Hormozi Electric", "font": "Montserrat Black", "size": 44, "color": "#FFDE59", "stroke": "#000000", "stroke_width": 4, "bg": "transparent", "bg_padding": 8, "animation": "karaoke_bounce"},
-    {"id": "neon_green", "name": "Cyberpunk Neon", "font": "Inter Black", "size": 42, "color": "#00FF66", "stroke": "#042F2E", "stroke_width": 3, "bg": "transparent", "glow": "#00FF66", "animation": "pop_in"},
-    {"id": "clean_white", "name": "Minimal Clean White", "font": "Inter Bold", "size": 38, "color": "#FFFFFF", "stroke": "#000000", "stroke_width": 2, "shadow": True, "animation": "slide_up"},
-    {"id": "bold_punch", "name": "TikTok Bold Punch", "font": "The Bold Font", "size": 46, "color": "#FFFFFF", "bg": "#EF4444", "bg_padding": 10, "stroke": "none", "animation": "spring_pop"}
+    {
+        "id": "biochroma",
+        "name": "BioChroma Client Standard",
+        "font": "Roboto Bold",
+        "size": 78,
+        "color": "#FFFFFF",
+        "light_color": "#1683DF",
+        "stroke": "#181818",
+        "stroke_width": 4,
+        "bg": "transparent",
+        "margin_v": 520,
+        "wrap_style": 2,
+        "badge": "78pt Safe-Zone",
+        "animation": "static_safe"
+    },
+    {
+        "id": "hormozi",
+        "name": "Hormozi Electric",
+        "font": "Montserrat Black",
+        "size": 44,
+        "color": "#FFDE59",
+        "light_color": "#B45309",
+        "stroke": "#000000",
+        "stroke_width": 4,
+        "bg": "transparent",
+        "bg_padding": 8,
+        "badge": "Yellow Pop",
+        "animation": "karaoke_bounce"
+    },
+    {
+        "id": "neon_green",
+        "name": "Cyberpunk Neon",
+        "font": "Inter Black",
+        "size": 42,
+        "color": "#00FF66",
+        "light_color": "#047857",
+        "stroke": "#042F2E",
+        "stroke_width": 3,
+        "bg": "transparent",
+        "glow": "#00FF66",
+        "badge": "Neon Glow",
+        "animation": "pop_in"
+    },
+    {
+        "id": "clean_white",
+        "name": "Minimal Clean White",
+        "font": "Inter Bold",
+        "size": 38,
+        "color": "#FFFFFF",
+        "light_color": "#1E293B",
+        "stroke": "#000000",
+        "stroke_width": 2,
+        "shadow": True,
+        "badge": "Clean White",
+        "animation": "slide_up"
+    },
+    {
+        "id": "bold_punch",
+        "name": "TikTok Bold Punch",
+        "font": "The Bold Font",
+        "size": 46,
+        "color": "#FFFFFF",
+        "light_color": "#DC2626",
+        "bg": "#EF4444",
+        "bg_padding": 10,
+        "stroke": "none",
+        "badge": "Red Pill",
+        "animation": "spring_pop"
+    }
 ]
 
 AVAILABLE_MASKS = [
@@ -124,6 +194,13 @@ current_settings = {
     "clip_tracking": {},
     "clip_cutouts": {},
     "timeline_clips": None,
+    "caption_font": "Roboto-Bold",
+    "caption_size": 78,
+    "caption_color": "#FFFFFF",
+    "caption_stroke": "#181818",
+    "caption_stroke_width": 4.0,
+    "caption_margin_v": 520,
+    "caption_wrap_style": 2,
 }
 
 production_state = {
@@ -139,10 +216,36 @@ production_state = {
 chat_history = [
     {
         "role": "assistant",
-        "content": "👋 Hey! I'm your **UGC Creative Director**. I've scanned the 4 clips in your `Input/` folder. They form a high-converting jar opener ad!\n\nWould you like me to produce it with the **Viral Hook** preset, or would you like to customize captions, zooms, or background music first?",
+        "content": "👋 Hey! I'm your **AI Creative Director**. I'm connected and ready to assist with real-time editing, dead-air trimming, captions, and camera reframing.\n\nYou can prompt me to adjust anything, or select your preferred coding agent (Claude Code, Gemini CLI, Hermes, or Makinity Native)!",
         "action_card": None
     }
 ]
+
+# Agent & WebSocket Manager
+active_agent = "claude"
+undo_history: List[Dict[str, Any]] = []
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: List[WebSocket] = []
+
+    async def connect(self, websocket: WebSocket):
+        await websocket.accept()
+        self.active_connections.append(websocket)
+
+    def disconnect(self, websocket: WebSocket):
+        if websocket in self.active_connections:
+            self.active_connections.remove(websocket)
+
+    async def broadcast(self, message: Dict[str, Any]):
+        for connection in list(self.active_connections):
+            try:
+                await connection.send_json(message)
+            except Exception:
+                pass
+
+ws_manager = ConnectionManager()
+
 
 def natural_sort_key(s: str) -> list:
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r'(\d+)', s)]
@@ -185,6 +288,302 @@ def parse_ass_subtitles(ass_path: Path) -> List[Dict[str, Any]]:
     except Exception:
         pass
     return cues
+
+def ensure_default_projects():
+    if not any(PROJECTS_DIR.glob("*.json")):
+        now_iso = datetime.now(timezone.utc).isoformat()
+        default_projs = [
+            {
+                "id": "proj_jar_opener",
+                "name": "Jar Opener UGC Viral Ad.capcut",
+                "aspect_ratio": "9:16",
+                "updated_at": now_iso,
+                "duration": 21.98,
+                "clips_count": 4,
+                "resolution": "1080x1920",
+                "thumbnail_gradient": "from-blue-600 via-indigo-700 to-slate-900",
+                "category": "ugc",
+                "settings": {
+                    "preset": "viral_hook",
+                    "caption_style": "biochroma",
+                    "caption_font": "Roboto-Bold",
+                    "caption_size": 78,
+                    "caption_color": "#FFFFFF",
+                    "caption_stroke": "#181818",
+                    "caption_stroke_width": 4.0,
+                    "caption_margin_v": 520,
+                    "caption_wrap_style": 2,
+                    "grade": "vibrant_pop",
+                    "bgm_track": "Lo-Fi Chill Hop.mp3",
+                    "bgm_volume": 0.18
+                },
+                "clips": [
+                    {"id": "clip_1", "name": "01_hook_problem.mp4", "duration": 4.5, "in_point": 0.0, "out_point": 4.5},
+                    {"id": "clip_2", "name": "02_unboxing_reveal.mp4", "duration": 5.2, "in_point": 0.0, "out_point": 5.2},
+                    {"id": "clip_3", "name": "03_demo_use_case.mp4", "duration": 6.8, "in_point": 0.0, "out_point": 6.8},
+                    {"id": "clip_4", "name": "04_cta_discount.mp4", "duration": 5.48, "in_point": 0.0, "out_point": 5.48}
+                ],
+                "timelineTexts": [
+                    {"id": "txt_1", "content": "PROBLEM SOLVED", "start": 0.0, "duration": 4.5, "style": "biochroma"},
+                    {"id": "txt_2", "content": "EASY ONE-TWIST GRIP", "start": 4.5, "duration": 5.2, "style": "biochroma"}
+                ],
+                "timelineEffects": [
+                    {"id": "fx_shake", "name": "Camera Shake", "type": "shake", "start": 0.0, "duration": 2.5}
+                ],
+                "timelineSfx": [
+                    {"id": "sfx_whoosh", "name": "⚡ Whoosh", "start": 0.0, "duration": 1.2}
+                ]
+            },
+            {
+                "id": "proj_biochroma",
+                "name": "BioChroma Client Spec 78pt Ad.capcut",
+                "aspect_ratio": "9:16",
+                "updated_at": now_iso,
+                "duration": 42.50,
+                "clips_count": 6,
+                "resolution": "1080x1920",
+                "thumbnail_gradient": "from-emerald-600 via-teal-700 to-slate-900",
+                "category": "biochroma",
+                "settings": {
+                    "preset": "biochroma",
+                    "caption_style": "biochroma",
+                    "caption_font": "Roboto-Bold",
+                    "caption_size": 78,
+                    "caption_color": "#FFFFFF",
+                    "caption_stroke": "#181818",
+                    "caption_stroke_width": 4.0,
+                    "caption_margin_v": 520,
+                    "caption_wrap_style": 2,
+                    "grade": "vibrant_pop",
+                    "bgm_track": "Upbeat Viral Pop.mp3",
+                    "bgm_volume": 0.16
+                },
+                "clips": [
+                    {"id": "bc1", "name": "01_biochroma_hook.mp4", "duration": 6.5, "in_point": 0.0, "out_point": 6.5},
+                    {"id": "bc2", "name": "02_centella_asiatica.mp4", "duration": 8.0, "in_point": 0.0, "out_point": 8.0},
+                    {"id": "bc3", "name": "03_golden_peptides.mp4", "duration": 7.5, "in_point": 0.0, "out_point": 7.5},
+                    {"id": "bc4", "name": "04_little_secret_wink.mp4", "duration": 4.5, "in_point": 0.0, "out_point": 4.5},
+                    {"id": "bc5", "name": "05_send_me_link.mp4", "duration": 6.0, "in_point": 0.0, "out_point": 6.0},
+                    {"id": "bc6", "name": "06_lifestyle_cta.mp4", "duration": 10.0, "in_point": 0.0, "out_point": 10.0}
+                ],
+                "timelineTexts": [
+                    {"id": "txt_bc1", "content": "BIOCHROMA, IL NOSTRO PICCOLO SEGRETO", "start": 0.0, "duration": 6.5, "style": "biochroma"},
+                    {"id": "txt_bc2", "content": "CENTELLA ASIATICA & PEPTIDI DI SETA", "start": 6.5, "duration": 8.0, "style": "biochroma"}
+                ],
+                "timelineEffects": [
+                    {"id": "fx_glow", "name": "Soft Dream Glow", "type": "glow", "start": 6.5, "duration": 4.0}
+                ],
+                "timelineSfx": [
+                    {"id": "sfx_pop", "name": "🔔 Chime", "start": 6.5, "duration": 1.5}
+                ]
+            },
+            {
+                "id": "proj_tiktok_punch",
+                "name": "TikTok Punchy Hook Reel.capcut",
+                "aspect_ratio": "9:16",
+                "updated_at": now_iso,
+                "duration": 15.30,
+                "clips_count": 3,
+                "resolution": "1080x1920",
+                "thumbnail_gradient": "from-amber-500 via-rose-700 to-slate-900",
+                "category": "ugc",
+                "settings": {
+                    "preset": "viral_hook",
+                    "caption_style": "tiktok_bold",
+                    "caption_font": "The-Bold-Font",
+                    "caption_size": 46,
+                    "grade": "vibrant_pop",
+                    "bgm_track": "Synthwave Cyber.mp3",
+                    "bgm_volume": 0.20
+                },
+                "clips": [
+                    {"id": "vh1", "name": "shocking_stat_hook.mp4", "duration": 4.3, "in_point": 0.0, "out_point": 4.3},
+                    {"id": "vh2", "name": "reveal_mechanism.mp4", "duration": 5.8, "in_point": 0.0, "out_point": 5.8},
+                    {"id": "vh3", "name": "offer_scarcity_cta.mp4", "duration": 5.2, "in_point": 0.0, "out_point": 5.2}
+                ],
+                "timelineTexts": [
+                    {"id": "txt_vh1", "content": "STOP SCROLLING RIGHT NOW", "start": 0.0, "duration": 4.3, "style": "tiktok_bold"}
+                ],
+                "timelineEffects": [
+                    {"id": "fx_rgb", "name": "RGB Glitch", "type": "glitch", "start": 0.0, "duration": 1.5}
+                ],
+                "timelineSfx": [
+                    {"id": "sfx_glitch", "name": "⚡ Shutter 1", "start": 0.0, "duration": 0.8}
+                ]
+            }
+        ]
+        for p in default_projs:
+            p_file = PROJECTS_DIR / f"{p['id']}.json"
+            with open(p_file, "w", encoding="utf-8") as f:
+                json.dump(p, f, indent=2)
+
+ensure_default_projects()
+
+class CreateProjectPayload(BaseModel):
+    name: str = "New UGC Ad.capcut"
+    aspect_ratio: str = "9:16"
+    preset: str = "viral_hook"
+
+class ProjectIdPayload(BaseModel):
+    id: str
+
+class RenameProjectPayload(BaseModel):
+    id: str
+    name: str
+
+@app.get("/api/projects")
+def list_projects():
+    ensure_default_projects()
+    projects = []
+    for f in PROJECTS_DIR.glob("*.json"):
+        try:
+            with open(f, "r", encoding="utf-8") as pf:
+                data = json.load(pf)
+                projects.append(data)
+        except Exception as e:
+            print(f"Error reading project {f}: {e}")
+    projects.sort(key=lambda p: p.get("updated_at", ""), reverse=True)
+    return {"status": "ok", "projects": projects}
+
+@app.post("/api/projects/new")
+def create_project(payload: CreateProjectPayload):
+    proj_id = f"proj_{int(datetime.now(timezone.utc).timestamp())}"
+    now_iso = datetime.now(timezone.utc).isoformat()
+    name = payload.name.strip()
+    if not name:
+        name = "Untitled Project"
+    if not name.endswith(".capcut"):
+        name += ".capcut"
+    
+    preset = payload.preset or "viral_hook"
+    caption_style = "biochroma" if preset == "biochroma" else ("tiktok_bold" if preset == "tiktok_bold" else "hormozi")
+    
+    gradient_options = [
+        "from-blue-600 via-indigo-700 to-slate-900",
+        "from-emerald-600 via-teal-700 to-slate-900",
+        "from-amber-500 via-rose-700 to-slate-900",
+        "from-purple-600 via-fuchsia-700 to-slate-900"
+    ]
+    existing_count = len(list(PROJECTS_DIR.glob("*.json")))
+    grad = gradient_options[existing_count % len(gradient_options)]
+
+    new_proj = {
+        "id": proj_id,
+        "name": name,
+        "aspect_ratio": payload.aspect_ratio or "9:16",
+        "updated_at": now_iso,
+        "duration": 0.0,
+        "clips_count": 0,
+        "resolution": "1080x1920" if payload.aspect_ratio == "9:16" else ("1920x1080" if payload.aspect_ratio == "16:9" else "1080x1080"),
+        "thumbnail_gradient": grad,
+        "category": "biochroma" if "biochroma" in name.lower() or preset == "biochroma" else "ugc",
+        "settings": {
+            "preset": preset,
+            "caption_style": caption_style,
+            "caption_font": "Roboto-Bold" if caption_style == "biochroma" else "Inter-Bold",
+            "caption_size": 78 if caption_style == "biochroma" else 44,
+            "caption_color": "#FFFFFF",
+            "caption_stroke": "#181818",
+            "caption_stroke_width": 4.0 if caption_style == "biochroma" else 2.0,
+            "caption_margin_v": 520 if caption_style == "biochroma" else 200,
+            "caption_wrap_style": 2 if caption_style == "biochroma" else 0,
+            "grade": "vibrant_pop",
+            "bgm_track": "",
+            "bgm_volume": 0.18
+        },
+        "clips": [],
+        "timelineTexts": [
+            {"id": f"txt_{proj_id}_1", "content": "NEW PROJECT HEADING", "start": 0.0, "duration": 4.0, "style": caption_style}
+        ],
+        "timelineEffects": [],
+        "timelineSfx": []
+    }
+
+    proj_file = PROJECTS_DIR / f"{proj_id}.json"
+    with open(proj_file, "w", encoding="utf-8") as f:
+        json.dump(new_proj, f, indent=2)
+
+    current_settings["current_project_id"] = proj_id
+    current_settings["current_project_name"] = name
+    current_settings["timeline_clips"] = []
+    if "settings" in new_proj:
+        current_settings.update(new_proj["settings"])
+
+    return {"status": "ok", "project": new_proj}
+
+@app.post("/api/projects/open")
+def open_project(payload: ProjectIdPayload):
+    proj_file = PROJECTS_DIR / f"{payload.id}.json"
+    if not proj_file.exists():
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    with open(proj_file, "r", encoding="utf-8") as f:
+        proj = json.load(f)
+    
+    proj["updated_at"] = datetime.now(timezone.utc).isoformat()
+    with open(proj_file, "w", encoding="utf-8") as f:
+        json.dump(proj, f, indent=2)
+
+    current_settings["current_project_id"] = proj["id"]
+    current_settings["current_project_name"] = proj["name"]
+    current_settings["timeline_clips"] = proj.get("clips", [])
+    if "settings" in proj:
+        current_settings.update(proj["settings"])
+
+    return {"status": "ok", "project": proj}
+
+@app.post("/api/projects/duplicate")
+def duplicate_project(payload: ProjectIdPayload):
+    src_file = PROJECTS_DIR / f"{payload.id}.json"
+    if not src_file.exists():
+        raise HTTPException(status_code=404, detail="Source project not found")
+    
+    with open(src_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    new_id = f"proj_{int(datetime.now(timezone.utc).timestamp())}"
+    now_iso = datetime.now(timezone.utc).isoformat()
+    data["id"] = new_id
+    data["name"] = f"Copy of {data.get('name', 'Project')}"
+    data["updated_at"] = now_iso
+
+    dst_file = PROJECTS_DIR / f"{new_id}.json"
+    with open(dst_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    return {"status": "ok", "project": data}
+
+@app.post("/api/projects/rename")
+def rename_project(payload: RenameProjectPayload):
+    proj_file = PROJECTS_DIR / f"{payload.id}.json"
+    if not proj_file.exists():
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    with open(proj_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    
+    name = payload.name.strip()
+    if not name:
+        name = "Untitled Project"
+    if not name.endswith(".capcut"):
+        name += ".capcut"
+
+    data["name"] = name
+    data["updated_at"] = datetime.now(timezone.utc).isoformat()
+    with open(proj_file, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2)
+
+    if current_settings.get("current_project_id") == payload.id:
+        current_settings["current_project_name"] = name
+
+    return {"status": "ok", "project": data}
+
+@app.post("/api/projects/delete")
+def delete_project(payload: ProjectIdPayload):
+    proj_file = PROJECTS_DIR / f"{payload.id}.json"
+    if proj_file.exists():
+        proj_file.unlink()
+    return {"status": "ok", "deleted_id": payload.id}
 
 @app.get("/api/project")
 def get_project():
@@ -363,6 +762,13 @@ class SettingsUpdate(BaseModel):
     bgm_ducking: Optional[float] = None
     normalize_loudness: Optional[bool] = None
     target_lufs: Optional[float] = None
+    caption_font: Optional[str] = None
+    caption_size: Optional[int] = None
+    caption_color: Optional[str] = None
+    caption_stroke: Optional[str] = None
+    caption_stroke_width: Optional[float] = None
+    caption_margin_v: Optional[int] = None
+    caption_wrap_style: Optional[int] = None
 
 @app.post("/api/settings")
 def update_settings(payload: SettingsUpdate):
@@ -496,98 +902,210 @@ def get_progress():
 
 class ChatMessage(BaseModel):
     message: str
+    agent_id: Optional[str] = None
+
+@app.websocket("/ws/timeline")
+async def websocket_timeline_endpoint(websocket: WebSocket):
+    await ws_manager.connect(websocket)
+    try:
+        await websocket.send_json({
+            "type": "init",
+            "active_agent": active_agent,
+            "settings": current_settings
+        })
+        while True:
+            data = await websocket.receive_json()
+            msg_type = data.get("type")
+            if msg_type == "ping":
+                await websocket.send_json({"type": "pong"})
+            elif msg_type == "prompt":
+                prompt_text = data.get("message", "")
+                agent = data.get("agent_id") or active_agent
+                chat_history.append({"role": "user", "content": prompt_text, "action_card": None})
+                
+                project_snap = get_project()
+                res = await dispatch_agent_prompt(agent, prompt_text, project_snap)
+                
+                assistant_entry = {
+                    "role": "assistant",
+                    "content": res["reply"],
+                    "action_card": res.get("action_card"),
+                    "patches": res.get("patches", []),
+                    "agent": res.get("agent", agent)
+                }
+                chat_history.append(assistant_entry)
+                
+                await ws_manager.broadcast({
+                    "type": "agent_response",
+                    "chat": assistant_entry,
+                    "patches": res.get("patches", [])
+                })
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket)
+    except Exception:
+        ws_manager.disconnect(websocket)
+
+@app.get("/api/agents")
+def get_agents(all: bool = False):
+    return {
+        "agents": detect_available_agents(only_available=not all),
+        "active_agent": active_agent
+    }
+
+@app.post("/api/agents/scan")
+async def scan_system_agents():
+    found = detect_available_agents(only_available=True)
+    await ws_manager.broadcast({
+        "type": "agents_scanned",
+        "agents": found,
+        "active_agent": active_agent
+    })
+    return {"status": "ok", "count": len(found), "agents": found}
+
+class SelectAgentReq(BaseModel):
+    agent_id: str
+
+@app.post("/api/agents/select")
+async def set_active_agent(req: SelectAgentReq):
+    global active_agent
+    active_agent = req.agent_id
+    await ws_manager.broadcast({
+        "type": "agent_switched",
+        "active_agent": active_agent
+    })
+    return {"status": "ok", "active_agent": active_agent}
+
+class ApplyPatchRequest(BaseModel):
+    patches: List[Dict[str, Any]]
+
+@app.post("/api/timeline/apply_patch")
+async def apply_timeline_patch(req: ApplyPatchRequest):
+    applied = []
+    # Save undo snapshot
+    undo_history.append({
+        "settings": dict(current_settings),
+        "timeline_clips": list(current_settings.get("timeline_clips") or [])
+    })
+    if len(undo_history) > 20:
+        undo_history.pop(0)
+
+    for p in req.patches:
+        op = p.get("op")
+        if op == "trim_dead_air":
+            current_settings["trim_silence"] = True
+            t_clips = current_settings.get("timeline_clips") or []
+            # Calculate dead air trimming on active clips
+            for c in t_clips:
+                orig_dur = c.get("file_duration", c.get("duration", 0.0))
+                # Trim ~0.4s to 0.5s tail dead air if clip is longer than 2.0s
+                if orig_dur > 2.0 and c.get("out_point", orig_dur) >= orig_dur:
+                    trim_cut = round(min(0.55, orig_dur * 0.12), 2)
+                    c["out_point"] = round(orig_dur - trim_cut, 2)
+                    c["duration"] = round(c["out_point"] - c.get("in_point", 0.0), 2)
+            applied.append(op)
+        elif op == "update_subtitle_style":
+            style = p.get("style", "")
+            if style == "biochroma":
+                current_settings["caption_style"] = "biochroma"
+                current_settings["caption_font"] = "Roboto-Bold"
+                current_settings["caption_size"] = 78
+                current_settings["caption_color"] = "#FFFFFF"
+                current_settings["caption_stroke"] = "#181818"
+                current_settings["caption_stroke_width"] = 4.0
+                current_settings["caption_margin_v"] = 520
+                current_settings["caption_wrap_style"] = 2
+            elif style == "hormozi":
+                current_settings["caption_style"] = "hormozi"
+                current_settings["caption_font"] = "Montserrat-Black"
+                current_settings["caption_size"] = 44
+                current_settings["caption_color"] = "#FFDE59"
+                current_settings["caption_stroke"] = "#000000"
+                current_settings["caption_stroke_width"] = 4.0
+                current_settings["caption_margin_v"] = 280
+                current_settings["caption_wrap_style"] = 0
+            else:
+                if "style" in p:
+                    current_settings["caption_style"] = p["style"]
+            if "font_size" in p:
+                current_settings["caption_size"] = int(p["font_size"])
+            if "font_family" in p or "font_name" in p:
+                current_settings["caption_font"] = p.get("font_family") or p.get("font_name")
+            if "margin_v" in p:
+                current_settings["caption_margin_v"] = int(p["margin_v"])
+            if "text_color" in p or "color" in p:
+                current_settings["caption_color"] = p.get("text_color") or p.get("color")
+            if "outline_color" in p or "stroke" in p:
+                current_settings["caption_stroke"] = p.get("outline_color") or p.get("stroke")
+            if "outline" in p or "stroke_width" in p:
+                current_settings["caption_stroke_width"] = float(p.get("outline") or p.get("stroke_width"))
+            if "wrap_style" in p:
+                current_settings["caption_wrap_style"] = int(p["wrap_style"])
+            applied.append(op)
+        elif op == "set_color_grade":
+            current_settings["grade"] = p.get("preset", "vibrant_pop")
+            applied.append(op)
+        elif op == "set_zoom_mode":
+            current_settings["zoom_mode"] = p.get("mode", "smart_cuts")
+            applied.append(op)
+        elif op == "trim_clip":
+            cname = p.get("clip_name")
+            t_clips = current_settings.get("timeline_clips") or []
+            for c in t_clips:
+                if c.get("name") == cname or c.get("original_file") == cname:
+                    c["in_point"] = p.get("in_point", c["in_point"])
+                    c["out_point"] = p.get("out_point", c["out_point"])
+                    c["duration"] = round(c["out_point"] - c["in_point"], 2)
+            applied.append(op)
+        elif op == "produce_master":
+            threading.Thread(target=run_production_thread, daemon=True).start()
+            applied.append(op)
+
+    await ws_manager.broadcast({
+        "type": "timeline_updated",
+        "applied_patches": applied,
+        "settings": current_settings
+    })
+    return {"status": "ok", "applied": applied, "settings": current_settings}
+
+@app.post("/api/timeline/revert_patch")
+async def revert_timeline_patch():
+    if undo_history:
+        prev = undo_history.pop()
+        current_settings.update(prev["settings"])
+        current_settings["timeline_clips"] = prev["timeline_clips"]
+        await ws_manager.broadcast({
+            "type": "timeline_reverted",
+            "settings": current_settings
+        })
+        return {"status": "ok", "reverted": True}
+    return {"status": "error", "message": "No undo state available"}
 
 @app.post("/api/chat")
-def handle_chat(payload: ChatMessage):
-    msg = payload.message.strip().lower()
+async def handle_chat(payload: ChatMessage):
+    global active_agent
     chat_history.append({"role": "user", "content": payload.message, "action_card": None})
 
-    reply = ""
-    action_card = None
+    target_agent = payload.agent_id or active_agent
+    project_snap = get_project()
+    res = await dispatch_agent_prompt(target_agent, payload.message, project_snap)
 
-    if any(kw in msg for kw in ["punch", "hook", "zoom"]):
-        current_settings["zoom_mode"] = "smart_cuts"
-        reply = "I've tuned the **Smart Zooming** engine. The video will now start with a high-energy **1.18x punch-in** on the hook (0-2s) to grab the viewer's eyes, pull back to wide for the problem, and punch in on the hero product at Clip 2."
-        action_card = {
-            "title": "Camera Reframing Updated",
-            "details": "Mode: Smart Cuts (Hook Punch + Scene-Synced) · Anchor: Face (0.35)",
-            "button_text": "Produce Master Video",
-            "action": "produce"
-        }
+    assistant_entry = {
+        "role": "assistant",
+        "content": res["reply"],
+        "action_card": res.get("action_card"),
+        "patches": res.get("patches", []),
+        "agent": res.get("agent", target_agent)
+    }
+    chat_history.append(assistant_entry)
 
-    elif any(kw in msg for kw in ["caption", "subtitle", "color", "neon", "yellow", "hormozi"]):
-        if "green" in msg or "neon" in msg:
-            current_settings["caption_style"] = "neon_green"
-            style_name = "Neon Green Glow"
-        elif "white" in msg:
-            current_settings["caption_style"] = "clean_white"
-            style_name = "Clean Minimal White"
-        else:
-            current_settings["caption_style"] = "hormozi"
-            style_name = "Hormozi Electric Yellow"
+    # Broadcast event to all WebSocket listeners
+    await ws_manager.broadcast({
+        "type": "agent_response",
+        "chat": assistant_entry,
+        "patches": res.get("patches", [])
+    })
 
-        reply = f"Switched kinetic subtitles to **{style_name}** with microsecond karaoke bounce! Power words like `jar`, `opener`, and `grip` will dynamically illuminate with 125% pop."
-        action_card = {
-            "title": f"Captions: {style_name}",
-            "details": "Bite-sized 3-word chunks with context pinpoint scaling",
-            "button_text": "Re-render Captions",
-            "action": "produce"
-        }
-
-    elif any(kw in msg for kw in ["tight", "fast", "speed", "pause", "dead air", "silence"]):
-        current_settings["trim_silence"] = True
-        reply = "Applied **Snappy UGC Jump-Cuts**! Every dead air pause longer than 0.40s will be cut down to 0.12s natural speech buffer, eliminating awkward breathing or hesitations."
-        action_card = {
-            "title": "Pacing: High-Energy UGC",
-            "details": "Cut Threshold: -30dB · Padding: 0.12s · Zero Voice Overlap",
-            "button_text": "Apply Pacing & Render",
-            "action": "produce"
-        }
-
-    elif any(kw in msg for kw in ["grade", "look", "vibrant", "golden", "moody", "warm"]):
-        if "golden" in msg or "warm" in msg:
-            current_settings["grade"] = "warm_golden"
-            g_name = "Warm Golden Hour"
-        elif "dark" in msg or "moody" in msg:
-            current_settings["grade"] = "moody_dark"
-            g_name = "Moody Tech Dark"
-        else:
-            current_settings["grade"] = "vibrant_pop"
-            g_name = "Vibrant Commercial Pop"
-
-        reply = f"Color grade updated to **{g_name}**! Skin tones are enhanced and colors are saturated for high-contrast mobile feed stopping power."
-        action_card = {
-            "title": f"Color Grade: {g_name}",
-            "details": "Universal YUV420p standard · High-DPI mobile saturation",
-            "button_text": "Render with New Grade",
-            "action": "produce"
-        }
-
-    elif any(kw in msg for kw in ["beat", "rhythm", "tempo", "bpm", "snap"]):
-        reply = "I've enabled **Auto-Beat Detection**! Analyzed the BGM track and generated **Beat 1 (Major Downbeats)** and **Beat 2 (Sub-Rhythms)** markers. The timeline now displays CapCut yellow diamond markers along the audio waveform, and cuts can magnetically snap to the rhythm."
-        action_card = {
-            "title": "Auto-Beat Rhythm Synchronized",
-            "details": "Mode: Beat 1 Downbeats · Waveform Markers Active · Magnet Snapping ON",
-            "button_text": "Quantize Cuts to Beat",
-            "action": "snap_beats"
-        }
-
-    elif any(kw in msg for kw in ["render", "produce", "export", "start", "make"]):
-        reply = "Initiating the **AI Creative Director Pipeline**! Trimming dead air, stitching clips with 0.22s slide whooshes, burning kinetic captions, placing motion graphics, and applying aesthetic color grading now."
-        action_card = {
-            "title": "Autonomous Production Running",
-            "details": "Estimated render time: ~20 seconds",
-            "button_text": "View Live Progress",
-            "action": "open_modal"
-        }
-        # Start production
-        threading.Thread(target=run_production_thread, daemon=True).start()
-
-    else:
-        reply = f"Understood! As your AI Director, I can adjust **Pacing (Dead Air)**, **Smart Camera Zooms**, **Kinetic Captions**, **Sound Effects**, or **Aesthetic Color Grades**.\n\nYou can also click any of the suggested prompt pills below!"
-
-    chat_history.append({"role": "assistant", "content": reply, "action_card": action_card})
-    return {"history": chat_history}
+    return {"history": chat_history, "patches": res.get("patches", [])}
 
 @app.get("/api/chat/history")
 def get_chat_history():

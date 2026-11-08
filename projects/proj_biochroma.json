@@ -1,0 +1,102 @@
+{
+  "id": "proj_biochroma",
+  "name": "BioChroma Client Spec 78pt Ad.capcut",
+  "aspect_ratio": "9:16",
+  "updated_at": "2026-11-08T04:00:19.209425+00:00",
+  "duration": 42.5,
+  "clips_count": 6,
+  "resolution": "1080x1920",
+  "thumbnail_gradient": "from-emerald-600 via-teal-700 to-slate-900",
+  "category": "biochroma",
+  "settings": {
+    "preset": "biochroma",
+    "caption_style": "biochroma",
+    "caption_font": "Roboto-Bold",
+    "caption_size": 78,
+    "caption_color": "#FFFFFF",
+    "caption_stroke": "#181818",
+    "caption_stroke_width": 4.0,
+    "caption_margin_v": 520,
+    "caption_wrap_style": 2,
+    "grade": "vibrant_pop",
+    "bgm_track": "Upbeat Viral Pop.mp3",
+    "bgm_volume": 0.16
+  },
+  "clips": [
+    {
+      "id": "bc1",
+      "name": "01_biochroma_hook.mp4",
+      "duration": 6.5,
+      "in_point": 0.0,
+      "out_point": 6.5
+    },
+    {
+      "id": "bc2",
+      "name": "02_centella_asiatica.mp4",
+      "duration": 8.0,
+      "in_point": 0.0,
+      "out_point": 8.0
+    },
+    {
+      "id": "bc3",
+      "name": "03_golden_peptides.mp4",
+      "duration": 7.5,
+      "in_point": 0.0,
+      "out_point": 7.5
+    },
+    {
+      "id": "bc4",
+      "name": "04_little_secret_wink.mp4",
+      "duration": 4.5,
+      "in_point": 0.0,
+      "out_point": 4.5
+    },
+    {
+      "id": "bc5",
+      "name": "05_send_me_link.mp4",
+      "duration": 6.0,
+      "in_point": 0.0,
+      "out_point": 6.0
+    },
+    {
+      "id": "bc6",
+      "name": "06_lifestyle_cta.mp4",
+      "duration": 10.0,
+      "in_point": 0.0,
+      "out_point": 10.0
+    }
+  ],
+  "timelineTexts": [
+    {
+      "id": "txt_bc1",
+      "content": "BIOCHROMA, IL NOSTRO PICCOLO SEGRETO",
+      "start": 0.0,
+      "duration": 6.5,
+      "style": "biochroma"
+    },
+    {
+      "id": "txt_bc2",
+      "content": "CENTELLA ASIATICA & PEPTIDI DI SETA",
+      "start": 6.5,
+      "duration": 8.0,
+      "style": "biochroma"
+    }
+  ],
+  "timelineEffects": [
+    {
+      "id": "fx_glow",
+      "name": "Soft Dream Glow",
+      "type": "glow",
+      "start": 6.5,
+      "duration": 4.0
+    }
+  ],
+  "timelineSfx": [
+    {
+      "id": "sfx_pop",
+      "name": "\ud83d\udd14 Chime",
+      "start": 6.5,
+      "duration": 1.5
+    }
+  ]
+}

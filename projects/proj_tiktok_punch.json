@@ -1,0 +1,69 @@
+{
+  "id": "proj_tiktok_punch",
+  "name": "TikTok Punchy Hook Reel.capcut",
+  "aspect_ratio": "9:16",
+  "updated_at": "2026-11-08T04:00:19.209425+00:00",
+  "duration": 15.3,
+  "clips_count": 3,
+  "resolution": "1080x1920",
+  "thumbnail_gradient": "from-amber-500 via-rose-700 to-slate-900",
+  "category": "ugc",
+  "settings": {
+    "preset": "viral_hook",
+    "caption_style": "tiktok_bold",
+    "caption_font": "The-Bold-Font",
+    "caption_size": 46,
+    "grade": "vibrant_pop",
+    "bgm_track": "Synthwave Cyber.mp3",
+    "bgm_volume": 0.2
+  },
+  "clips": [
+    {
+      "id": "vh1",
+      "name": "shocking_stat_hook.mp4",
+      "duration": 4.3,
+      "in_point": 0.0,
+      "out_point": 4.3
+    },
+    {
+      "id": "vh2",
+      "name": "reveal_mechanism.mp4",
+      "duration": 5.8,
+      "in_point": 0.0,
+      "out_point": 5.8
+    },
+    {
+      "id": "vh3",
+      "name": "offer_scarcity_cta.mp4",
+      "duration": 5.2,
+      "in_point": 0.0,
+      "out_point": 5.2
+    }
+  ],
+  "timelineTexts": [
+    {
+      "id": "txt_vh1",
+      "content": "STOP SCROLLING RIGHT NOW",
+      "start": 0.0,
+      "duration": 4.3,
+      "style": "tiktok_bold"
+    }
+  ],
+  "timelineEffects": [
+    {
+      "id": "fx_rgb",
+      "name": "RGB Glitch",
+      "type": "glitch",
+      "start": 0.0,
+      "duration": 1.5
+    }
+  ],
+  "timelineSfx": [
+    {
+      "id": "sfx_glitch",
+      "name": "\u26a1 Shutter 1",
+      "start": 0.0,
+      "duration": 0.8
+    }
+  ]
+}
